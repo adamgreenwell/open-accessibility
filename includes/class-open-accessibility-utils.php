@@ -1,0 +1,241 @@
+<?php
+/**
+ * Utility functions for the Open Accessibility plugin.
+ *
+ * @since      1.0.0
+ * @package    Open_Accessibility
+ */
+
+class Open_Accessibility_Utils {
+
+	/**
+	 * Check if a user agent is a mobile device.
+	 *
+	 * @since    1.0.0
+	 * @return   boolean    True if mobile device, false otherwise.
+	 */
+	public static function is_mobile() {
+		if ( function_exists( 'wp_is_mobile' ) ) {
+			return wp_is_mobile();
+		}
+
+		$user_agent = isset( $_SERVER['HTTP_USER_AGENT'] ) ? $_SERVER['HTTP_USER_AGENT'] : '';
+		$mobile_agents = array(
+			'Android', 'iPhone', 'iPod', 'iPad', 'Windows Phone', 'BlackBerry', 'webOS', 'Mobile'
+		);
+
+		foreach ( $mobile_agents as $agent ) {
+			if ( strpos( $user_agent, $agent ) !== false ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Get the client IP address.
+	 *
+	 * @since    1.0.0
+	 * @return   string    The client IP address.
+	 */
+	public static function get_client_ip() {
+		$ip_headers = array(
+			'HTTP_CLIENT_IP',
+			'HTTP_X_FORWARDED_FOR',
+			'HTTP_X_FORWARDED',
+			'HTTP_X_CLUSTER_CLIENT_IP',
+			'HTTP_FORWARDED_FOR',
+			'HTTP_FORWARDED',
+			'REMOTE_ADDR'
+		);
+
+		foreach ( $ip_headers as $header ) {
+			if ( isset( $_SERVER[ $header ] ) && ! empty( $_SERVER[ $header ] ) && filter_var( $_SERVER[ $header ], FILTER_VALIDATE_IP ) ) {
+				return sanitize_text_field( $_SERVER[ $header ] );
+			}
+		}
+
+		return '127.0.0.1';
+	}
+
+	/**
+	 * Get a list of all available features.
+	 *
+	 * @since    1.0.0
+	 * @return   array    Array of features with IDs and labels.
+	 */
+	public static function get_available_features() {
+		return array(
+			'enable_skip_to_content' => __( 'Skip to Content Link', 'open-accessibility' ),
+			'enable_contrast' => __( 'Contrast Modes', 'open-accessibility' ),
+			'enable_grayscale' => __( 'Grayscale', 'open-accessibility' ),
+			'enable_text_size' => __( 'Text Size Adjustment', 'open-accessibility' ),
+			'enable_readable_font' => __( 'Readable Font', 'open-accessibility' ),
+			'enable_links_underline' => __( 'Links Underline', 'open-accessibility' ),
+			'enable_hide_images' => __( 'Hide Images', 'open-accessibility' ),
+			'enable_reading_guide' => __( 'Reading Guide', 'open-accessibility' ),
+			'enable_focus_outline' => __( 'Focus Outline', 'open-accessibility' ),
+			'enable_line_height' => __( 'Line Height Adjustment', 'open-accessibility' ),
+			'enable_text_align' => __( 'Text Alignment Options', 'open-accessibility' ),
+			'enable_sitemap' => __( 'Sitemap', 'open-accessibility' ),
+			'enable_animations_pause' => __( 'Pause Animations', 'open-accessibility' )
+		);
+	}
+
+	/**
+	 * Get default plugin options.
+	 *
+	 * @since    1.0.0
+	 * @return   array    Default plugin options.
+	 */
+	public static function get_default_options() {
+		return array(
+			// General
+			'disable_widget' => 0,
+			'hide_on_mobile' => 0,
+			'hide_on_desktop' => 0,
+
+			// Design
+			'icon' => 'a11y',
+			'icon_size' => 'medium',
+			'icon_color' => '#ffffff',
+			'bg_color' => '#4054b2',
+
+			// Position
+			'position' => 'left',
+
+			// Features - all enabled by default
+			'enable_skip_to_content' => 1,
+			'enable_contrast' => 1,
+			'enable_grayscale' => 1,
+			'enable_text_size' => 1,
+			'enable_readable_font' => 1,
+			'enable_links_underline' => 1,
+			'enable_hide_images' => 1,
+			'enable_reading_guide' => 1,
+			'enable_focus_outline' => 1,
+			'enable_line_height' => 1,
+			'enable_text_align' => 1,
+			'enable_sitemap' => 1,
+			'enable_animations_pause' => 1,
+
+			// Other settings
+			'skip_to_element_id' => 'content',
+			'sitemap_url' => '',
+			'statement_url' => ''
+		);
+	}
+
+	/**
+	 * Sanitize plugin options.
+	 *
+	 * @since    1.0.0
+	 * @param    array    $input    Raw options array.
+	 * @return   array    Sanitized options array.
+	 */
+	public static function sanitize_options( $input ) {
+		$sanitized = array();
+		$defaults = self::get_default_options();
+
+		// Sanitize checkbox values
+		$checkboxes = array(
+			'disable_widget',
+			'hide_on_mobile',
+			'hide_on_desktop',
+			'enable_skip_to_content',
+			'enable_contrast',
+			'enable_grayscale',
+			'enable_text_size',
+			'enable_readable_font',
+			'enable_links_underline',
+			'enable_hide_images',
+			'enable_reading_guide',
+			'enable_focus_outline',
+			'enable_line_height',
+			'enable_text_align',
+			'enable_sitemap',
+			'enable_animations_pause'
+		);
+
+		foreach ( $checkboxes as $key ) {
+			$sanitized[ $key ] = isset( $input[ $key ] ) ? 1 : 0;
+		}
+
+		// Sanitize text inputs
+		$text_fields = array(
+			'skip_to_element_id'
+		);
+
+		foreach ( $text_fields as $key ) {
+			if ( isset( $input[ $key ] ) ) {
+				$sanitized[ $key ] = sanitize_text_field( $input[ $key ] );
+			} else {
+				$sanitized[ $key ] = $defaults[ $key ];
+			}
+		}
+
+		// Sanitize URLs
+		$url_fields = array(
+			'sitemap_url',
+			'statement_url'
+		);
+
+		foreach ( $url_fields as $key ) {
+			if ( isset( $input[ $key ] ) ) {
+				$sanitized[ $key ] = esc_url_raw( $input[ $key ] );
+			} else {
+				$sanitized[ $key ] = $defaults[ $key ];
+			}
+		}
+
+		// Sanitize colors
+		$color_fields = array(
+			'icon_color',
+			'bg_color'
+		);
+
+		foreach ( $color_fields as $key ) {
+			if ( isset( $input[ $key ] ) ) {
+				$sanitized[ $key ] = sanitize_hex_color( $input[ $key ] );
+			} else {
+				$sanitized[ $key ] = $defaults[ $key ];
+			}
+		}
+
+		// Sanitize select fields
+		if ( isset( $input['icon'] ) ) {
+			$valid_icons = array( 'a11y', 'universal-access', 'wheelchair', 'eye', 'adjust' );
+			$sanitized['icon'] = in_array( $input['icon'], $valid_icons ) ? $input['icon'] : $defaults['icon'];
+		}
+
+		if ( isset( $input['icon_size'] ) ) {
+			$valid_sizes = array( 'small', 'medium', 'large' );
+			$sanitized['icon_size'] = in_array( $input['icon_size'], $valid_sizes ) ? $input['icon_size'] : $defaults['icon_size'];
+		}
+
+		if ( isset( $input['position'] ) ) {
+			$valid_positions = array( 'left', 'right', 'bottom-left', 'bottom-right' );
+			$sanitized['position'] = in_array( $input['position'], $valid_positions ) ? $input['position'] : $defaults['position'];
+		}
+
+		return $sanitized;
+	}
+
+	/**
+	 * Log debug messages if WP_DEBUG is enabled.
+	 *
+	 * @since    1.0.0
+	 * @param    mixed    $message    The message to log.
+	 * @return   void
+	 */
+	public static function log( $message ) {
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG === true ) {
+			if ( is_array( $message ) || is_object( $message ) ) {
+				error_log( print_r( $message, true ) );
+			} else {
+				error_log( $message );
+			}
+		}
+	}
+}

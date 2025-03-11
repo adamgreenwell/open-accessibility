@@ -1,0 +1,49 @@
+/**
+ * Skip to content link styles
+ *
+ * This makes the skip link invisible until it's focused,
+ * then positions it at the top of the screen
+ */
+
+.open-a11y-skip-to-content-link {
+    clip: rect(1px, 1px, 1px, 1px);
+    clip-path: inset(50%);
+    pointer-events: none;
+    position: fixed;
+    height: 1px;
+    width: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-radius: 12px;
+    border: 1px solid #2563eb;
+    background-color: #fff;
+    color: #0c0d0e;
+    text-decoration: none;
+    word-wrap: normal !important;
+    z-index: 100000;
+}
+
+.open-a11y-skip-to-content-link:focus {
+    clip: auto !important;
+    clip-path: none;
+    pointer-events: auto;
+    top: 30px;
+    left: 30px;
+    height: auto;
+    width: auto;
+    padding: 16px 24px;
+}
+
+.open-a11y-skip-to-content-link:focus + .open-a11y-skip-to-content-backdrop {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 9999;
+    background-color: rgba(0, 0, 0, 0.5);
+}
