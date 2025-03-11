@@ -47,7 +47,9 @@
         $('.open-a11y-hide-widget').on('click', hideAccessibilityWidget);
 
         // Action buttons
-        $('.open-a11y-action-button').on('click', handleActionButton);
+        $('.open-a11y-action-button').on('click', function(e) {
+            handleActionButton.call(this, e);
+        });
 
         // Reading guide mouse movement
         $(document).on('mousemove', handleReadingGuide);
@@ -56,7 +58,8 @@
         $(document).on('click', function(e) {
             if (
                 $('.open-a11y-widget-wrapper').hasClass('active') &&
-                !$(e.target).closest('.open-a11y-widget-wrapper').length
+                !$(e.target).closest('.open-a11y-widget-wrapper').length &&
+                !$(e.target).is('.open-a11y-action-button')
             ) {
                 closeAccessibilityPanel();
             }
@@ -95,7 +98,9 @@
     }
 
     // Handle action button clicks
-    function handleActionButton() {
+    function handleActionButton(e) {
+        e.stopPropagation();
+
         const $btn = $(this);
         const action = $btn.data('action');
         const value = $btn.data('value');
@@ -442,8 +447,11 @@
 
     // Check if widget should be hidden based on user preference
     function checkWidgetVisibility() {
-        if (getCookie('open_a11y_hidden') === '1') {
+        const hidden = getCookie('open_a11y_hidden');
+        if (hidden === '1') {
             $('.open-a11y-widget-wrapper').css('display', 'none');
+        } else {
+            $('.open-a11y-widget-wrapper').css('display', ''); // Reset to default display
         }
     }
 
