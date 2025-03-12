@@ -18,7 +18,8 @@ if (!defined('ABSPATH')) {
 			<img src="<?php echo esc_url(OPEN_ACCESSIBILITY_ASSETS_URL . 'images/logo.svg'); ?>" alt="<?php esc_attr_e('Open Accessibility Logo', 'open-accessibility'); ?>">
 		</div>
 		<div class="open-accessibility-admin-version">
-			<?php printf(esc_html__('Version %s', 'open-accessibility'), OPEN_ACCESSIBILITY_VERSION); ?>
+            <?php /* translators: %s: version number */ ?>
+			<?php printf(esc_html__('Version %s', 'open-accessibility'), esc_html(OPEN_ACCESSIBILITY_VERSION)); ?>
 		</div>
 	</div>
 
