@@ -82,7 +82,7 @@ class Open_Accessibility_DB {
 		$table_name = $wpdb->prefix . 'open_accessibility_stats';
 
 		$ip = Open_Accessibility_Utils::get_client_ip();
-		$user_agent = isset( $_SERVER['HTTP_USER_AGENT'] ) ? $_SERVER['HTTP_USER_AGENT'] : '';
+		$user_agent = isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '';
 
 		$result = $wpdb->insert(
 			$table_name,
@@ -149,28 +149,40 @@ class Open_Accessibility_DB {
 
 		// Get total unique sessions
 		$total_sessions = $wpdb->get_var(
-			"SELECT COUNT(DISTINCT session_id) 
-			FROM $table_name 
-			WHERE 1=1 $date_clause $feature_clause"
+			$wpdb->prepare(
+				"SELECT COUNT(DISTINCT session_id) 
+		        FROM `{$wpdb->prefix}open_accessibility_stats` 
+		        WHERE 1=1 %s %s",
+				$date_clause,
+				$feature_clause
+			)
 		);
 
 		// Get feature usage count
 		$feature_counts = $wpdb->get_results(
-			"SELECT feature, COUNT(*) as count, COUNT(DISTINCT session_id) as unique_sessions
-			FROM $table_name 
-			WHERE 1=1 $date_clause $feature_clause
-			GROUP BY feature
-			ORDER BY count DESC",
+			$wpdb->prepare(
+				"SELECT feature, COUNT(*) as count, COUNT(DISTINCT session_id) as unique_sessions
+		        FROM `{$wpdb->prefix}open_accessibility_stats` 
+		        WHERE 1=1 %s %s
+		        GROUP BY feature
+		        ORDER BY count DESC",
+				$date_clause,
+				$feature_clause
+			),
 			ARRAY_A
 		);
 
 		// Get action counts for each feature
 		$action_counts = $wpdb->get_results(
-			"SELECT feature, action, value, COUNT(*) as count
-			FROM $table_name 
-			WHERE 1=1 $date_clause $feature_clause
-			GROUP BY feature, action, value
-			ORDER BY feature, count DESC",
+			$wpdb->prepare(
+				"SELECT feature, action, value, COUNT(*) as count
+		        FROM `{$wpdb->prefix}open_accessibility_stats` 
+		        WHERE 1=1 %s %s
+		        GROUP BY feature, action, value
+		        ORDER BY feature, count DESC",
+				$date_clause,
+				$feature_clause
+			),
 			ARRAY_A
 		);
 
@@ -193,12 +205,12 @@ class Open_Accessibility_DB {
 
 		$table_name = $wpdb->prefix . 'open_accessibility_stats';
 
-		$query = $wpdb->prepare(
-			"DELETE FROM $table_name WHERE created_at < DATE_SUB(NOW(), INTERVAL %d DAY)",
-			$days
+		$result = $wpdb->query(
+			$wpdb->prepare(
+				"DELETE FROM $table_name WHERE created_at < DATE_SUB(NOW(), INTERVAL %d DAY)",
+				$days
+			)
 		);
-
-		$result = $wpdb->query( $query );
 
 		return $result !== false ? $result : 0;
 	}
@@ -214,21 +226,23 @@ class Open_Accessibility_DB {
 
 		$table_name = $wpdb->prefix . 'open_accessibility_stats';
 
-		$size_query = $wpdb->prepare(
-			"SELECT 
-				table_name AS 'table',
-				round(((data_length + index_length) / 1024 / 1024), 2) 'size_mb' 
-			FROM information_schema.TABLES 
-			WHERE table_schema = %s
-			AND table_name = %s",
-			DB_NAME,
-			$table_name
+		// Use $wpdb->prepare() directly within get_row()
+		$size = $wpdb->get_row(
+			$wpdb->prepare(
+				"SELECT 
+                table_name AS 'table',
+                round(((data_length + index_length) / 1024 / 1024), 2) 'size_mb' 
+            FROM information_schema.TABLES 
+            WHERE table_schema = %s
+            AND table_name = %s",
+				DB_NAME,
+				$table_name
+			),
+			ARRAY_A
 		);
 
-		$size = $wpdb->get_row( $size_query, ARRAY_A );
-
-		$count_query = "SELECT COUNT(*) as count FROM $table_name";
-		$count = $wpdb->get_var( $count_query );
+		// For table names, we need to use esc_sql() since we can't use placeholders
+		$count = $wpdb->get_var("SELECT COUNT(*) as count FROM `{$wpdb->prefix}open_accessibility_stats`");
 
 		return array(
 			'table' => $table_name,
