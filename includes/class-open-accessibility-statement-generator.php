@@ -22,6 +22,17 @@ class Open_Accessibility_Statement_Generator {
 	 * @return string HTML content of the accessibility statement
 	 */
 	public static function generate_statement($data) {
+
+		// Make sure we're handling this specific AJAX action
+		if ($_POST['action'] !== 'open_accessibility_generate_statement') {
+			return;
+		}
+
+		// Check for nonce
+		if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'open_accessibility_nonce')) {
+			wp_send_json_error(array('message' => __('Security check failed.', 'open-accessibility')));
+		}
+
 		// Set defaults
 		$data = wp_parse_args($data, [
 			'org_name' => get_bloginfo('name'),
