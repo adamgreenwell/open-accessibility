@@ -719,7 +719,8 @@ class Open_Accessibility_Admin {
 			'enable_line_height',
 			'enable_text_align',
 			'enable_sitemap',
-			'enable_animations_pause'
+			'enable_animations_pause',
+			'enable_debug',
 		);
 
 		foreach ($checkboxes as $key) {
