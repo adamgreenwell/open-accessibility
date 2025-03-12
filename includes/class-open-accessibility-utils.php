@@ -19,7 +19,7 @@ class Open_Accessibility_Utils {
 			return wp_is_mobile();
 		}
 
-		$user_agent = isset( $_SERVER['HTTP_USER_AGENT'] ) ? $_SERVER['HTTP_USER_AGENT'] : '';
+		$user_agent = isset( $_SERVER['HTTP_USER_AGENT'] ) ? wp_unslash($_SERVER['HTTP_USER_AGENT']) : '';
 		$mobile_agents = array(
 			'Android', 'iPhone', 'iPod', 'iPad', 'Windows Phone', 'BlackBerry', 'webOS', 'Mobile'
 		);
@@ -51,8 +51,8 @@ class Open_Accessibility_Utils {
 		);
 
 		foreach ( $ip_headers as $header ) {
-			if ( isset( $_SERVER[ $header ] ) && ! empty( $_SERVER[ $header ] ) && filter_var( $_SERVER[ $header ], FILTER_VALIDATE_IP ) ) {
-				return sanitize_text_field( $_SERVER[ $header ] );
+			if ( isset( $_SERVER[ $header ] ) && ! empty( $_SERVER[ $header ] ) && filter_var( wp_unslash($_SERVER[ $header ]), FILTER_VALIDATE_IP ) ) {
+				return sanitize_text_field( wp_unslash($_SERVER[ $header ] ) );
 			}
 		}
 
