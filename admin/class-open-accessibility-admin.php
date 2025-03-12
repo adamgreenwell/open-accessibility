@@ -93,7 +93,14 @@ class Open_Accessibility_Admin {
 					'ajax_error' => __('An error occurred. Please try again.', 'open-accessibility'),
 					'accessibility_options' => __('Accessibility Options', 'open-accessibility'),
 					'preview_note' => __('This is a preview of the accessibility widget with your current settings.', 'open-accessibility'),
-					'widget_preview' => __('Widget Preview', 'open-accessibility')
+					'widget_preview' => __('Widget Preview', 'open-accessibility'),
+					'view_logs' => __('View Debug Logs', 'open-accessibility'),
+					'hide_logs' => __('Hide Debug Logs', 'open-accessibility'),
+					'loading' => __('Loading logs...', 'open-accessibility'),
+					'no_logs' => __('No log entries found.', 'open-accessibility'),
+					'error_getting_logs' => __('Error retrieving log files.', 'open-accessibility'),
+					'confirm_clear_logs' => __('Are you sure you want to clear all debug logs? This action cannot be undone.', 'open-accessibility'),
+					'error_clearing_logs' => __('Error clearing log files.', 'open-accessibility')
 				)
 			)
 		);
@@ -177,7 +184,21 @@ class Open_Accessibility_Admin {
 			'open-accessibility-settings'
 		);
 
-		// Register fields - only a few examples shown for brevity
+		// Add a new section for Advanced Settings
+		add_settings_section(
+			'open_accessibility_advanced',
+			__('Advanced Settings', 'open-accessibility'),
+			array($this, 'advanced_section_callback'),
+			'open-accessibility-settings'
+		);
+
+		// Add a new section for Advanced Settings
+		add_settings_section(
+			'open_accessibility_advanced',
+			__('Advanced Settings', 'open-accessibility'),
+			array($this, 'advanced_section_callback'),
+			'open-accessibility-settings'
+		);
 
 		// General Settings fields
 		add_settings_field(
@@ -353,6 +374,20 @@ class Open_Accessibility_Admin {
 			'open-accessibility-settings',
 			'open_accessibility_statement'
 		);
+
+		// Advanced Settings field
+		add_settings_field(
+			'enable_debug',
+			__('Enable Debug Mode', 'open-accessibility'),
+			array($this, 'checkbox_field_callback'),
+			'open-accessibility-settings',
+			'open_accessibility_advanced',
+			array(
+				'id' => 'enable_debug',
+				'label' => __('Enable debug logging for troubleshooting', 'open-accessibility'),
+				'description' => __('When enabled, debug information will be logged to a file in the plugin directory.', 'open-accessibility')
+			)
+		);
 	}
 
 	/**
@@ -388,6 +423,13 @@ class Open_Accessibility_Admin {
 	 */
 	public function statement_section_callback() {
 		echo '<p>' . esc_html(__('Configure your accessibility statement.', 'open-accessibility')) . '</p>';
+	}
+
+	/**
+	 * Advanced section callback
+	 */
+	public function advanced_section_callback() {
+		echo '<p>' . esc_html__('Advanced settings for the accessibility widget.', 'open-accessibility') . '</p>';
 	}
 
 	/**
