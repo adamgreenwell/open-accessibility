@@ -29,7 +29,7 @@ class Open_Accessibility_Statement_Generator {
 		}
 
 		// Check for nonce
-		if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'open_accessibility_nonce')) {
+		if (!isset($_POST['nonce']) || !wp_verify_nonce( wp_unslash($_POST['nonce']), 'open_accessibility_nonce')) {
 			wp_send_json_error(array('message' => __('Security check failed.', 'open-accessibility')));
 		}
 
