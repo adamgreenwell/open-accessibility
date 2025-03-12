@@ -708,7 +708,7 @@ class Open_Accessibility_Admin {
 
 		// Sanitize select fields
 		if (isset($input['icon'])) {
-			$valid_icons = array('a11y', 'universal-access', 'accessible-icon-project', 'visually-impaired', 'service-dog', 'international');
+			$valid_icons = array('open-accessibility', 'universal-access', 'accessible-icon-project', 'visually-impaired', 'service-dog', 'international');
 			$sanitized['icon'] = in_array($input['icon'], $valid_icons) ? $input['icon'] : 'a11y';
 		}
 
