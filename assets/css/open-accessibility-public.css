@@ -290,71 +290,14 @@
 
 /* Icons */
 .open-a11y-icon {
-    display: inline-block;
-    width: 1em;
-    height: 1em;
-    vertical-align: -0.125em;
-    font-size: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.open-a11y-icon.icon-open-accessibility {
-    background-image: url('../images/logo.svg');
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
+.open-a11y-icon svg {
     width: 1em;
     height: 1em;
-    display: inline-block;
-}
-
-.open-a11y-icon.icon-universal-access {
-    background-image: url('../images/icon-accessibility.svg');
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-    width: 1em;
-    height: 1em;
-    display: inline-block;
-}
-
-.open-a11y-icon.icon-accessible-icon-project {
-    background-image: url('../images/icon-accessible-icon-project.svg');
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-    width: 1em;
-    height: 1em;
-    display: inline-block;
-}
-
-.open-a11y-icon.icon-visually-impaired {
-    background-image: url('../images/icon-visually-impaired.svg');
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-    width: 1em;
-    height: 1em;
-    display: inline-block;
-}
-
-.open-a11y-icon.icon-service-dog {
-    background-image: url('../images/icon-service-dog.svg');
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-    width: 1em;
-    height: 1em;
-    display: inline-block;
-}
-
-.open-a11y-icon.icon-international {
-    background-image: url('../images/icon-international.svg');
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-    width: 1em;
-    height: 1em;
-    display: inline-block;
 }
 
 /* Reset button */
