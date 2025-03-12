@@ -75,6 +75,28 @@ class Open_Accessibility_Admin {
 			$this->version,
 			false
 		);
+
+		wp_localize_script(
+			$this->plugin_name,
+			'open_accessibility_admin',
+			array(
+				'nonce' => wp_create_nonce('open_a11y_nonce'),
+				'i18n' => array(
+					'invalid_email' => __('Please enter a valid email address.', 'open-accessibility'),
+					'generating' => __('Generating...', 'open-accessibility'),
+					'create_statement' => __('Create Statement', 'open-accessibility'),
+					'view_statement' => __('Statement created successfully. Would you like to view it now?', 'open-accessibility'),
+					'copy_statement' => __('Copy Statement', 'open-accessibility'),
+					'close' => __('Close', 'open-accessibility'),
+					'copied_statement' => __('Statement copied to clipboard.', 'open-accessibility'),
+					'dismiss_notice' => __('Dismiss this notice.', 'open-accessibility'),
+					'ajax_error' => __('An error occurred. Please try again.', 'open-accessibility'),
+					'accessibility_options' => __('Accessibility Options', 'open-accessibility'),
+					'preview_note' => __('This is a preview of the accessibility widget with your current settings.', 'open-accessibility'),
+					'widget_preview' => __('Widget Preview', 'open-accessibility')
+				)
+			)
+		);
 	}
 
 	/**
