@@ -93,6 +93,11 @@ class Open_Accessibility {
 		 */
 		require_once OPEN_ACCESSIBILITY_PLUGIN_DIR . 'includes/database/class-open-accessibility-db.php';
 
+		/**
+		 * AJAX handlers
+		 */
+		require_once OPEN_ACCESSIBILITY_PLUGIN_DIR . 'includes/ajax/class-open-accessibility-ajax.php';
+
 		$this->loader = new Open_Accessibility_Loader();
 	}
 
