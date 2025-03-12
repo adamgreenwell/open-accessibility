@@ -125,13 +125,15 @@ function open_a11y_get_icon_svg( $icon_type, $color ) {
 
 <div class="<?php echo esc_attr(implode(' ', $widget_classes)); ?>">
 	<!-- Accessibility Widget Toggle Button -->
-	<button
-		aria-label="<?php esc_attr_e('Open accessibility tools', 'open-accessibility'); ?>"
-		class="open-a11y-toggle-button"
-		style="background-color: <?php echo esc_attr($bg_color); ?>; color: <?php echo esc_attr($icon_color); ?>;"
-	>
-		<span class="open-a11y-icon icon-<?php echo esc_attr($icon); ?>" aria-hidden="true"></span>
-	</button>
+    <button
+            aria-label="<?php esc_attr_e('Open accessibility tools', 'open-accessibility'); ?>"
+            class="open-a11y-toggle-button"
+            style="background-color: <?php echo esc_attr($bg_color); ?>; color: <?php echo esc_attr($icon_color); ?>;"
+    >
+    <span class="open-a11y-icon">
+        <?php echo open_a11y_get_icon_svg($icon, $icon_color); ?>
+    </span>
+    </button>
 
 	<!-- Accessibility Widget Panel -->
 	<div class="open-a11y-widget-panel" aria-hidden="true">
