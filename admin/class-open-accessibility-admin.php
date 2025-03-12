@@ -300,6 +300,7 @@ class Open_Accessibility_Admin {
 				'open_accessibility_features',
 				array(
 					'id' => $id,
+					/* translators: %s: feature name */
 					'label' => sprintf(__('Enable %s feature', 'open-accessibility'), $label)
 				)
 			);
@@ -358,35 +359,35 @@ class Open_Accessibility_Admin {
 	 * General section callback
 	 */
 	public function general_section_callback() {
-		echo '<p>' . __('Configure the general settings for the accessibility widget.', 'open-accessibility') . '</p>';
+		echo '<p>' . esc_html(__('Configure the general settings for the accessibility widget.', 'open-accessibility')) . '</p>';
 	}
 
 	/**
 	 * Design section callback
 	 */
 	public function design_section_callback() {
-		echo '<p>' . __('Customize the appearance of the accessibility widget.', 'open-accessibility') . '</p>';
+		echo '<p>' . esc_html(__('Customize the appearance of the accessibility widget.', 'open-accessibility')) . '</p>';
 	}
 
 	/**
 	 * Position section callback
 	 */
 	public function position_section_callback() {
-		echo '<p>' . __('Set the position of the accessibility widget on your website.', 'open-accessibility') . '</p>';
+		echo '<p>' . esc_html(__('Set the position of the accessibility widget on your website.', 'open-accessibility')) . '</p>';
 	}
 
 	/**
 	 * Features section callback
 	 */
 	public function features_section_callback() {
-		echo '<p>' . __('Enable or disable specific accessibility features.', 'open-accessibility') . '</p>';
+		echo '<p>' . esc_html(__('Enable or disable specific accessibility features.', 'open-accessibility')) . '</p>';
 	}
 
 	/**
 	 * Statement section callback
 	 */
 	public function statement_section_callback() {
-		echo '<p>' . __('Configure your accessibility statement.', 'open-accessibility') . '</p>';
+		echo '<p>' . esc_html(__('Configure your accessibility statement.', 'open-accessibility')) . '</p>';
 	}
 
 	/**
@@ -606,31 +607,31 @@ class Open_Accessibility_Admin {
 	 * Generate statement callback
 	 */
 	public function generate_statement_callback() {
-		echo '<p>' . __('Generate an accessibility statement for your website.', 'open-accessibility') . '</p>';
-		echo '<a href="#" class="button button-primary" id="generate-statement">' . __('Generate Statement', 'open-accessibility') . '</a>';
+		echo '<p>' . esc_html(__('Generate an accessibility statement for your website.', 'open-accessibility')) . '</p>';
+		echo '<a href="#" class="button button-primary" id="generate-statement">' . esc_html(__('Generate Statement', 'open-accessibility')) . '</a>';
 		echo '<div id="statement-generator-container" style="display:none;">';
 		// Form for statement generator
 		echo '<div class="statement-form">';
 
 		// Organization name
 		echo '<div class="form-field">';
-		echo '<label for="statement-org-name">' . __('Organization/Website Name', 'open-accessibility') . ':</label>';
+		echo '<label for="statement-org-name">' . esc_html(__('Organization/Website Name', 'open-accessibility')) . ':</label>';
 		echo '<input type="text" id="statement-org-name" name="statement_org_name" class="regular-text">';
 		echo '</div>';
 
 		// Contact email
 		echo '<div class="form-field">';
-		echo '<label for="statement-contact-email">' . __('Contact Email', 'open-accessibility') . ':</label>';
+		echo '<label for="statement-contact-email">' . esc_html(__('Contact Email', 'open-accessibility')) . ':</label>';
 		echo '<input type="email" id="statement-contact-email" name="statement_contact_email" class="regular-text">';
 		echo '</div>';
 
 		// Conformance status
 		echo '<div class="form-field">';
-		echo '<label for="statement-conformance">' . __('Conformance Status', 'open-accessibility') . ':</label>';
+		echo '<label for="statement-conformance">' . esc_html(__('Conformance Status', 'open-accessibility')) . ':</label>';
 		echo '<select id="statement-conformance" name="statement_conformance">';
-		echo '<option value="A">' . __('WCAG 2.1 Level A', 'open-accessibility') . '</option>';
-		echo '<option value="AA" selected>' . __('WCAG 2.1 Level AA', 'open-accessibility') . '</option>';
-		echo '<option value="AAA">' . __('WCAG 2.1 Level AAA', 'open-accessibility') . '</option>';
+		echo '<option value="A">' . esc_html(__('WCAG 2.1 Level A', 'open-accessibility')) . '</option>';
+		echo '<option value="AA" selected>' . esc_html(__('WCAG 2.1 Level AA', 'open-accessibility')) . '</option>';
+		echo '<option value="AAA">' . esc_html(__('WCAG 2.1 Level AAA', 'open-accessibility')) . '</option>';
 		echo '</select>';
 		echo '</div>';
 
@@ -638,14 +639,14 @@ class Open_Accessibility_Admin {
 		echo '<div class="form-field">';
 		echo '<label>';
 		echo '<input type="checkbox" id="statement-create-page" name="statement_create_page" checked>';
-		echo __('Create a new page for the statement', 'open-accessibility');
+		echo esc_html(__('Create a new page for the statement', 'open-accessibility'));
 		echo '</label>';
 		echo '</div>';
 
 		// Submit button
 		echo '<div class="form-field">';
-		echo '<button type="button" class="button button-primary" id="create-statement">' . __('Create Statement', 'open-accessibility') . '</button>';
-		echo '<button type="button" class="button" id="cancel-statement">' . __('Cancel', 'open-accessibility') . '</button>';
+		echo '<button type="button" class="button button-primary" id="create-statement">' . esc_html(__('Create Statement', 'open-accessibility')) . '</button>';
+		echo '<button type="button" class="button" id="cancel-statement">' . esc_html(__('Cancel', 'open-accessibility')) . '</button>';
 		echo '</div>';
 
 		echo '</div>'; // .statement-form
