@@ -97,6 +97,48 @@
     color: #555;
 }
 
+.icon-open-accessibility {
+    background-image: url('../images/logo.svg');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.icon-universal-access {
+    background-image: url('../images/icon-accessibility.svg');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.icon-accessible-icon-project {
+    background-image: url('../images/icon-accessible-icon-project.svg');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.icon-visually-impaired {
+    background-image: url('../images/icon-visually-impaired.svg');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.icon-service-dog {
+    background-image: url('../images/icon-service-dog.svg');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.icon-international {
+    background-image: url('../images/icon-international.svg');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
 /* Position selector */
 .position-selector {
     display: flex;
