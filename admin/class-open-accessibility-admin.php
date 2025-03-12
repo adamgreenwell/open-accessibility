@@ -475,11 +475,12 @@ class Open_Accessibility_Admin {
 		$selected = isset($options['icon']) ? $options['icon'] : 'a11y';
 
 		$icons = array(
-			'a11y' => __('Accessibility Icon', 'open-accessibility'),
+			'open-accessibility' => __('Open Accessibility Logo', 'open-accessibility'),
 			'universal-access' => __('Universal Access', 'open-accessibility'),
-			'wheelchair' => __('Wheelchair', 'open-accessibility'),
-			'eye' => __('Eye', 'open-accessibility'),
-			'adjust' => __('Adjust', 'open-accessibility')
+			'accessible-icon-project' => __('Accessible Icon Project', 'open-accessibility'),
+			'visually-impaired' => __('Visually Impaired', 'open-accessibility'),
+			'service-dog' => __('Service Dog', 'open-accessibility'),
+			'international' => __('International Symbol', 'open-accessibility'),
 		);
 
 		echo '<div class="icon-selector">';
@@ -624,7 +625,7 @@ class Open_Accessibility_Admin {
 
 		// Sanitize select fields
 		if (isset($input['icon'])) {
-			$valid_icons = array('a11y', 'universal-access', 'wheelchair', 'eye', 'adjust');
+			$valid_icons = array('a11y', 'universal-access', 'accessible-icon-project', 'visually-impaired', 'service-dog', 'international');
 			$sanitized['icon'] = in_array($input['icon'], $valid_icons) ? $input['icon'] : 'a11y';
 		}
 
