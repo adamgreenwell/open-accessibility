@@ -131,7 +131,38 @@ function open_accessibility_get_icon_svg( $icon_type, $color ) {
             style="background-color: <?php echo esc_attr($bg_color); ?>; color: <?php echo esc_attr($icon_color); ?>;"
     >
     <span class="open-accessibility-icon">
-        <?php echo open_accessibility_get_icon_svg($icon, $icon_color); ?>
+        <?php echo wp_kses(
+            open_accessibility_get_icon_svg($icon, $icon_color),
+	        array(
+		        'svg' => array(
+			        'xmlns' => array(),
+			        'viewBox' => array(),
+			        'width' => array(),
+			        'height' => array(),
+			        'aria-hidden' => array()
+		        ),
+		        'g' => array(
+			        'transform' => array(),
+			        'fill' => array()
+		        ),
+		        'path' => array(
+			        'd' => array(),
+			        'fill' => array(),
+			        'stroke' => array(),
+			        'id' => array(),
+			        'data-color' => array()
+		        ),
+		        'circle' => array(
+			        'cx' => array(),
+			        'cy' => array(),
+			        'r' => array(),
+			        'fill' => array(),
+			        'data-color' => array()
+		        ),
+		        'title' => array(),
+		        'desc' => array()
+	        )
+        ); ?>
     </span>
     </button>
 
