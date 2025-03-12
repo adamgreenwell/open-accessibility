@@ -36,6 +36,7 @@ if (!defined('ABSPATH')) {
 			<a href="#tab-position" class="nav-tab"><?php esc_html_e('Position', 'open-accessibility'); ?></a>
 			<a href="#tab-features" class="nav-tab"><?php esc_html_e('Features', 'open-accessibility'); ?></a>
 			<a href="#tab-statement" class="nav-tab"><?php esc_html_e('Statement', 'open-accessibility'); ?></a>
+            <a href="#tab-advanced" class="nav-tab"><?php esc_html_e('Advanced', 'open-accessibility'); ?></a>
 		</nav>
 	</div>
 
@@ -87,6 +88,49 @@ if (!defined('ABSPATH')) {
 					<?php do_settings_fields('open-accessibility-settings', 'open_accessibility_statement'); ?>
 				</table>
 			</div>
+
+            <!-- Advanced Tab -->
+            <div id="tab-advanced" class="open-accessibility-tab">
+                <h2><?php esc_html_e('Advanced Settings', 'open-accessibility'); ?></h2>
+
+                <div class="open-accessibility-debug-controls">
+                    <p>
+						<?php
+						$options = get_option('open_accessibility_options', array());
+						$debug_enabled = isset($options['enable_debug']) && $options['enable_debug'];
+
+						if ($debug_enabled):
+							?>
+                            <span class="open-accessibility-debug-status enabled"><?php esc_html_e('Debug mode is enabled', 'open-accessibility'); ?></span>
+						<?php else: ?>
+                            <span class="open-accessibility-debug-status disabled"><?php esc_html_e('Debug mode is disabled', 'open-accessibility'); ?></span>
+						<?php endif; ?>
+                    </p>
+
+                    <p>
+                        <button type="button" id="open-accessibility-view-logs" class="button button-secondary">
+							<?php esc_html_e('View Debug Logs', 'open-accessibility'); ?>
+                        </button>
+
+                        <button type="button" id="open-accessibility-clear-logs" class="button">
+							<?php esc_html_e('Clear Debug Logs', 'open-accessibility'); ?>
+                        </button>
+                    </p>
+                </div>
+
+                <div id="open-accessibility-log-viewer" style="display: none;">
+                    <div class="open-accessibility-log-content">
+                        <pre class="open-accessibility-log-entries"></pre>
+                    </div>
+                </div>
+
+                <hr>
+
+                <h3><?php esc_html_e('Advanced Settings', 'open-accessibility'); ?></h3>
+                <table class="form-table">
+					<?php do_settings_fields('open-accessibility-settings', 'open_accessibility_advanced'); ?>
+                </table>
+            </div>
 		</div>
 
 		<?php submit_button(); ?>
