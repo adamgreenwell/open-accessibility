@@ -47,6 +47,7 @@ class Open_Accessibility_Statement_Generator {
 
 		// Introduction
 		$statement .= '<p>' . sprintf(
+				/* translators: %1$s: organization name */
 				esc_html__('%1$s is committed to ensuring digital accessibility for people with disabilities. We are continually improving the user experience for everyone, and applying the relevant accessibility standards.', 'open-accessibility'),
 				'<strong>' . esc_html($org_name) . '</strong>'
 			) . '</p>';
@@ -54,6 +55,7 @@ class Open_Accessibility_Statement_Generator {
 		// Conformance status
 		$statement .= '<h2>' . esc_html__('Conformance Status', 'open-accessibility') . '</h2>';
 		$statement .= '<p>' . sprintf(
+				/* translators: %1$s: WCAG conformance level */
 				esc_html__('The Web Content Accessibility Guidelines (WCAG) defines requirements for designers and developers to improve accessibility for people with disabilities. It defines three levels of conformance: Level A, Level AA, and Level AAA. %1$s is partially conformant with WCAG 2.1 level %2$s. Partially conformant means that some parts of the content do not fully conform to the accessibility standard.', 'open-accessibility'),
 				esc_html($org_name),
 				esc_html($conformance_level)
@@ -62,6 +64,7 @@ class Open_Accessibility_Statement_Generator {
 		// Feedback
 		$statement .= '<h2>' . esc_html__('Feedback', 'open-accessibility') . '</h2>';
 		$statement .= '<p>' . sprintf(
+			/* translators: %1$s: organization name */
 				esc_html__('We welcome your feedback on the accessibility of %1$s. Please let us know if you encounter accessibility barriers on %1$s:', 'open-accessibility'),
 				esc_html($org_name)
 			) . '</p>';
@@ -69,6 +72,7 @@ class Open_Accessibility_Statement_Generator {
 		// Contact information
 		$statement .= '<ul>';
 		$statement .= '<li>' . sprintf(
+				/* translators: %s: contact email */
 				esc_html__('Email: %s', 'open-accessibility'),
 				'<a href="mailto:' . esc_attr($contact_email) . '">' . esc_html($contact_email) . '</a>'
 			) . '</li>';
@@ -79,6 +83,7 @@ class Open_Accessibility_Statement_Generator {
 		// Assessment approach
 		$statement .= '<h2>' . esc_html__('Assessment Approach', 'open-accessibility') . '</h2>';
 		$statement .= '<p>' . sprintf(
+				/* translators: %s: organization name */
 				esc_html__('%s assessed the accessibility of its website by the following approaches:', 'open-accessibility'),
 				esc_html($org_name)
 			) . '</p>';
@@ -113,6 +118,7 @@ class Open_Accessibility_Statement_Generator {
 		// Assessment date
 		$statement .= '<h2>' . esc_html__('Date', 'open-accessibility') . '</h2>';
 		$statement .= '<p>' . sprintf(
+				/* translators: %s: accessibility statement creation date */
 				esc_html__('This statement was created on %s.', 'open-accessibility'),
 				esc_html($date)
 			) . '</p>';
