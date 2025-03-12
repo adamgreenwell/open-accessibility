@@ -144,6 +144,7 @@ class Open_Accessibility_Ajax {
 
 		// Return results
 		wp_send_json_success( array(
+			/* translators: %d: number of records */
 			'message' => sprintf( __( '%d records deleted successfully.', 'open-accessibility' ), $deleted ),
 			'deleted' => $deleted,
 			'table_info' => $table_info
