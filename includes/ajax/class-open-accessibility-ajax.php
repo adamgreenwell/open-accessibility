@@ -22,6 +22,10 @@ class Open_Accessibility_Ajax {
 		// Frontend AJAX actions
 		add_action( 'wp_ajax_nopriv_open_accessibility_log_usage', array( __CLASS__, 'log_usage' ) );
 		add_action( 'wp_ajax_open_accessibility_log_usage', array( __CLASS__, 'log_usage' ) );
+
+		// Debug log handlers
+		add_action('wp_ajax_open_accessibility_get_debug_logs', array(__CLASS__, 'get_debug_logs'));
+		add_action('wp_ajax_open_accessibility_clear_debug_logs', array(__CLASS__, 'clear_debug_logs'));
 	}
 
 	/**
@@ -189,6 +193,70 @@ class Open_Accessibility_Ajax {
 			wp_send_json_success();
 		} else {
 			wp_send_json_error( array( 'message' => __( 'Failed to log usage.', 'open-accessibility' ) ) );
+		}
+	}
+
+	/**
+	 * Get debug logs.
+	 *
+	 * @since    1.0.0
+	 */
+	public static function get_debug_logs() {
+		// Check for nonce
+		if (!isset($_POST['nonce']) || !wp_verify_nonce(wp_unslash($_POST['nonce']), 'open_accessibility_nonce')) {
+			wp_send_json_error(array('message' => __('Security check failed.', 'open-accessibility')));
+		}
+
+		// Check for permissions
+		if (!current_user_can('manage_options')) {
+			wp_send_json_error(array('message' => __('You do not have permission to do this.', 'open-accessibility')));
+		}
+
+		$log_dir = OPEN_ACCESSIBILITY_PLUGIN_DIR . 'logs';
+		$today_log = $log_dir . '/debug-' . date('Y-m-d') . '.log';
+
+		if (file_exists($today_log)) {
+			$logs = file_get_contents($today_log);
+			wp_send_json_success(array('logs' => esc_html($logs)));
+		} else {
+			wp_send_json_success(array('logs' => ''));
+		}
+	}
+
+	/**
+	 * Clear debug logs.
+	 *
+	 * @since    1.0.0
+	 */
+	public static function clear_debug_logs() {
+		// Check for nonce
+		if (!isset($_POST['nonce']) || !wp_verify_nonce(wp_unslash($_POST['nonce']), 'open_accessibility_nonce')) {
+			wp_send_json_error(array('message' => __('Security check failed.', 'open-accessibility')));
+		}
+
+		// Check for permissions
+		if (!current_user_can('manage_options')) {
+			wp_send_json_error(array('message' => __('You do not have permission to do this.', 'open-accessibility')));
+		}
+
+		$log_dir = OPEN_ACCESSIBILITY_PLUGIN_DIR . 'logs';
+
+		if (is_dir($log_dir)) {
+			$files = glob($log_dir . '/debug-*.log');
+			$count = 0;
+
+			foreach ($files as $file) {
+				if (unlink($file)) {
+					$count++;
+				}
+			}
+
+			wp_send_json_success(array(
+				/* translators: %d: number of log files */
+				'message' => sprintf(__('%d log files cleared successfully.', 'open-accessibility'), $count)
+			));
+		} else {
+			wp_send_json_success(array('message' => __('No log files found.', 'open-accessibility')));
 		}
 	}
 }
