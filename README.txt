@@ -1,6 +1,6 @@
 === Open Accessibility ===
 Contributors: adamgreenwell
-Tags: accessibility, a11y, wcag, ada, disability, contrast, readable, font size
+Tags: accessibility, accessibility, wcag, ada, disability, contrast, readable, font size
 Requires at least: 4.1
 Tested up to: 6.4
 Stable tag: 1.0.0

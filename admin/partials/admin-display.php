@@ -13,22 +13,22 @@ if (!defined('ABSPATH')) {
 
 <div class="wrap">
 	<h1><?php esc_html_e('Open Accessibility Settings', 'open-accessibility'); ?></h1>
-	<div class="open-a11y-admin-header">
-		<div class="open-a11y-admin-logo">
-			<img src="<?php echo esc_url(OPEN_A11Y_ASSETS_URL . 'images/logo.svg'); ?>" alt="<?php esc_attr_e('Open Accessibility Logo', 'open-accessibility'); ?>">
+	<div class="open-accessibility-admin-header">
+		<div class="open-accessibility-admin-logo">
+			<img src="<?php echo esc_url(OPEN_ACCESSIBILITY_ASSETS_URL . 'images/logo.svg'); ?>" alt="<?php esc_attr_e('Open Accessibility Logo', 'open-accessibility'); ?>">
 		</div>
-		<div class="open-a11y-admin-version">
-			<?php printf(esc_html__('Version %s', 'open-accessibility'), OPEN_A11Y_VERSION); ?>
+		<div class="open-accessibility-admin-version">
+			<?php printf(esc_html__('Version %s', 'open-accessibility'), OPEN_ACCESSIBILITY_VERSION); ?>
 		</div>
 	</div>
 
-	<div class="open-a11y-admin-description">
+	<div class="open-accessibility-admin-description">
 		<p>
 			<?php esc_html_e('Configure the Open Accessibility widget to improve the accessibility of your website. This plugin helps you comply with accessibility standards and regulations like WCAG 2.1 and ADA.', 'open-accessibility'); ?>
 		</p>
 	</div>
 
-	<div class="open-a11y-admin-nav">
+	<div class="open-accessibility-admin-nav">
 		<nav class="nav-tab-wrapper">
 			<a href="#tab-general" class="nav-tab nav-tab-active"><?php esc_html_e('General', 'open-accessibility'); ?></a>
 			<a href="#tab-design" class="nav-tab"><?php esc_html_e('Design', 'open-accessibility'); ?></a>
@@ -41,9 +41,9 @@ if (!defined('ABSPATH')) {
 	<form method="post" action="options.php">
 		<?php settings_fields('open_accessibility_options_group'); ?>
 
-		<div class="open-a11y-admin-content">
+		<div class="open-accessibility-admin-content">
 			<!-- General Tab -->
-			<div id="tab-general" class="open-a11y-tab active">
+			<div id="tab-general" class="open-accessibility-tab active">
 				<h2><?php esc_html_e('General Settings', 'open-accessibility'); ?></h2>
 				<table class="form-table">
 					<?php do_settings_fields('open-accessibility-settings', 'open_accessibility_general'); ?>
@@ -51,7 +51,7 @@ if (!defined('ABSPATH')) {
 			</div>
 
 			<!-- Design Tab -->
-			<div id="tab-design" class="open-a11y-tab">
+			<div id="tab-design" class="open-accessibility-tab">
 				<h2><?php esc_html_e('Widget Design', 'open-accessibility'); ?></h2>
 				<table class="form-table">
 					<?php do_settings_fields('open-accessibility-settings', 'open_accessibility_design'); ?>
@@ -64,7 +64,7 @@ if (!defined('ABSPATH')) {
 			</div>
 
 			<!-- Position Tab -->
-			<div id="tab-position" class="open-a11y-tab">
+			<div id="tab-position" class="open-accessibility-tab">
 				<h2><?php esc_html_e('Widget Position', 'open-accessibility'); ?></h2>
 				<table class="form-table">
 					<?php do_settings_fields('open-accessibility-settings', 'open_accessibility_position'); ?>
@@ -72,7 +72,7 @@ if (!defined('ABSPATH')) {
 			</div>
 
 			<!-- Features Tab -->
-			<div id="tab-features" class="open-a11y-tab">
+			<div id="tab-features" class="open-accessibility-tab">
 				<h2><?php esc_html_e('Widget Features', 'open-accessibility'); ?></h2>
 				<table class="form-table">
 					<?php do_settings_fields('open-accessibility-settings', 'open_accessibility_features'); ?>
@@ -80,7 +80,7 @@ if (!defined('ABSPATH')) {
 			</div>
 
 			<!-- Statement Tab -->
-			<div id="tab-statement" class="open-a11y-tab">
+			<div id="tab-statement" class="open-accessibility-tab">
 				<h2><?php esc_html_e('Accessibility Statement', 'open-accessibility'); ?></h2>
 				<table class="form-table">
 					<?php do_settings_fields('open-accessibility-settings', 'open_accessibility_statement'); ?>
@@ -91,8 +91,8 @@ if (!defined('ABSPATH')) {
 		<?php submit_button(); ?>
 	</form>
 
-	<div class="open-a11y-admin-footer">
-        <div class="open-a11y-admin-resources">
+	<div class="open-accessibility-admin-footer">
+        <div class="open-accessibility-admin-resources">
             <h3><?php esc_html_e('Resources', 'open-accessibility'); ?></h3>
             <ul>
                 <li><a href="https://www.w3.org/WAI/standards-guidelines/wcag/" target="_blank"><?php esc_html_e('WCAG Guidelines', 'open-accessibility'); ?></a></li>
@@ -101,7 +101,7 @@ if (!defined('ABSPATH')) {
             </ul>
         </div>
 
-        <div class="open-a11y-admin-disclaimer">
+        <div class="open-accessibility-admin-disclaimer">
             <p><strong><?php esc_html_e('Disclaimer:', 'open-accessibility'); ?></strong> <?php esc_html_e('While this plugin helps improve your website\'s accessibility, it does not guarantee full compliance with all accessibility standards and regulations. Regular accessibility audits and testing with real users are recommended.', 'open-accessibility'); ?></p>
         </div>
     </div>
@@ -120,7 +120,7 @@ if (!defined('ABSPATH')) {
 
                 // Show selected tab content
                 const target = $(this).attr('href');
-                $('.open-a11y-tab').removeClass('active');
+                $('.open-accessibility-tab').removeClass('active');
                 $(target).addClass('active');
             });
         });

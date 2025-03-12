@@ -31,7 +31,7 @@ class Open_Accessibility_Ajax {
 	 */
 	public static function generate_statement() {
 		// Check for nonce
-		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'open_a11y_nonce' ) ) {
+		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'open_accessibility_nonce' ) ) {
 			wp_send_json_error( array( 'message' => __( 'Security check failed.', 'open-accessibility' ) ) );
 		}
 
@@ -56,7 +56,7 @@ class Open_Accessibility_Ajax {
 
 		// Include statement generator class if necessary
 		if ( ! class_exists( 'Open_Accessibility_Statement_Generator' ) ) {
-			require_once OPEN_A11Y_PLUGIN_DIR . 'includes/class-open-accessibility-statement-generator.php';
+			require_once OPEN_ACCESSIBILITY_PLUGIN_DIR . 'includes/class-open-accessibility-statement-generator.php';
 		}
 
 		// Create page or return statement content
@@ -85,7 +85,7 @@ class Open_Accessibility_Ajax {
 	 */
 	public static function get_stats() {
 		// Check for nonce
-		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'open_a11y_nonce' ) ) {
+		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'open_accessibility_nonce' ) ) {
 			wp_send_json_error( array( 'message' => __( 'Security check failed.', 'open-accessibility' ) ) );
 		}
 
@@ -100,7 +100,7 @@ class Open_Accessibility_Ajax {
 
 		// Include DB class if necessary
 		if ( ! class_exists( 'Open_Accessibility_DB' ) ) {
-			require_once OPEN_A11Y_PLUGIN_DIR . 'includes/database/class-open-accessibility-db.php';
+			require_once OPEN_ACCESSIBILITY_PLUGIN_DIR . 'includes/database/class-open-accessibility-db.php';
 		}
 
 		// Get statistics
@@ -121,7 +121,7 @@ class Open_Accessibility_Ajax {
 	 */
 	public static function cleanup_data() {
 		// Check for nonce
-		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'open_a11y_nonce' ) ) {
+		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'open_accessibility_nonce' ) ) {
 			wp_send_json_error( array( 'message' => __( 'Security check failed.', 'open-accessibility' ) ) );
 		}
 
@@ -135,7 +135,7 @@ class Open_Accessibility_Ajax {
 
 		// Include DB class if necessary
 		if ( ! class_exists( 'Open_Accessibility_DB' ) ) {
-			require_once OPEN_A11Y_PLUGIN_DIR . 'includes/database/class-open-accessibility-db.php';
+			require_once OPEN_ACCESSIBILITY_PLUGIN_DIR . 'includes/database/class-open-accessibility-db.php';
 		}
 
 		// Perform cleanup
@@ -157,7 +157,7 @@ class Open_Accessibility_Ajax {
 	 */
 	public static function log_usage() {
 		// Check for nonce
-		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'open_a11y_nonce' ) ) {
+		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'open_accessibility_nonce' ) ) {
 			wp_send_json_error( array( 'message' => __( 'Security check failed.', 'open-accessibility' ) ) );
 		}
 
@@ -174,11 +174,11 @@ class Open_Accessibility_Ajax {
 
 		// Include necessary classes
 		if ( ! class_exists( 'Open_Accessibility_DB' ) ) {
-			require_once OPEN_A11Y_PLUGIN_DIR . 'includes/database/class-open-accessibility-db.php';
+			require_once OPEN_ACCESSIBILITY_PLUGIN_DIR . 'includes/database/class-open-accessibility-db.php';
 		}
 
 		if ( ! class_exists( 'Open_Accessibility_Utils' ) ) {
-			require_once OPEN_A11Y_PLUGIN_DIR . 'includes/class-open-accessibility-utils.php';
+			require_once OPEN_ACCESSIBILITY_PLUGIN_DIR . 'includes/class-open-accessibility-utils.php';
 		}
 
 		// Log the usage

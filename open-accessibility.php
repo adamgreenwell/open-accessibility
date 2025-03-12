@@ -23,17 +23,17 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Currently plugin version.
  * Start at version 1.0.0 and use SemVer - https://semver.org
  */
-define( 'OPEN_A11Y_VERSION', '1.0.0' );
-define( 'OPEN_A11Y_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
-define( 'OPEN_A11Y_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
-define( 'OPEN_A11Y_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
-define( 'OPEN_A11Y_ASSETS_DIR', OPEN_A11Y_PLUGIN_DIR . 'assets/' );
-define( 'OPEN_A11Y_ASSETS_URL', OPEN_A11Y_PLUGIN_URL . 'assets/' );
+define( 'OPEN_ACCESSIBILITY_VERSION', '1.0.0' );
+define( 'OPEN_ACCESSIBILITY_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
+define( 'OPEN_ACCESSIBILITY_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
+define( 'OPEN_ACCESSIBILITY_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
+define( 'OPEN_ACCESSIBILITY_ASSETS_DIR', OPEN_ACCESSIBILITY_PLUGIN_DIR . 'assets/' );
+define( 'OPEN_ACCESSIBILITY_ASSETS_URL', OPEN_ACCESSIBILITY_PLUGIN_URL . 'assets/' );
 
 /**
  * The core plugin class.
  */
-require_once OPEN_A11Y_PLUGIN_DIR . 'includes/class-open-accessibility.php';
+require_once OPEN_ACCESSIBILITY_PLUGIN_DIR . 'includes/class-open-accessibility.php';
 
 /**
  * Set default options if none exist.
@@ -41,7 +41,7 @@ require_once OPEN_A11Y_PLUGIN_DIR . 'includes/class-open-accessibility.php';
 function open_accessibility_activate() {
 	if (!get_option('open_accessibility_options')) {
 		$default_options = array(
-			'icon' => 'a11y',
+			'icon' => 'accessibility',
 			'icon_size' => 'medium',
 			'icon_color' => '#ffffff',
 			'bg_color' => '#4054b2',

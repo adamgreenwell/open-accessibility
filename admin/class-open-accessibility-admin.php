@@ -32,7 +32,7 @@ class Open_Accessibility_Admin {
 	 */
 	public function __construct() {
 		$this->plugin_name = 'open-accessibility';
-		$this->version = OPEN_A11Y_VERSION;
+		$this->version = OPEN_ACCESSIBILITY_VERSION;
 	}
 
 	/**
@@ -49,7 +49,7 @@ class Open_Accessibility_Admin {
 		wp_enqueue_style('wp-color-picker');
 		wp_enqueue_style(
 			$this->plugin_name,
-			OPEN_A11Y_ASSETS_URL . 'css/open-accessibility-admin.css',
+			OPEN_ACCESSIBILITY_ASSETS_URL . 'css/open-accessibility-admin.css',
 			array(),
 			$this->version,
 			'all'
@@ -70,7 +70,7 @@ class Open_Accessibility_Admin {
 		wp_enqueue_script('wp-color-picker');
 		wp_enqueue_script(
 			$this->plugin_name,
-			OPEN_A11Y_ASSETS_URL . 'js/open-accessibility-admin.js',
+			OPEN_ACCESSIBILITY_ASSETS_URL . 'js/open-accessibility-admin.js',
 			array('jquery', 'wp-color-picker'),
 			$this->version,
 			false
@@ -80,7 +80,7 @@ class Open_Accessibility_Admin {
 			$this->plugin_name,
 			'open_accessibility_admin',
 			array(
-				'nonce' => wp_create_nonce('open_a11y_nonce'),
+				'nonce' => wp_create_nonce('open_accessibility_nonce'),
 				'i18n' => array(
 					'invalid_email' => __('Please enter a valid email address.', 'open-accessibility'),
 					'generating' => __('Generating...', 'open-accessibility'),
@@ -122,7 +122,7 @@ class Open_Accessibility_Admin {
 	 * @since    1.0.0
 	 */
 	public function display_options_page() {
-		include_once OPEN_A11Y_PLUGIN_DIR . 'admin/partials/admin-display.php';
+		include_once OPEN_ACCESSIBILITY_PLUGIN_DIR . 'admin/partials/admin-display.php';
 	}
 
 	/**
@@ -472,7 +472,7 @@ class Open_Accessibility_Admin {
 	 */
 	public function icon_field_callback() {
 		$options = get_option('open_accessibility_options');
-		$selected = isset($options['icon']) ? $options['icon'] : 'a11y';
+		$selected = isset($options['icon']) ? $options['icon'] : 'accessibility';
 
 		$icons = array(
 			'open-accessibility' => __('Open Accessibility Logo', 'open-accessibility'),
@@ -709,7 +709,7 @@ class Open_Accessibility_Admin {
 		// Sanitize select fields
 		if (isset($input['icon'])) {
 			$valid_icons = array('open-accessibility', 'universal-access', 'accessible-icon-project', 'visually-impaired', 'service-dog', 'international');
-			$sanitized['icon'] = in_array($input['icon'], $valid_icons) ? $input['icon'] : 'a11y';
+			$sanitized['icon'] = in_array($input['icon'], $valid_icons) ? $input['icon'] : 'accessibility';
 		}
 
 		if (isset($input['icon_size'])) {

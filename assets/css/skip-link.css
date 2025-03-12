@@ -5,7 +5,7 @@
  * then positions it at the top of the screen
  */
 
-.open-a11y-skip-to-content-link {
+.open-accessibility-skip-to-content-link {
     clip: rect(1px, 1px, 1px, 1px);
     clip-path: inset(50%);
     pointer-events: none;
@@ -27,7 +27,7 @@
     z-index: 100000;
 }
 
-.open-a11y-skip-to-content-link:focus {
+.open-accessibility-skip-to-content-link:focus {
     clip: auto !important;
     clip-path: none;
     pointer-events: auto;
@@ -38,7 +38,7 @@
     padding: 16px 24px;
 }
 
-.open-a11y-skip-to-content-link:focus + .open-a11y-skip-to-content-backdrop {
+.open-accessibility-skip-to-content-link:focus + .open-accessibility-skip-to-content-backdrop {
     position: fixed;
     top: 0;
     right: 0;

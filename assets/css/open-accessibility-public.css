@@ -3,7 +3,7 @@
  */
 
 /* Skip to content link */
-.open-a11y-skip-to-content-link {
+.open-accessibility-skip-to-content-link {
     clip: rect(1px, 1px, 1px, 1px);
     clip-path: inset(50%);
     pointer-events: none;
@@ -25,7 +25,7 @@
     z-index: 100000;
 }
 
-.open-a11y-skip-to-content-link:focus {
+.open-accessibility-skip-to-content-link:focus {
     clip: auto !important;
     clip-path: none;
     pointer-events: auto;
@@ -36,7 +36,7 @@
     padding: 16px 24px;
 }
 
-.open-a11y-skip-to-content-link:focus + .open-a11y-skip-to-content-backdrop {
+.open-accessibility-skip-to-content-link:focus + .open-accessibility-skip-to-content-backdrop {
     position: fixed;
     top: 0;
     right: 0;
@@ -47,7 +47,7 @@
 }
 
 /* Accessibility Widget */
-.open-a11y-widget-wrapper {
+.open-accessibility-widget-wrapper {
     position: fixed;
     z-index: 9999;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
@@ -56,49 +56,49 @@
 }
 
 /* Widget positioning */
-.open-a11y-widget-wrapper.position-left {
+.open-accessibility-widget-wrapper.position-left {
     left: 20px;
     top: 50%;
     transform: translateY(-50%);
 }
 
-.open-a11y-widget-wrapper.position-right {
+.open-accessibility-widget-wrapper.position-right {
     right: 20px;
     top: 50%;
     transform: translateY(-50%);
 }
 
-.open-a11y-widget-wrapper.position-bottom-left {
+.open-accessibility-widget-wrapper.position-bottom-left {
     left: 20px;
     bottom: 20px;
 }
 
-.open-a11y-widget-wrapper.position-bottom-right {
+.open-accessibility-widget-wrapper.position-bottom-right {
     right: 20px;
     bottom: 20px;
 }
 
 /* Toggle button sizes */
-.open-a11y-widget-wrapper.size-small .open-a11y-toggle-button {
+.open-accessibility-widget-wrapper.size-small .open-accessibility-toggle-button {
     width: 40px;
     height: 40px;
     font-size: 18px;
 }
 
-.open-a11y-widget-wrapper.size-medium .open-a11y-toggle-button {
+.open-accessibility-widget-wrapper.size-medium .open-accessibility-toggle-button {
     width: 50px;
     height: 50px;
     font-size: 22px;
 }
 
-.open-a11y-widget-wrapper.size-large .open-a11y-toggle-button {
+.open-accessibility-widget-wrapper.size-large .open-accessibility-toggle-button {
     width: 60px;
     height: 60px;
     font-size: 26px;
 }
 
 /* Toggle button */
-.open-a11y-toggle-button {
+.open-accessibility-toggle-button {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -109,18 +109,18 @@
     transition: transform 0.3s ease;
 }
 
-.open-a11y-toggle-button:hover,
-.open-a11y-toggle-button:focus {
+.open-accessibility-toggle-button:hover,
+.open-accessibility-toggle-button:focus {
     transform: scale(1.1);
     outline: none;
 }
 
-.open-a11y-toggle-button:focus {
+.open-accessibility-toggle-button:focus {
     box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.5), 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
 /* Widget panel */
-.open-a11y-widget-panel {
+.open-accessibility-widget-panel {
     position: absolute;
     background-color: #fff;
     border-radius: 8px;
@@ -133,36 +133,36 @@
     transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
-.open-a11y-widget-wrapper.active .open-a11y-widget-panel {
+.open-accessibility-widget-wrapper.active .open-accessibility-widget-panel {
     visibility: visible;
     opacity: 1;
 }
 
 /* Panel positioning */
-.open-a11y-widget-wrapper.position-left .open-a11y-widget-panel {
+.open-accessibility-widget-wrapper.position-left .open-accessibility-widget-panel {
     left: calc(100% + 15px);
     top: 50%;
     transform: translateY(-50%);
 }
 
-.open-a11y-widget-wrapper.position-right .open-a11y-widget-panel {
+.open-accessibility-widget-wrapper.position-right .open-accessibility-widget-panel {
     right: calc(100% + 15px);
     top: 50%;
     transform: translateY(-50%);
 }
 
-.open-a11y-widget-wrapper.position-bottom-left .open-a11y-widget-panel {
+.open-accessibility-widget-wrapper.position-bottom-left .open-accessibility-widget-panel {
     left: 0;
     bottom: calc(100% + 15px);
 }
 
-.open-a11y-widget-wrapper.position-bottom-right .open-a11y-widget-panel {
+.open-accessibility-widget-wrapper.position-bottom-right .open-accessibility-widget-panel {
     right: 0;
     bottom: calc(100% + 15px);
 }
 
 /* Widget header */
-.open-a11y-widget-header {
+.open-accessibility-widget-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -170,13 +170,13 @@
     border-radius: 8px 8px 0 0;
 }
 
-.open-a11y-widget-header h2 {
+.open-accessibility-widget-header h2 {
     margin: 0;
     font-size: 18px;
     font-weight: 600;
 }
 
-.open-a11y-close {
+.open-accessibility-close {
     background: none;
     border: none;
     cursor: pointer;
@@ -192,36 +192,36 @@
 }
 
 /* Widget content */
-.open-a11y-widget-content {
+.open-accessibility-widget-content {
     padding: 15px;
 }
 
-.open-a11y-widget-section {
+.open-accessibility-widget-section {
     margin-bottom: 20px;
     border-bottom: 1px solid #eee;
     padding-bottom: 15px;
 }
 
-.open-a11y-widget-section:last-child {
+.open-accessibility-widget-section:last-child {
     margin-bottom: 0;
     border-bottom: none;
     padding-bottom: 0;
 }
 
-.open-a11y-widget-section h3 {
+.open-accessibility-widget-section h3 {
     margin: 0 0 10px;
     font-size: 16px;
     font-weight: 600;
 }
 
 /* Action buttons */
-.open-a11y-actions {
+.open-accessibility-actions {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
 }
 
-.open-a11y-action-button {
+.open-accessibility-action-button {
     background-color: #f0f0f0;
     border: 1px solid #ddd;
     border-radius: 4px;
@@ -231,26 +231,26 @@
     transition: background-color 0.2s ease;
 }
 
-.open-a11y-action-button:hover,
-.open-a11y-action-button:focus {
+.open-accessibility-action-button:hover,
+.open-accessibility-action-button:focus {
     background-color: #e0e0e0;
     outline: none;
 }
 
-.open-a11y-action-button.active {
+.open-accessibility-action-button.active {
     background-color: #4054b2;
     color: white;
     border-color: #4054b2;
 }
 
 /* Widget footer */
-.open-a11y-widget-footer {
+.open-accessibility-widget-footer {
     padding: 15px;
     text-align: center;
     border-radius: 0 0 8px 8px;
 }
 
-.open-a11y-hide-widget {
+.open-accessibility-hide-widget {
     background: none;
     border: none;
     cursor: pointer;
@@ -260,20 +260,20 @@
     transition: opacity 0.2s ease;
 }
 
-.open-a11y-hide-widget:hover,
-.open-a11y-hide-widget:focus {
+.open-accessibility-hide-widget:hover,
+.open-accessibility-hide-widget:focus {
     opacity: 1;
     outline: none;
 }
 
 /* Links section */
-.open-a11y-links-section {
+.open-accessibility-links-section {
     display: flex;
     flex-direction: column;
     gap: 10px;
 }
 
-.open-a11y-link {
+.open-accessibility-link {
     display: block;
     text-decoration: none;
     color: #4054b2;
@@ -281,146 +281,146 @@
     transition: color 0.2s ease;
 }
 
-.open-a11y-link:hover,
-.open-a11y-link:focus {
+.open-accessibility-link:hover,
+.open-accessibility-link:focus {
     color: #2c3e8e;
     text-decoration: underline;
     outline: none;
 }
 
 /* Icons */
-.open-a11y-icon {
+.open-accessibility-icon {
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.open-a11y-icon svg {
+.open-accessibility-icon svg {
     width: 1em;
     height: 1em;
 }
 
 /* Reset button */
-.open-a11y-reset-button {
+.open-accessibility-reset-button {
     background-color: #f44336;
     color: white;
     border: none;
 }
 
-.open-a11y-reset-button:hover,
-.open-a11y-reset-button:focus {
+.open-accessibility-reset-button:hover,
+.open-accessibility-reset-button:focus {
     background-color: #d32f2f;
 }
 
 /* Body classes for accessibility features */
-body.open-a11y-high-contrast {
+body.open-accessibility-high-contrast {
     filter: contrast(150%);
 }
 
-body.open-a11y-negative-contrast {
+body.open-accessibility-negative-contrast {
     filter: invert(100%);
 }
 
-body.open-a11y-light-background {
+body.open-accessibility-light-background {
     background-color: #fff !important;
     color: #000 !important;
 }
 
-body.open-a11y-light-background * {
+body.open-accessibility-light-background * {
     background-color: #fff !important;
     color: #000 !important;
 }
 
-body.open-a11y-dark-background {
+body.open-accessibility-dark-background {
     background-color: #000 !important;
     color: #fff !important;
 }
 
-body.open-a11y-dark-background * {
+body.open-accessibility-dark-background * {
     background-color: #000 !important;
     color: #fff !important;
 }
 
-body.open-a11y-grayscale {
+body.open-accessibility-grayscale {
     filter: grayscale(100%);
 }
 
-body.open-a11y-readable-font,
-body.open-a11y-readable-font * {
+body.open-accessibility-readable-font,
+body.open-accessibility-readable-font * {
     font-family: "Verdana", "Arial", sans-serif !important;
 }
 
-body.open-a11y-links-underline a {
+body.open-accessibility-links-underline a {
     text-decoration: underline !important;
 }
 
-body.open-a11y-hide-images img {
+body.open-accessibility-hide-images img {
     visibility: hidden !important;
 }
 
-body.open-a11y-focus-outline a:focus,
-body.open-a11y-focus-outline button:focus,
-body.open-a11y-focus-outline input:focus,
-body.open-a11y-focus-outline select:focus,
-body.open-a11y-focus-outline textarea:focus,
-body.open-a11y-focus-outline [tabindex]:focus {
+body.open-accessibility-focus-outline a:focus,
+body.open-accessibility-focus-outline button:focus,
+body.open-accessibility-focus-outline input:focus,
+body.open-accessibility-focus-outline select:focus,
+body.open-accessibility-focus-outline textarea:focus,
+body.open-accessibility-focus-outline [tabindex]:focus {
     outline: 3px solid #4054b2 !important;
     outline-offset: 3px !important;
 }
 
-body.open-a11y-big-line-height,
-body.open-a11y-big-line-height p,
-body.open-a11y-big-line-height div,
-body.open-a11y-big-line-height span,
-body.open-a11y-big-line-height li {
+body.open-accessibility-big-line-height,
+body.open-accessibility-big-line-height p,
+body.open-accessibility-big-line-height div,
+body.open-accessibility-big-line-height span,
+body.open-accessibility-big-line-height li {
     line-height: 1.8 !important;
 }
 
-body.open-a11y-text-align-left,
-body.open-a11y-text-align-left p,
-body.open-a11y-text-align-left div,
-body.open-a11y-text-align-left h1,
-body.open-a11y-text-align-left h2,
-body.open-a11y-text-align-left h3,
-body.open-a11y-text-align-left h4,
-body.open-a11y-text-align-left h5,
-body.open-a11y-text-align-left h6 {
+body.open-accessibility-text-align-left,
+body.open-accessibility-text-align-left p,
+body.open-accessibility-text-align-left div,
+body.open-accessibility-text-align-left h1,
+body.open-accessibility-text-align-left h2,
+body.open-accessibility-text-align-left h3,
+body.open-accessibility-text-align-left h4,
+body.open-accessibility-text-align-left h5,
+body.open-accessibility-text-align-left h6 {
     text-align: left !important;
 }
 
-body.open-a11y-text-align-center,
-body.open-a11y-text-align-center p,
-body.open-a11y-text-align-center div,
-body.open-a11y-text-align-center h1,
-body.open-a11y-text-align-center h2,
-body.open-a11y-text-align-center h3,
-body.open-a11y-text-align-center h4,
-body.open-a11y-text-align-center h5,
-body.open-a11y-text-align-center h6 {
+body.open-accessibility-text-align-center,
+body.open-accessibility-text-align-center p,
+body.open-accessibility-text-align-center div,
+body.open-accessibility-text-align-center h1,
+body.open-accessibility-text-align-center h2,
+body.open-accessibility-text-align-center h3,
+body.open-accessibility-text-align-center h4,
+body.open-accessibility-text-align-center h5,
+body.open-accessibility-text-align-center h6 {
     text-align: center !important;
 }
 
-body.open-a11y-text-align-right,
-body.open-a11y-text-align-right p,
-body.open-a11y-text-align-right div,
-body.open-a11y-text-align-right h1,
-body.open-a11y-text-align-right h2,
-body.open-a11y-text-align-right h3,
-body.open-a11y-text-align-right h4,
-body.open-a11y-text-align-right h5,
-body.open-a11y-text-align-right h6 {
+body.open-accessibility-text-align-right,
+body.open-accessibility-text-align-right p,
+body.open-accessibility-text-align-right div,
+body.open-accessibility-text-align-right h1,
+body.open-accessibility-text-align-right h2,
+body.open-accessibility-text-align-right h3,
+body.open-accessibility-text-align-right h4,
+body.open-accessibility-text-align-right h5,
+body.open-accessibility-text-align-right h6 {
     text-align: right !important;
 }
 
-body.open-a11y-pause-animations *,
-body.open-a11y-pause-animations *::before,
-body.open-a11y-pause-animations *::after {
+body.open-accessibility-pause-animations *,
+body.open-accessibility-pause-animations *::before,
+body.open-accessibility-pause-animations *::after {
     animation-play-state: paused !important;
     transition: none !important;
 }
 
 /* Reading guide */
-.open-a11y-reading-guide {
+.open-accessibility-reading-guide {
     position: fixed;
     background-color: rgba(255, 255, 0, 0.2);
     height: 30px;
@@ -430,18 +430,18 @@ body.open-a11y-pause-animations *::after {
     display: none;
 }
 
-body.open-a11y-reading-guide-active .open-a11y-reading-guide {
+body.open-accessibility-reading-guide-active .open-accessibility-reading-guide {
     display: block;
 }
 
 /* Responsive adjustments */
 @media screen and (max-width: 600px) {
-    .open-a11y-widget-panel {
+    .open-accessibility-widget-panel {
         width: 280px;
     }
 
-    .open-a11y-widget-wrapper.position-left .open-a11y-widget-panel,
-    .open-a11y-widget-wrapper.position-right .open-a11y-widget-panel {
+    .open-accessibility-widget-wrapper.position-left .open-accessibility-widget-panel,
+    .open-accessibility-widget-wrapper.position-right .open-accessibility-widget-panel {
         bottom: calc(100% + 15px);
         top: auto;
         left: 50%;
@@ -451,22 +451,22 @@ body.open-a11y-reading-guide-active .open-a11y-reading-guide {
 }
 
 /* Text size adjustments */
-body.open-a11y-text-size-1 {
+body.open-accessibility-text-size-1 {
     font-size: 110% !important;
 }
 
-body.open-a11y-text-size-2 {
+body.open-accessibility-text-size-2 {
     font-size: 120% !important;
 }
 
-body.open-a11y-text-size-3 {
+body.open-accessibility-text-size-3 {
     font-size: 130% !important;
 }
 
-body.open-a11y-text-size-4 {
+body.open-accessibility-text-size-4 {
     font-size: 140% !important;
 }
 
-body.open-a11y-text-size-5 {
+body.open-accessibility-text-size-5 {
     font-size: 150% !important;
 }

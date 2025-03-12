@@ -8,8 +8,8 @@
     'use strict';
 
     // Store state in local storage
-    const storageKey = 'open_a11y_settings';
-    let a11yState = {
+    const storageKey = 'open_accessibility_settings';
+    let accessibilityState = {
         active: false,
         contrast: '',
         grayscale: false,
@@ -30,24 +30,24 @@
         loadState();
 
         // Create reading guide element
-        if ($('.open-a11y-reading-guide').length === 0) {
-            $('body').append('<div class="open-a11y-reading-guide"></div>');
+        if ($('.open-accessibility-reading-guide').length === 0) {
+            $('body').append('<div class="open-accessibility-reading-guide"></div>');
         }
 
         // Apply saved state
         applyState();
 
         // Button click handler
-        $('.open-a11y-toggle-button').on('click', toggleAccessibilityPanel);
+        $('.open-accessibility-toggle-button').on('click', toggleAccessibilityPanel);
 
         // Close button
-        $('.open-a11y-close').on('click', closeAccessibilityPanel);
+        $('.open-accessibility-close').on('click', closeAccessibilityPanel);
 
         // Hide widget button
-        $('.open-a11y-hide-widget').on('click', hideAccessibilityWidget);
+        $('.open-accessibility-hide-widget').on('click', hideAccessibilityWidget);
 
         // Action buttons
-        $('.open-a11y-action-button').on('click', function(e) {
+        $('.open-accessibility-action-button').on('click', function(e) {
             handleActionButton.call(this, e);
         });
 
@@ -57,9 +57,9 @@
         // Close panel when clicking outside
         $(document).on('click', function(e) {
             if (
-                $('.open-a11y-widget-wrapper').hasClass('active') &&
-                !$(e.target).closest('.open-a11y-widget-wrapper').length &&
-                !$(e.target).is('.open-a11y-action-button')
+                $('.open-accessibility-widget-wrapper').hasClass('active') &&
+                !$(e.target).closest('.open-accessibility-widget-wrapper').length &&
+                !$(e.target).is('.open-accessibility-action-button')
             ) {
                 closeAccessibilityPanel();
             }
@@ -68,7 +68,7 @@
         // Keyboard shortcuts
         $(document).on('keydown', function(e) {
             // ESC key closes the panel
-            if (e.key === 'Escape' && $('.open-a11y-widget-wrapper').hasClass('active')) {
+            if (e.key === 'Escape' && $('.open-accessibility-widget-wrapper').hasClass('active')) {
                 closeAccessibilityPanel();
             }
         });
@@ -76,23 +76,23 @@
 
     // Toggle widget panel
     function toggleAccessibilityPanel() {
-        $('.open-a11y-widget-wrapper').toggleClass('active');
-        const isActive = $('.open-a11y-widget-wrapper').hasClass('active');
-        $('.open-a11y-widget-panel').attr('aria-hidden', !isActive);
+        $('.open-accessibility-widget-wrapper').toggleClass('active');
+        const isActive = $('.open-accessibility-widget-wrapper').hasClass('active');
+        $('.open-accessibility-widget-panel').attr('aria-hidden', !isActive);
     }
 
     // Close widget panel
     function closeAccessibilityPanel() {
-        $('.open-a11y-widget-wrapper').removeClass('active');
-        $('.open-a11y-widget-panel').attr('aria-hidden', true);
+        $('.open-accessibility-widget-wrapper').removeClass('active');
+        $('.open-accessibility-widget-panel').attr('aria-hidden', true);
     }
 
     // Hide widget (user choice)
     function hideAccessibilityWidget() {
-        $('.open-a11y-widget-wrapper').css('display', 'none');
+        $('.open-accessibility-widget-wrapper').css('display', 'none');
 
         // Set a cookie to remember this choice temporarily
-        setCookie('open_a11y_hidden', '1', 1); // Hide for 1 day
+        setCookie('open_accessibility_hidden', '1', 1); // Hide for 1 day
 
         closeAccessibilityPanel();
     }
@@ -158,164 +158,164 @@
     // Handle contrast modes
     function handleContrast(mode) {
         // Remove existing contrast classes
-        $('body').removeClass('open-a11y-high-contrast open-a11y-negative-contrast open-a11y-light-background open-a11y-dark-background');
+        $('body').removeClass('open-accessibility-high-contrast open-accessibility-negative-contrast open-accessibility-light-background open-accessibility-dark-background');
 
         // Clear active state on all contrast buttons
-        $('.open-a11y-action-button[data-action="contrast"]').removeClass('active');
+        $('.open-accessibility-action-button[data-action="contrast"]').removeClass('active');
 
         // If the same mode is clicked again, deactivate it
-        if (a11yState.contrast === mode) {
-            a11yState.contrast = '';
+        if (accessibilityState.contrast === mode) {
+            accessibilityState.contrast = '';
             return;
         }
 
         // Apply new contrast mode
         switch (mode) {
             case 'high':
-                $('body').addClass('open-a11y-high-contrast');
-                $('.open-a11y-action-button[data-action="contrast"][data-value="high"]').addClass('active');
+                $('body').addClass('open-accessibility-high-contrast');
+                $('.open-accessibility-action-button[data-action="contrast"][data-value="high"]').addClass('active');
                 break;
 
             case 'negative':
-                $('body').addClass('open-a11y-negative-contrast');
-                $('.open-a11y-action-button[data-action="contrast"][data-value="negative"]').addClass('active');
+                $('body').addClass('open-accessibility-negative-contrast');
+                $('.open-accessibility-action-button[data-action="contrast"][data-value="negative"]').addClass('active');
                 break;
 
             case 'light':
-                $('body').addClass('open-a11y-light-background');
-                $('.open-a11y-action-button[data-action="contrast"][data-value="light"]').addClass('active');
+                $('body').addClass('open-accessibility-light-background');
+                $('.open-accessibility-action-button[data-action="contrast"][data-value="light"]').addClass('active');
                 break;
 
             case 'dark':
-                $('body').addClass('open-a11y-dark-background');
-                $('.open-a11y-action-button[data-action="contrast"][data-value="dark"]').addClass('active');
+                $('body').addClass('open-accessibility-dark-background');
+                $('.open-accessibility-action-button[data-action="contrast"][data-value="dark"]').addClass('active');
                 break;
         }
 
-        a11yState.contrast = mode;
+        accessibilityState.contrast = mode;
     }
 
     // Toggle grayscale
     function toggleGrayscale() {
-        a11yState.grayscale = !a11yState.grayscale;
-        $('body').toggleClass('open-a11y-grayscale', a11yState.grayscale);
-        $('.open-a11y-action-button[data-action="grayscale"]').toggleClass('active', a11yState.grayscale);
+        accessibilityState.grayscale = !accessibilityState.grayscale;
+        $('body').toggleClass('open-accessibility-grayscale', accessibilityState.grayscale);
+        $('.open-accessibility-action-button[data-action="grayscale"]').toggleClass('active', accessibilityState.grayscale);
     }
 
     // Adjust text size
     function adjustTextSize(direction) {
         // Remove existing text size classes
         for (let i = 1; i <= 5; i++) {
-            $('body').removeClass(`open-a11y-text-size-${i}`);
+            $('body').removeClass(`open-accessibility-text-size-${i}`);
         }
 
         if (direction === 'increase') {
-            a11yState.textSize = Math.min(a11yState.textSize + 1, 5);
+            accessibilityState.textSize = Math.min(accessibilityState.textSize + 1, 5);
         } else if (direction === 'decrease') {
-            a11yState.textSize = Math.max(a11yState.textSize - 1, 0);
+            accessibilityState.textSize = Math.max(accessibilityState.textSize - 1, 0);
         }
 
-        if (a11yState.textSize > 0) {
-            $('body').addClass(`open-a11y-text-size-${a11yState.textSize}`);
+        if (accessibilityState.textSize > 0) {
+            $('body').addClass(`open-accessibility-text-size-${accessibilityState.textSize}`);
         }
     }
 
     // Toggle readable font
     function toggleReadableFont() {
-        a11yState.readableFont = !a11yState.readableFont;
-        $('body').toggleClass('open-a11y-readable-font', a11yState.readableFont);
-        $('.open-a11y-action-button[data-action="readable-font"]').toggleClass('active', a11yState.readableFont);
+        accessibilityState.readableFont = !accessibilityState.readableFont;
+        $('body').toggleClass('open-accessibility-readable-font', accessibilityState.readableFont);
+        $('.open-accessibility-action-button[data-action="readable-font"]').toggleClass('active', accessibilityState.readableFont);
     }
 
     // Toggle links underline
     function toggleLinksUnderline() {
-        a11yState.linksUnderline = !a11yState.linksUnderline;
-        $('body').toggleClass('open-a11y-links-underline', a11yState.linksUnderline);
-        $('.open-a11y-action-button[data-action="links-underline"]').toggleClass('active', a11yState.linksUnderline);
+        accessibilityState.linksUnderline = !accessibilityState.linksUnderline;
+        $('body').toggleClass('open-accessibility-links-underline', accessibilityState.linksUnderline);
+        $('.open-accessibility-action-button[data-action="links-underline"]').toggleClass('active', accessibilityState.linksUnderline);
     }
 
     // Toggle hide images
     function toggleHideImages() {
-        a11yState.hideImages = !a11yState.hideImages;
-        $('body').toggleClass('open-a11y-hide-images', a11yState.hideImages);
-        $('.open-a11y-action-button[data-action="hide-images"]').toggleClass('active', a11yState.hideImages);
+        accessibilityState.hideImages = !accessibilityState.hideImages;
+        $('body').toggleClass('open-accessibility-hide-images', accessibilityState.hideImages);
+        $('.open-accessibility-action-button[data-action="hide-images"]').toggleClass('active', accessibilityState.hideImages);
     }
 
     // Toggle reading guide
     function toggleReadingGuide() {
-        a11yState.readingGuide = !a11yState.readingGuide;
-        $('body').toggleClass('open-a11y-reading-guide-active', a11yState.readingGuide);
-        $('.open-a11y-action-button[data-action="reading-guide"]').toggleClass('active', a11yState.readingGuide);
+        accessibilityState.readingGuide = !accessibilityState.readingGuide;
+        $('body').toggleClass('open-accessibility-reading-guide-active', accessibilityState.readingGuide);
+        $('.open-accessibility-action-button[data-action="reading-guide"]').toggleClass('active', accessibilityState.readingGuide);
     }
 
     // Handle reading guide mouse movement
     function handleReadingGuide(e) {
-        if (a11yState.readingGuide) {
-            $('.open-a11y-reading-guide').css('top', e.clientY - 15);
+        if (accessibilityState.readingGuide) {
+            $('.open-accessibility-reading-guide').css('top', e.clientY - 15);
         }
     }
 
     // Toggle focus outline
     function toggleFocusOutline() {
-        a11yState.focusOutline = !a11yState.focusOutline;
-        $('body').toggleClass('open-a11y-focus-outline', a11yState.focusOutline);
-        $('.open-a11y-action-button[data-action="focus-outline"]').toggleClass('active', a11yState.focusOutline);
+        accessibilityState.focusOutline = !accessibilityState.focusOutline;
+        $('body').toggleClass('open-accessibility-focus-outline', accessibilityState.focusOutline);
+        $('.open-accessibility-action-button[data-action="focus-outline"]').toggleClass('active', accessibilityState.focusOutline);
     }
 
     // Toggle line height
     function toggleLineHeight() {
-        a11yState.lineHeight = !a11yState.lineHeight;
-        $('body').toggleClass('open-a11y-big-line-height', a11yState.lineHeight);
-        $('.open-a11y-action-button[data-action="line-height"]').toggleClass('active', a11yState.lineHeight);
+        accessibilityState.lineHeight = !accessibilityState.lineHeight;
+        $('body').toggleClass('open-accessibility-big-line-height', accessibilityState.lineHeight);
+        $('.open-accessibility-action-button[data-action="line-height"]').toggleClass('active', accessibilityState.lineHeight);
     }
 
     // Set text align
     function setTextAlign(align) {
         // Remove existing text align classes
-        $('body').removeClass('open-a11y-text-align-left open-a11y-text-align-center open-a11y-text-align-right');
+        $('body').removeClass('open-accessibility-text-align-left open-accessibility-text-align-center open-accessibility-text-align-right');
 
         // Clear active state on all text align buttons
-        $('.open-a11y-action-button[data-action="text-align"]').removeClass('active');
+        $('.open-accessibility-action-button[data-action="text-align"]').removeClass('active');
 
         // If the same alignment is clicked again, deactivate it
-        if (a11yState.textAlign === align) {
-            a11yState.textAlign = '';
+        if (accessibilityState.textAlign === align) {
+            accessibilityState.textAlign = '';
             return;
         }
 
         // Apply new text alignment
-        $('body').addClass(`open-a11y-text-align-${align}`);
-        $(`.open-a11y-action-button[data-action="text-align"][data-value="${align}"]`).addClass('active');
+        $('body').addClass(`open-accessibility-text-align-${align}`);
+        $(`.open-accessibility-action-button[data-action="text-align"][data-value="${align}"]`).addClass('active');
 
-        a11yState.textAlign = align;
+        accessibilityState.textAlign = align;
     }
 
     // Toggle pause animations
     function togglePauseAnimations() {
-        a11yState.pauseAnimations = !a11yState.pauseAnimations;
-        $('body').toggleClass('open-a11y-pause-animations', a11yState.pauseAnimations);
-        $('.open-a11y-action-button[data-action="pause-animations"]').toggleClass('active', a11yState.pauseAnimations);
+        accessibilityState.pauseAnimations = !accessibilityState.pauseAnimations;
+        $('body').toggleClass('open-accessibility-pause-animations', accessibilityState.pauseAnimations);
+        $('.open-accessibility-action-button[data-action="pause-animations"]').toggleClass('active', accessibilityState.pauseAnimations);
     }
 
     // Reset all settings to default
-    $('.open-a11y-reset-button').on('click', function() {
+    $('.open-accessibility-reset-button').on('click', function() {
         // Remove all accessibility classes
-        $('body').removeClass('open-a11y-high-contrast open-a11y-negative-contrast open-a11y-light-background open-a11y-dark-background');
-        $('body').removeClass('open-a11y-grayscale open-a11y-readable-font open-a11y-links-underline');
-        $('body').removeClass('open-a11y-hide-images open-a11y-reading-guide-active open-a11y-focus-outline');
-        $('body').removeClass('open-a11y-big-line-height open-a11y-pause-animations');
-        $('body').removeClass('open-a11y-text-align-left open-a11y-text-align-center open-a11y-text-align-right');
+        $('body').removeClass('open-accessibility-high-contrast open-accessibility-negative-contrast open-accessibility-light-background open-accessibility-dark-background');
+        $('body').removeClass('open-accessibility-grayscale open-accessibility-readable-font open-accessibility-links-underline');
+        $('body').removeClass('open-accessibility-hide-images open-accessibility-reading-guide-active open-accessibility-focus-outline');
+        $('body').removeClass('open-accessibility-big-line-height open-accessibility-pause-animations');
+        $('body').removeClass('open-accessibility-text-align-left open-accessibility-text-align-center open-accessibility-text-align-right');
 
         // Remove text size classes
         for (let i = 1; i <= 5; i++) {
-            $('body').removeClass(`open-a11y-text-size-${i}`);
+            $('body').removeClass(`open-accessibility-text-size-${i}`);
         }
 
         // Reset all buttons active state
-        $('.open-a11y-action-button').removeClass('active');
+        $('.open-accessibility-action-button').removeClass('active');
 
         // Reset state
-        a11yState = {
+        accessibilityState = {
             active: true,
             contrast: '',
             grayscale: false,
@@ -337,7 +337,7 @@
     // Save state to local storage
     function saveState() {
         if (typeof localStorage !== 'undefined') {
-            localStorage.setItem(storageKey, JSON.stringify(a11yState));
+            localStorage.setItem(storageKey, JSON.stringify(accessibilityState));
         }
     }
 
@@ -347,7 +347,7 @@
             const savedState = localStorage.getItem(storageKey);
             if (savedState) {
                 try {
-                    a11yState = JSON.parse(savedState);
+                    accessibilityState = JSON.parse(savedState);
                 } catch (e) {
                     console.error('Error parsing saved accessibility state', e);
                 }
@@ -358,67 +358,67 @@
     // Apply current state to the UI
     function applyState() {
         // Apply contrast
-        if (a11yState.contrast) {
-            handleContrast(a11yState.contrast);
+        if (accessibilityState.contrast) {
+            handleContrast(accessibilityState.contrast);
         }
 
         // Apply grayscale
-        if (a11yState.grayscale) {
-            $('body').addClass('open-a11y-grayscale');
-            $('.open-a11y-action-button[data-action="grayscale"]').addClass('active');
+        if (accessibilityState.grayscale) {
+            $('body').addClass('open-accessibility-grayscale');
+            $('.open-accessibility-action-button[data-action="grayscale"]').addClass('active');
         }
 
         // Apply text size
-        if (a11yState.textSize > 0) {
-            $('body').addClass(`open-a11y-text-size-${a11yState.textSize}`);
+        if (accessibilityState.textSize > 0) {
+            $('body').addClass(`open-accessibility-text-size-${accessibilityState.textSize}`);
         }
 
         // Apply readable font
-        if (a11yState.readableFont) {
-            $('body').addClass('open-a11y-readable-font');
-            $('.open-a11y-action-button[data-action="readable-font"]').addClass('active');
+        if (accessibilityState.readableFont) {
+            $('body').addClass('open-accessibility-readable-font');
+            $('.open-accessibility-action-button[data-action="readable-font"]').addClass('active');
         }
 
         // Apply links underline
-        if (a11yState.linksUnderline) {
-            $('body').addClass('open-a11y-links-underline');
-            $('.open-a11y-action-button[data-action="links-underline"]').addClass('active');
+        if (accessibilityState.linksUnderline) {
+            $('body').addClass('open-accessibility-links-underline');
+            $('.open-accessibility-action-button[data-action="links-underline"]').addClass('active');
         }
 
         // Apply hide images
-        if (a11yState.hideImages) {
-            $('body').addClass('open-a11y-hide-images');
-            $('.open-a11y-action-button[data-action="hide-images"]').addClass('active');
+        if (accessibilityState.hideImages) {
+            $('body').addClass('open-accessibility-hide-images');
+            $('.open-accessibility-action-button[data-action="hide-images"]').addClass('active');
         }
 
         // Apply reading guide
-        if (a11yState.readingGuide) {
-            $('body').addClass('open-a11y-reading-guide-active');
-            $('.open-a11y-action-button[data-action="reading-guide"]').addClass('active');
+        if (accessibilityState.readingGuide) {
+            $('body').addClass('open-accessibility-reading-guide-active');
+            $('.open-accessibility-action-button[data-action="reading-guide"]').addClass('active');
         }
 
         // Apply focus outline
-        if (a11yState.focusOutline) {
-            $('body').addClass('open-a11y-focus-outline');
-            $('.open-a11y-action-button[data-action="focus-outline"]').addClass('active');
+        if (accessibilityState.focusOutline) {
+            $('body').addClass('open-accessibility-focus-outline');
+            $('.open-accessibility-action-button[data-action="focus-outline"]').addClass('active');
         }
 
         // Apply line height
-        if (a11yState.lineHeight) {
-            $('body').addClass('open-a11y-big-line-height');
-            $('.open-a11y-action-button[data-action="line-height"]').addClass('active');
+        if (accessibilityState.lineHeight) {
+            $('body').addClass('open-accessibility-big-line-height');
+            $('.open-accessibility-action-button[data-action="line-height"]').addClass('active');
         }
 
         // Apply text align
-        if (a11yState.textAlign) {
-            $('body').addClass(`open-a11y-text-align-${a11yState.textAlign}`);
-            $(`.open-a11y-action-button[data-action="text-align"][data-value="${a11yState.textAlign}"]`).addClass('active');
+        if (accessibilityState.textAlign) {
+            $('body').addClass(`open-accessibility-text-align-${accessibilityState.textAlign}`);
+            $(`.open-accessibility-action-button[data-action="text-align"][data-value="${accessibilityState.textAlign}"]`).addClass('active');
         }
 
         // Apply pause animations
-        if (a11yState.pauseAnimations) {
-            $('body').addClass('open-a11y-pause-animations');
-            $('.open-a11y-action-button[data-action="pause-animations"]').addClass('active');
+        if (accessibilityState.pauseAnimations) {
+            $('body').addClass('open-accessibility-pause-animations');
+            $('.open-accessibility-action-button[data-action="pause-animations"]').addClass('active');
         }
     }
 
@@ -447,11 +447,11 @@
 
     // Check if widget should be hidden based on user preference
     function checkWidgetVisibility() {
-        const hidden = getCookie('open_a11y_hidden');
+        const hidden = getCookie('open_accessibility_hidden');
         if (hidden === '1') {
-            $('.open-a11y-widget-wrapper').css('display', 'none');
+            $('.open-accessibility-widget-wrapper').css('display', 'none');
         } else {
-            $('.open-a11y-widget-wrapper').css('display', ''); // Reset to default display
+            $('.open-accessibility-widget-wrapper').css('display', ''); // Reset to default display
         }
     }
 

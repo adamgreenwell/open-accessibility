@@ -59,39 +59,39 @@ class Open_Accessibility {
 		 * The class responsible for orchestrating the actions and filters of the
 		 * core plugin.
 		 */
-		require_once OPEN_A11Y_PLUGIN_DIR . 'includes/class-open-accessibility-loader.php';
+		require_once OPEN_ACCESSIBILITY_PLUGIN_DIR . 'includes/class-open-accessibility-loader.php';
 
 		/**
 		 * The class responsible for defining internationalization functionality
 		 * of the plugin.
 		 */
-		require_once OPEN_A11Y_PLUGIN_DIR . 'includes/class-open-accessibility-i18n.php';
+		require_once OPEN_ACCESSIBILITY_PLUGIN_DIR . 'includes/class-open-accessibility-i18n.php';
 
 		/**
 		 * The class responsible for defining all actions that occur in the admin area.
 		 */
-		require_once OPEN_A11Y_PLUGIN_DIR . 'admin/class-open-accessibility-admin.php';
+		require_once OPEN_ACCESSIBILITY_PLUGIN_DIR . 'admin/class-open-accessibility-admin.php';
 
 		/**
 		 * The class responsible for defining all actions that occur in the public-facing
 		 * side of the site.
 		 */
-		require_once OPEN_A11Y_PLUGIN_DIR . 'public/class-open-accessibility-public.php';
+		require_once OPEN_ACCESSIBILITY_PLUGIN_DIR . 'public/class-open-accessibility-public.php';
 
 		/**
 		 * The class responsible for defining the accessibility widget.
 		 */
-		require_once OPEN_A11Y_PLUGIN_DIR . 'includes/class-open-accessibility-widget.php';
+		require_once OPEN_ACCESSIBILITY_PLUGIN_DIR . 'includes/class-open-accessibility-widget.php';
 
 		/**
 		 * Core utilities and helpers
 		 */
-		require_once OPEN_A11Y_PLUGIN_DIR . 'includes/class-open-accessibility-utils.php';
+		require_once OPEN_ACCESSIBILITY_PLUGIN_DIR . 'includes/class-open-accessibility-utils.php';
 
 		/**
 		 * Database functionality
 		 */
-		require_once OPEN_A11Y_PLUGIN_DIR . 'includes/database/class-open-accessibility-db.php';
+		require_once OPEN_ACCESSIBILITY_PLUGIN_DIR . 'includes/database/class-open-accessibility-db.php';
 
 		$this->loader = new Open_Accessibility_Loader();
 	}

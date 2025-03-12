@@ -336,13 +336,13 @@
             // Get current settings
             const iconColor = $('.color-picker[name="open_accessibility_options[icon_color]"]').val() || '#ffffff';
             const bgColor = $('.color-picker[name="open_accessibility_options[bg_color]"]').val() || '#4054b2';
-            const icon = $('input[name="open_accessibility_options[icon]"]:checked').val() || 'a11y';
+            const icon = $('input[name="open_accessibility_options[icon]"]:checked').val() || 'accessibility';
             const position = $('input[name="open_accessibility_options[position]"]:checked').val() || 'left';
             const size = $('select[name="open_accessibility_options[icon_size]"]').val() || 'medium';
 
             // Create preview HTML
             const previewHtml = `
-                <div class="open-a11y-widget-preview position-${position} size-${size}">
+                <div class="open-accessibility-widget-preview position-${position} size-${size}">
                     <div class="preview-toggle-button" style="background-color: ${bgColor}; color: ${iconColor};">
                         <span class="preview-icon">${getIconSvg(icon, iconColor)}</span>
                     </div>

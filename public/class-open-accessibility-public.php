@@ -43,7 +43,7 @@ class Open_Accessibility_Public {
 	 */
 	public function __construct() {
 		$this->plugin_name = 'open-accessibility';
-		$this->version = OPEN_A11Y_VERSION;
+		$this->version = OPEN_ACCESSIBILITY_VERSION;
 		$this->options = get_option('open_accessibility_options', array());
 	}
 
@@ -54,11 +54,11 @@ class Open_Accessibility_Public {
 	 */
 	public function enqueue_styles() {
 		// Debug paths
-		error_log('Loading CSS from: ' . OPEN_A11Y_ASSETS_URL . 'css/open-accessibility-public.css');
+		error_log('Loading CSS from: ' . OPEN_ACCESSIBILITY_ASSETS_URL . 'css/open-accessibility-public.css');
 
 		wp_enqueue_style(
 			$this->plugin_name,
-			OPEN_A11Y_ASSETS_URL . 'css/open-accessibility-public.css',
+			OPEN_ACCESSIBILITY_ASSETS_URL . 'css/open-accessibility-public.css',
 			array(),
 			$this->version,
 			'all'
@@ -68,7 +68,7 @@ class Open_Accessibility_Public {
 		if ($this->get_option('enable_skip_to_content', true)) {
 			wp_enqueue_style(
 				$this->plugin_name . '-skip-link',
-				OPEN_A11Y_ASSETS_URL . 'css/skip-link.css',
+				OPEN_ACCESSIBILITY_ASSETS_URL . 'css/skip-link.css',
 				array(),
 				$this->version,
 				'all'
@@ -84,11 +84,11 @@ class Open_Accessibility_Public {
 	 */
 	public function enqueue_scripts() {
 		// Debug paths
-		error_log('Loading JS from: ' . OPEN_A11Y_ASSETS_URL . 'js/open-accessibility-public.js');
+		error_log('Loading JS from: ' . OPEN_ACCESSIBILITY_ASSETS_URL . 'js/open-accessibility-public.js');
 
 		wp_enqueue_script(
 			$this->plugin_name,
-			OPEN_A11Y_ASSETS_URL . 'js/open-accessibility-public.js',
+			OPEN_ACCESSIBILITY_ASSETS_URL . 'js/open-accessibility-public.js',
 			array('jquery'),
 			$this->version,
 			true
@@ -97,10 +97,10 @@ class Open_Accessibility_Public {
 		// Localize the script with necessary data
 		wp_localize_script(
 			$this->plugin_name,
-			'open_a11y_data',
+			'open_accessibility_data',
 			array(
 				'ajaxurl' => admin_url('admin-ajax.php'),
-				'nonce' => wp_create_nonce('open_a11y_nonce'),
+				'nonce' => wp_create_nonce('open_accessibility_nonce'),
 				'options' => $this->get_frontend_options(),
 				'i18n' => $this->get_strings()
 			)
@@ -115,7 +115,7 @@ class Open_Accessibility_Public {
 	 */
 	private function get_frontend_options() {
 		return array(
-			'icon' => $this->get_option('icon', 'a11y'),
+			'icon' => $this->get_option('icon', 'accessibility'),
 			'position' => $this->get_option('position', 'left'),
 			'icon_size' => $this->get_option('icon_size', 'medium'),
 			'icon_color' => $this->get_option('icon_color', '#ffffff'),
@@ -214,12 +214,12 @@ class Open_Accessibility_Public {
 		}
 
 		$skip_to_element_id = $this->get_option('skip_to_element_id', 'content');
-		$skip_to_element_id = apply_filters('open_a11y_skip_to_element_id', $skip_to_element_id);
+		$skip_to_element_id = apply_filters('open_accessibility_skip_to_element_id', $skip_to_element_id);
 
-		echo '<a href="#' . esc_attr($skip_to_element_id) . '" class="open-a11y-skip-to-content-link">' .
+		echo '<a href="#' . esc_attr($skip_to_element_id) . '" class="open-accessibility-skip-to-content-link">' .
 			esc_html__('Skip to content', 'open-accessibility') .
 			'</a>';
-		echo '<div class="open-a11y-skip-to-content-backdrop"></div>';
+		echo '<div class="open-accessibility-skip-to-content-backdrop"></div>';
 	}
 
 	/**
@@ -240,6 +240,6 @@ class Open_Accessibility_Public {
 			return;
 		}
 
-		include_once OPEN_A11Y_PLUGIN_DIR . 'public/partials/widget-template.php';
+		include_once OPEN_ACCESSIBILITY_PLUGIN_DIR . 'public/partials/widget-template.php';
 	}
 }

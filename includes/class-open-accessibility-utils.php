@@ -97,7 +97,7 @@ class Open_Accessibility_Utils {
 			'hide_on_desktop' => 0,
 
 			// Design
-			'icon' => 'a11y',
+			'icon' => 'accessibility',
 			'icon_size' => 'medium',
 			'icon_color' => '#ffffff',
 			'bg_color' => '#4054b2',
@@ -205,7 +205,7 @@ class Open_Accessibility_Utils {
 
 		// Sanitize select fields
 		if ( isset( $input['icon'] ) ) {
-			$valid_icons = array( 'a11y', 'universal-access', 'wheelchair', 'eye', 'adjust' );
+			$valid_icons = array( 'accessibility', 'universal-access', 'wheelchair', 'eye', 'adjust' );
 			$sanitized['icon'] = in_array( $input['icon'], $valid_icons ) ? $input['icon'] : $defaults['icon'];
 		}
 

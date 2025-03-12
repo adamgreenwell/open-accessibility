@@ -37,7 +37,7 @@ class Open_Accessibility_Widget {
 	 */
 	public function render() {
 		ob_start();
-		include_once OPEN_A11Y_PLUGIN_DIR . 'public/partials/widget-template.php';
+		include_once OPEN_ACCESSIBILITY_PLUGIN_DIR . 'public/partials/widget-template.php';
 		return ob_get_clean();
 	}
 
