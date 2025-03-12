@@ -391,12 +391,88 @@
         });
     }
 
+    // Debug log viewer
+    function initDebugLogViewer() {
+        const $viewLogsBtn = $('#open-accessibility-view-logs');
+        const $clearLogsBtn = $('#open-accessibility-clear-logs');
+        const $logViewer = $('#open-accessibility-log-viewer');
+        const $logEntries = $('.open-accessibility-log-entries');
+
+        // View logs
+        $viewLogsBtn.on('click', function() {
+            // Toggle visibility
+            if ($logViewer.is(':visible')) {
+                $logViewer.slideUp();
+                $(this).text(open_accessibility_admin.i18n.view_logs);
+                return;
+            }
+
+            $(this).text(open_accessibility_admin.i18n.hide_logs);
+            $logEntries.html(open_accessibility_admin.i18n.loading);
+            $logViewer.slideDown();
+
+            // Fetch logs via AJAX
+            $.ajax({
+                url: ajaxurl,
+                type: 'POST',
+                data: {
+                    action: 'open_accessibility_get_debug_logs',
+                    nonce: open_accessibility_admin.nonce
+                },
+                success: function(response) {
+                    if (response.success) {
+                        if (response.data.logs && response.data.logs.length > 0) {
+                            $logEntries.html(response.data.logs);
+                        } else {
+                            $logEntries.html(open_accessibility_admin.i18n.no_logs);
+                        }
+                    } else {
+                        $logEntries.html(response.data.message || open_accessibility_admin.i18n.error_getting_logs);
+                    }
+                },
+                error: function() {
+                    $logEntries.html(open_accessibility_admin.i18n.error_getting_logs);
+                }
+            });
+        });
+
+        // Clear logs
+        $clearLogsBtn.on('click', function() {
+            if (!confirm(open_accessibility_admin.i18n.confirm_clear_logs)) {
+                return;
+            }
+
+            $.ajax({
+                url: ajaxurl,
+                type: 'POST',
+                data: {
+                    action: 'open_accessibility_clear_debug_logs',
+                    nonce: open_accessibility_admin.nonce
+                },
+                success: function(response) {
+                    if (response.success) {
+                        showNotice('success', response.data.message);
+                        if ($logViewer.is(':visible')) {
+                            $logEntries.html(open_accessibility_admin.i18n.no_logs);
+                        }
+                    } else {
+                        showNotice('error', response.data.message || open_accessibility_admin.i18n.error_clearing_logs);
+                    }
+                },
+                error: function() {
+                    showNotice('error', open_accessibility_admin.i18n.error_clearing_logs);
+                }
+            });
+        });
+    }
+
     // Document ready
     $(function() {
         initColorPickers();
         initStatementGenerator();
         handleDependencies();
         initWidgetPreview();
+        initDebugLogViewer();
     });
 
 })(jQuery);
