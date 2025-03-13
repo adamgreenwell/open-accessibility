@@ -24,12 +24,12 @@ class Open_Accessibility_Statement_Generator {
 	public static function generate_statement($data) {
 
 		// Make sure we're handling this specific AJAX action
-		if ($_POST['action'] !== 'open_accessibility_generate_statement') {
+		if (!isset($_POST['action']) || $_POST['action'] !== 'open_accessibility_generate_statement') {
 			return;
 		}
 
 		// Check for nonce
-		if (!isset($_POST['nonce']) || !wp_verify_nonce( wp_unslash($_POST['nonce']), 'open_accessibility_nonce')) {
+		if (!isset($_POST['nonce']) || !wp_verify_nonce( sanitize_text_field( wp_unslash($_POST['nonce']) ), 'open_accessibility_nonce')) {
 			wp_send_json_error(array('message' => __('Security check failed.', 'open-accessibility')));
 		}
 
