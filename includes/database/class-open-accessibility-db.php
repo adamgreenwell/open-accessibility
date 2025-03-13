@@ -147,16 +147,27 @@ class Open_Accessibility_DB {
 			$feature_clause = $wpdb->prepare( 'AND feature = %s', $feature );
 		}
 
-		// Get total unique sessions
-		$total_sessions = $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT COUNT(DISTINCT session_id) 
-		        FROM `{$wpdb->prefix}open_accessibility_stats` 
-		        WHERE 1=1 %s %s",
-				$date_clause,
-				$feature_clause
-			)
-		);
+		// Define a cache key for this specific query
+		$cache_key = 'open_access_stats_sessions_' . md5($date_clause . $feature_clause);
+
+		// Try to get the result from cache first
+		$total_sessions = wp_cache_get($cache_key, 'open-accessibility');
+
+		// If not in cache, run the query and cache the result
+		if (false === $total_sessions) {
+			$total_sessions = $wpdb->get_var(
+				$wpdb->prepare(
+					"SELECT COUNT(DISTINCT session_id) 
+		            FROM `{$wpdb->prefix}open_accessibility_stats` 
+		            WHERE 1=1 %s %s",
+					$date_clause,
+					$feature_clause
+				)
+			);
+
+			// Cache the result (cache for 1 hour)
+			wp_cache_set($cache_key, $total_sessions, 'open-accessibility', HOUR_IN_SECONDS);
+		}
 
 		// Get feature usage count
 		$feature_counts = $wpdb->get_results(
@@ -205,9 +216,10 @@ class Open_Accessibility_DB {
 
 		$table_name = $wpdb->prefix . 'open_accessibility_stats';
 
+		$table_name_esc = esc_sql($table_name);
 		$result = $wpdb->query(
 			$wpdb->prepare(
-				"DELETE FROM $table_name WHERE created_at < DATE_SUB(NOW(), INTERVAL %d DAY)",
+				"DELETE FROM `$table_name_esc` WHERE created_at < DATE_SUB(NOW(), INTERVAL %d DAY)",
 				$days
 			)
 		);
@@ -261,7 +273,8 @@ class Open_Accessibility_DB {
 
 		// Drop tables
 		$table_name = $wpdb->prefix . 'open_accessibility_stats';
-		$wpdb->query( "DROP TABLE IF EXISTS $table_name" );
+		$table_name_esc = esc_sql($table_name);
+		$wpdb->query( "DROP TABLE IF EXISTS `$table_name_esc`" );
 
 		// Delete options
 		delete_option( 'open_accessibility_db_version' );
