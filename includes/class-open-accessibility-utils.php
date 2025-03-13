@@ -19,7 +19,7 @@ class Open_Accessibility_Utils {
 			return wp_is_mobile();
 		}
 
-		$user_agent = isset( $_SERVER['HTTP_USER_AGENT'] ) ? wp_unslash($_SERVER['HTTP_USER_AGENT']) : '';
+		$user_agent = isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash($_SERVER['HTTP_USER_AGENT']) ) : '';
 		$mobile_agents = array(
 			'Android', 'iPhone', 'iPod', 'iPad', 'Windows Phone', 'BlackBerry', 'webOS', 'Mobile'
 		);
@@ -257,7 +257,7 @@ class Open_Accessibility_Utils {
 				file_put_contents($log_dir . '/index.php', '<?php // Silence is golden');
 			}
 
-			$date = date('Y-m-d H:i:s');
+			$date = gmdate('Y-m-d H:i:s');
 			$level_upper = strtoupper($level);
 
 			if (is_array($message) || is_object($message)) {
@@ -265,7 +265,7 @@ class Open_Accessibility_Utils {
 			}
 
 			$log_message = "[$date] [$level_upper] $message" . PHP_EOL;
-			$log_file = $log_dir . '/debug-' . date('Y-m-d') . '.log';
+			$log_file = $log_dir . '/debug-' . gmdate('Y-m-d') . '.log';
 
 			// Append to log file
 			error_log($log_message, 3, $log_file);
