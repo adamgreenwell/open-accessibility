@@ -77,6 +77,9 @@ Yes, all user preferences are saved using local storage in their browser, so set
 
 ## Changelog
 
+### 1.0.2
+* Fixed grayscale toggle causing accessibility button and panel to lose fixed positioning
+
 ### 1.0.1
 * Updated and refined icons for better display in the settings page and on the frontend
 
