@@ -198,7 +198,22 @@
     // Toggle grayscale
     function toggleGrayscale() {
         accessibilityState.grayscale = !accessibilityState.grayscale;
-        $('body').toggleClass('open-accessibility-grayscale', accessibilityState.grayscale);
+
+        if (accessibilityState.grayscale) {
+            // Apply grayscale to the main content
+            $('body *').not('.open-accessibility-widget-wrapper, .open-accessibility-widget-wrapper *').css('filter', 'grayscale(100%)');
+
+            // Add a class to the widget wrapper for CSS targeting
+            $('.open-accessibility-widget-wrapper').addClass('widget-grayscale');
+        } else {
+            // Remove grayscale from the main content
+            $('body *').not('.open-accessibility-widget-wrapper, .open-accessibility-widget-wrapper *').css('filter', '');
+
+            // Remove the class from the widget wrapper
+            $('.open-accessibility-widget-wrapper').removeClass('widget-grayscale');
+        }
+
+        // Toggle the button active state
         $('.open-accessibility-action-button[data-action="grayscale"]').toggleClass('active', accessibilityState.grayscale);
     }
 
@@ -329,6 +344,10 @@
             textAlign: '',
             pauseAnimations: false
         };
+
+        // Clear the grayscale filter from all elements
+        $('body *').css('filter', '');
+        $('.open-accessibility-widget-wrapper').removeClass('widget-grayscale');
 
         // Save reset state
         saveState();

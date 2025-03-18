@@ -49,6 +49,7 @@
 /* Accessibility Widget */
 .open-accessibility-widget-wrapper {
     position: fixed;
+    filter: none !important;
     z-index: 9999;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
     font-size: 16px;
@@ -352,6 +353,30 @@ body.open-accessibility-dark-background * {
 
 body.open-accessibility-grayscale {
     filter: grayscale(100%);
+}
+
+body.open-accessibility-grayscale *:not(.open-accessibility-widget-wrapper *) {
+    background-color: transparent !important;
+    color: #333 !important;
+    border-color: #666 !important;
+    -webkit-filter: grayscale(100%) !important;
+    filter: grayscale(100%) !important;
+}
+
+/* Grayscale effect for the widget */
+.open-accessibility-widget-wrapper.widget-grayscale {
+    filter: grayscale(100%);
+}
+
+/* Ensure the widget stays in its correct position */
+.open-accessibility-widget-wrapper.widget-grayscale {
+    position: fixed; /* Reinforce fixed positioning */
+}
+
+.open-accessibility-widget-wrapper.widget-grayscale .open-accessibility-toggle-button,
+.open-accessibility-widget-wrapper.widget-grayscale .open-accessibility-widget-panel,
+.open-accessibility-widget-wrapper.widget-grayscale .open-accessibility-icon svg {
+    filter: grayscale(100%); /* Ensure all parts of the widget get the grayscale effect */
 }
 
 body.open-accessibility-readable-font,
