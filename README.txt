@@ -3,7 +3,7 @@ Contributors: adamgreenwell
 Tags: accessibility, wcag, ada, disability, readable
 Requires at least: 5.2
 Tested up to: 6.7.2
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -44,7 +44,7 @@ The plugin adds a customizable accessibility widget to your website that gives u
 
 * Improves usability for people with disabilities
 * Helps meet legal accessibility requirements
-* Enhances SEO by making your site more accessible
+* Enhances user engagement by making your site more accessible
 * Shows your commitment to inclusivity
 
 = Important Note =
@@ -83,21 +83,18 @@ The plugin is designed to be lightweight and only loads what's necessary. The im
 
 Yes, all user preferences are saved using local storage in their browser, so settings persist between visits.
 
-== Screenshots ==
-
-1. Accessibility Widget on Frontend
-2. Admin Settings - General
-3. Admin Settings - Design
-4. Admin Settings - Position
-5. Admin Settings - Features
-6. Accessibility Statement Generator
-
 == Changelog ==
+
+= 1.0.1 =
+* Updated and refined icons for better display in the settings page and on the frontend
 
 = 1.0.0 =
 * Initial release
 
 == Upgrade Notice ==
+
+= 1.0.1 =
+This update improves the visual appearance of icons in both the settings page and frontend widget.
 
 = 1.0.0 =
 Initial release of the Open Accessibility plugin.
