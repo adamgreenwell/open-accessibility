@@ -1,4 +1,7 @@
 <?php
+// If this file is called directly, abort.
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
 /**
  * Database functionality for the Open Accessibility plugin.
  *
@@ -75,6 +78,10 @@ class Open_Accessibility_DB {
 	 * @param    string    $action        Action performed.
 	 * @param    string    $value         Value of the action.
 	 * @return   boolean   Whether the log was inserted successfully.
+	 *
+	 * @global   wpdb      $wpdb          WordPress database abstraction object.
+	 * 
+	 * @uses     wpdb::insert             Direct DB call necessary for plugin table.
 	 */
 	public static function log_feature_usage( $session_id, $feature, $action, $value = '' ) {
 		global $wpdb;
@@ -83,6 +90,9 @@ class Open_Accessibility_DB {
 
 		$ip = Open_Accessibility_Utils::get_client_ip();
 		$user_agent = isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '';
+
+		// Clear any related caches
+		self::clear_stats_cache();
 
 		$result = $wpdb->insert(
 			$table_name,
@@ -116,6 +126,9 @@ class Open_Accessibility_DB {
 	 * @param    string    $period       Period to get stats for (day, week, month, year).
 	 * @param    string    $feature      Specific feature to get stats for (optional).
 	 * @return   array     Array of usage statistics.
+	 * 
+	 * @global   wpdb      $wpdb         WordPress database abstraction object.
+	 * @uses     wp_cache_get/set        Caching for database query results.
 	 */
 	public static function get_feature_usage( $period = 'month', $feature = '' ) {
 		global $wpdb;
@@ -147,13 +160,17 @@ class Open_Accessibility_DB {
 			$feature_clause = $wpdb->prepare( 'AND feature = %s', $feature );
 		}
 
-		// Define a cache key for this specific query
-		$cache_key = 'open_access_stats_sessions_' . md5($date_clause . $feature_clause);
+		// Define cache keys for the different queries
+		$sessions_cache_key = 'open_access_stats_sessions_' . md5($date_clause . $feature_clause);
+		$features_cache_key = 'open_access_stats_features_' . md5($date_clause . $feature_clause);
+		$actions_cache_key = 'open_access_stats_actions_' . md5($date_clause . $feature_clause);
 
-		// Try to get the result from cache first
-		$total_sessions = wp_cache_get($cache_key, 'open-accessibility');
+		// Try to get results from cache first
+		$total_sessions = wp_cache_get($sessions_cache_key, 'open-accessibility');
+		$feature_counts = wp_cache_get($features_cache_key, 'open-accessibility');
+		$action_counts = wp_cache_get($actions_cache_key, 'open-accessibility');
 
-		// If not in cache, run the query and cache the result
+		// If total_sessions not in cache, run the query and cache the result
 		if (false === $total_sessions) {
 			$total_sessions = $wpdb->get_var(
 				$wpdb->prepare(
@@ -166,36 +183,46 @@ class Open_Accessibility_DB {
 			);
 
 			// Cache the result (cache for 1 hour)
-			wp_cache_set($cache_key, $total_sessions, 'open-accessibility', HOUR_IN_SECONDS);
+			wp_cache_set($sessions_cache_key, $total_sessions, 'open-accessibility', HOUR_IN_SECONDS);
 		}
 
-		// Get feature usage count
-		$feature_counts = $wpdb->get_results(
-			$wpdb->prepare(
-				"SELECT feature, COUNT(*) as count, COUNT(DISTINCT session_id) as unique_sessions
+		// If feature_counts not in cache, run the query and cache the result
+		if (false === $feature_counts) {
+			$feature_counts = $wpdb->get_results(
+				$wpdb->prepare(
+					"SELECT feature, COUNT(*) as count, COUNT(DISTINCT session_id) as unique_sessions
 		        FROM `{$wpdb->prefix}open_accessibility_stats` 
 		        WHERE 1=1 %s %s
 		        GROUP BY feature
 		        ORDER BY count DESC",
-				$date_clause,
-				$feature_clause
-			),
-			ARRAY_A
-		);
+					$date_clause,
+					$feature_clause
+				),
+				ARRAY_A
+			);
+			
+			// Cache the result (cache for 1 hour)
+			wp_cache_set($features_cache_key, $feature_counts, 'open-accessibility', HOUR_IN_SECONDS);
+		}
 
-		// Get action counts for each feature
-		$action_counts = $wpdb->get_results(
-			$wpdb->prepare(
-				"SELECT feature, action, value, COUNT(*) as count
+		// If action_counts not in cache, run the query and cache the result
+		if (false === $action_counts) {
+			$action_counts = $wpdb->get_results(
+				$wpdb->prepare(
+					"SELECT feature, action, value, COUNT(*) as count
 		        FROM `{$wpdb->prefix}open_accessibility_stats` 
 		        WHERE 1=1 %s %s
 		        GROUP BY feature, action, value
 		        ORDER BY feature, count DESC",
-				$date_clause,
-				$feature_clause
-			),
-			ARRAY_A
-		);
+					$date_clause,
+					$feature_clause
+				),
+				ARRAY_A
+			);
+			
+			// Cache the result (cache for 1 hour)
+			wp_cache_set($actions_cache_key, $action_counts, 'open-accessibility', HOUR_IN_SECONDS);
+		}
 
 		return array(
 			'total_sessions' => $total_sessions ? $total_sessions : 0,
@@ -205,24 +232,42 @@ class Open_Accessibility_DB {
 	}
 
 	/**
+	 * Clear all stats-related caches.
+	 * 
+	 * @since    1.0.0
+	 * @return   void
+	 */
+	public static function clear_stats_cache() {
+		wp_cache_delete('open_access_stats_sessions_', 'open-accessibility');
+		
+		// Delete all stats caches by group
+		if (function_exists('wp_cache_flush_group')) {
+			wp_cache_flush_group('open-accessibility');
+		}
+	}
+
+	/**
 	 * Clear old statistics data to keep the database size manageable.
 	 *
 	 * @since    1.0.0
 	 * @param    int       $days    Number of days to keep data for.
 	 * @return   int       Number of rows deleted.
+	 * 
+	 * @global   wpdb      $wpdb    WordPress database abstraction object.
+	 * @uses     wpdb::query       Direct DB call necessary for plugin table.
 	 */
 	public static function cleanup_old_data( $days = 90 ) {
 		global $wpdb;
 
-		$table_name = $wpdb->prefix . 'open_accessibility_stats';
-
-		$table_name_esc = esc_sql($table_name);
 		$result = $wpdb->query(
 			$wpdb->prepare(
-				"DELETE FROM `$table_name_esc` WHERE created_at < DATE_SUB(NOW(), INTERVAL %d DAY)",
+				"DELETE FROM {$wpdb->prefix}open_accessibility_stats WHERE created_at < DATE_SUB(NOW(), INTERVAL %d DAY)",
 				$days
 			)
 		);
+
+		// Clear caches after data deletion
+		self::clear_stats_cache();
 
 		return $result !== false ? $result : 0;
 	}
@@ -232,11 +277,22 @@ class Open_Accessibility_DB {
 	 *
 	 * @since    1.0.0
 	 * @return   array    Array with table sizes.
+	 * 
+	 * @global   wpdb     $wpdb     WordPress database abstraction object.
+	 * @uses     wpdb::get_row      Direct DB call necessary for plugin table.
+	 * @uses     wpdb::get_var      Direct DB call necessary for plugin table.
 	 */
 	public static function get_table_sizes() {
 		global $wpdb;
 
 		$table_name = $wpdb->prefix . 'open_accessibility_stats';
+		$cache_key = 'open_access_table_sizes';
+		
+		// Try to get results from cache first
+		$cached_result = wp_cache_get($cache_key, 'open-accessibility');
+		if (false !== $cached_result) {
+			return $cached_result;
+		}
 
 		// Use $wpdb->prepare() directly within get_row()
 		$size = $wpdb->get_row(
@@ -253,28 +309,48 @@ class Open_Accessibility_DB {
 			ARRAY_A
 		);
 
-		// For table names, we need to use esc_sql() since we can't use placeholders
-		$count = $wpdb->get_var("SELECT COUNT(*) as count FROM `{$wpdb->prefix}open_accessibility_stats`");
+		// For table rows count
+		$count_cache_key = 'open_access_table_count';
+		$count = wp_cache_get($count_cache_key, 'open-accessibility');
+		
+		if (false === $count) {
+			// For table names, we need to use $wpdb->prefix directly
+			$count = $wpdb->get_var("SELECT COUNT(*) as count FROM `{$wpdb->prefix}open_accessibility_stats`");
+			wp_cache_set($count_cache_key, $count, 'open-accessibility', HOUR_IN_SECONDS);
+		}
 
-		return array(
+		$result = array(
 			'table' => $table_name,
 			'size_mb' => $size ? $size['size_mb'] : 0,
 			'rows' => $count ? $count : 0
 		);
+		
+		// Cache the combined result
+		wp_cache_set($cache_key, $result, 'open-accessibility', HOUR_IN_SECONDS);
+
+		return $result;
 	}
 
 	/**
 	 * Uninstall database tables and options.
 	 *
 	 * @since    1.0.0
+	 * 
+	 * @global   wpdb     $wpdb    WordPress database abstraction object.
+	 * @uses     wpdb::query       Direct DB call necessary for dropping custom plugin table.
 	 */
 	public static function uninstall() {
 		global $wpdb;
 
-		// Drop tables
-		$table_name = $wpdb->prefix . 'open_accessibility_stats';
-		$table_name_esc = esc_sql($table_name);
-		$wpdb->query( "DROP TABLE IF EXISTS `$table_name_esc`" );
+		// Clear all plugin caches
+		self::clear_stats_cache();
+
+		// Drop tables - DB schema change is necessary during uninstall
+		$wpdb->query( 
+			sprintf( 'DROP TABLE IF EXISTS %s', 
+				$wpdb->prefix . 'open_accessibility_stats' 
+			)
+		);
 
 		// Delete options
 		delete_option( 'open_accessibility_db_version' );
