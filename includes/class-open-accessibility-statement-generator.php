@@ -1,4 +1,7 @@
 <?php
+// If this file is called directly, abort.
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
 /**
  * Accessibility Statement Generator
  *
@@ -41,9 +44,9 @@ class Open_Accessibility_Statement_Generator {
 			'conformance_level' => 'AA',
 		]);
 
-		// Sanitize values
+		// Sanitize values for processing - escaping will occur at output time
 		$org_name = sanitize_text_field($data['org_name']);
-		$website_url = esc_url($data['website_url']);
+		$website_url = sanitize_text_field($data['website_url']);
 		$contact_email = sanitize_email($data['contact_email']);
 		$conformance_level = in_array($data['conformance_level'], ['A', 'AA', 'AAA']) ? $data['conformance_level'] : 'AA';
 
@@ -163,7 +166,8 @@ class Open_Accessibility_Statement_Generator {
 		if (!is_wp_error($page_id)) {
 			// Update plugin settings with the new page URL
 			$options = get_option('open_accessibility_options', []);
-			$options['statement_url'] = get_permalink($page_id);
+			$page_url = get_permalink($page_id);
+			$options['statement_url'] = $page_url;
 			update_option('open_accessibility_options', $options);
 		}
 
