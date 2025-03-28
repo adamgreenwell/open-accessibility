@@ -2,8 +2,8 @@
 Contributors: adamgreenwell
 Tags: accessibility, wcag, ada, disability, readable
 Requires at least: 5.2
-Tested up to: 6.7.2
-Stable tag: 1.0.2
+Tested up to: 6.7
+Stable tag: 1.1.0
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -85,6 +85,11 @@ Yes, all user preferences are saved using local storage in their browser, so set
 
 == Changelog ==
 
+= 1.1.0 =
+* Improved high contrast and negative contrast modes by switching from CSS filters to direct element styling
+* Fixed widget positioning issue when contrast modes are enabled
+* Made under the hood improvements for WordPress coding standards compliance
+
 = 1.0.2 =
 * Fixed grayscale toggle causing accessibility button and panel to lose fixed positioning
 
@@ -95,6 +100,9 @@ Yes, all user preferences are saved using local storage in their browser, so set
 * Initial release
 
 == Upgrade Notice ==
+
+= 1.1.0 =
+This update fixes widget positioning issues when contrast modes are enabled and improves code quality.
 
 = 1.0.2 =
 This update improves the behavior of the grayscale accessibility feature.
