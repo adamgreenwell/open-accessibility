@@ -77,6 +77,11 @@ Yes, all user preferences are saved using local storage in their browser, so set
 
 ## Changelog
 
+### 1.1.0
+* Improved high contrast and negative contrast modes by switching from CSS filters to direct element styling
+* Fixed widget positioning issue when contrast modes are enabled
+* Made under the hood improvements for WordPress coding standards compliance
+
 ### 1.0.2
 * Fixed grayscale toggle causing accessibility button and panel to lose fixed positioning
 
