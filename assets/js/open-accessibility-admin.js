@@ -472,6 +472,20 @@
         handleDependencies();
         initWidgetPreview();
         initDebugLogViewer();
+
+        // Tab navigation
+        $('.nav-tab').on('click', function(e) {
+            e.preventDefault();
+
+            // Update active tab
+            $('.nav-tab').removeClass('nav-tab-active');
+            $(this).addClass('nav-tab-active');
+
+            // Show selected tab content
+            const target = $(this).attr('href');
+            $('.open-accessibility-tab').removeClass('active');
+            $(target).addClass('active');
+        });
     });
 
 })(jQuery);
