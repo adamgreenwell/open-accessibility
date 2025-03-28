@@ -59,14 +59,16 @@
 /* Widget positioning */
 .open-accessibility-widget-wrapper.position-left {
     left: 20px;
-    top: 50%;
+    top: 50vh;
     transform: translateY(-50%);
+    position: fixed;
 }
 
 .open-accessibility-widget-wrapper.position-right {
     right: 20px;
-    top: 50%;
+    top: 50vh;
     transform: translateY(-50%);
+    position: fixed;
 }
 
 .open-accessibility-widget-wrapper.position-bottom-left {
@@ -146,22 +148,26 @@
     left: calc(100% + 15px);
     top: 50%;
     transform: translateY(-50%);
+    position: absolute;
 }
 
 .open-accessibility-widget-wrapper.position-right .open-accessibility-widget-panel {
     right: calc(100% + 15px);
     top: 50%;
     transform: translateY(-50%);
+    position: absolute;
 }
 
 .open-accessibility-widget-wrapper.position-bottom-left .open-accessibility-widget-panel {
     left: 0;
     bottom: calc(100% + 15px);
+    position: absolute;
 }
 
 .open-accessibility-widget-wrapper.position-bottom-right .open-accessibility-widget-panel {
     right: 0;
     bottom: calc(100% + 15px);
+    position: absolute;
 }
 
 /* Widget header */
@@ -324,11 +330,45 @@
 
 /* Body classes for accessibility features */
 body.open-accessibility-high-contrast {
-    filter: contrast(150%);
+    background-color: #000 !important;
+    color: #fff !important;
+}
+
+body.open-accessibility-high-contrast a,
+body.open-accessibility-high-contrast button:not(.open-accessibility-toggle-button):not(.open-accessibility-action-button),
+body.open-accessibility-high-contrast input,
+body.open-accessibility-high-contrast select,
+body.open-accessibility-high-contrast textarea,
+body.open-accessibility-high-contrast h1,
+body.open-accessibility-high-contrast h2, 
+body.open-accessibility-high-contrast h3,
+body.open-accessibility-high-contrast h4,
+body.open-accessibility-high-contrast h5,
+body.open-accessibility-high-contrast h6 {
+    background-color: #000 !important;
+    color: #ffff00 !important;
+    border-color: #ffff00 !important;
 }
 
 body.open-accessibility-negative-contrast {
-    filter: invert(100%);
+    background-color: #000 !important;
+    color: #fff !important;
+}
+
+body.open-accessibility-negative-contrast a,
+body.open-accessibility-negative-contrast button:not(.open-accessibility-toggle-button):not(.open-accessibility-action-button),
+body.open-accessibility-negative-contrast input,
+body.open-accessibility-negative-contrast select,
+body.open-accessibility-negative-contrast textarea,
+body.open-accessibility-negative-contrast h1,
+body.open-accessibility-negative-contrast h2, 
+body.open-accessibility-negative-contrast h3,
+body.open-accessibility-negative-contrast h4,
+body.open-accessibility-negative-contrast h5,
+body.open-accessibility-negative-contrast h6 {
+    background-color: #000 !important;
+    color: #00ffff !important;
+    border-color: #00ffff !important;
 }
 
 body.open-accessibility-light-background {
@@ -503,4 +543,68 @@ body.open-accessibility-text-size-4 {
 
 body.open-accessibility-text-size-5 {
     font-size: 150% !important;
+}
+
+/* Isolate widget from body filter effects */
+body.open-accessibility-high-contrast .open-accessibility-widget-wrapper,
+body.open-accessibility-negative-contrast .open-accessibility-widget-wrapper {
+    /* Create a new stacking context */
+    isolation: isolate;
+    z-index: 9999;
+}
+
+body.open-accessibility-high-contrast .open-accessibility-widget-wrapper.position-left,
+body.open-accessibility-negative-contrast .open-accessibility-widget-wrapper.position-left {
+    left: 20px !important;
+    top: 50vh !important;
+    transform: translateY(-50%) !important;
+    position: fixed !important;
+}
+
+body.open-accessibility-high-contrast .open-accessibility-widget-wrapper.position-right,
+body.open-accessibility-negative-contrast .open-accessibility-widget-wrapper.position-right {
+    right: 20px !important;
+    top: 50vh !important;
+    transform: translateY(-50%) !important;
+    position: fixed !important;
+}
+
+/* Special panel handling for contrast modes */
+body.open-accessibility-high-contrast .open-accessibility-widget-panel,
+body.open-accessibility-negative-contrast .open-accessibility-widget-panel {
+    position: absolute !important;
+    visibility: hidden;
+    opacity: 0;
+    z-index: 9999;
+    background-color: #fff !important;
+    color: #333 !important;
+}
+
+body.open-accessibility-high-contrast .open-accessibility-widget-wrapper.active .open-accessibility-widget-panel,
+body.open-accessibility-negative-contrast .open-accessibility-widget-wrapper.active .open-accessibility-widget-panel {
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Make sure widget and panel use proper styling */
+body.open-accessibility-high-contrast .open-accessibility-widget-panel h2,
+body.open-accessibility-high-contrast .open-accessibility-widget-panel h3,
+body.open-accessibility-negative-contrast .open-accessibility-widget-panel h2,
+body.open-accessibility-negative-contrast .open-accessibility-widget-panel h3 {
+    color: #333 !important;
+    background-color: #fff !important;
+}
+
+body.open-accessibility-high-contrast .open-accessibility-action-button,
+body.open-accessibility-negative-contrast .open-accessibility-action-button {
+    background-color: #f0f0f0 !important;
+    color: #333 !important;
+    border-color: #ddd !important;
+}
+
+body.open-accessibility-high-contrast .open-accessibility-action-button.active,
+body.open-accessibility-negative-contrast .open-accessibility-action-button.active {
+    background-color: #4054b2 !important;
+    color: white !important;
+    border-color: #4054b2 !important;
 }
