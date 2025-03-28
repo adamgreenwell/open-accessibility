@@ -113,7 +113,9 @@ class Open_Accessibility {
 	private function set_locale() {
 		$plugin_i18n = new Open_Accessibility_i18n();
 
-		$this->loader->add_action( 'plugins_loaded', $plugin_i18n, 'load_plugin_textdomain' );
+		// Using 'init' hook as recommended for better compatibility with WordPress
+		// This is only needed for WordPress versions prior to 4.6
+		$this->loader->add_action( 'init', $plugin_i18n, 'load_plugin_textdomain' );
 	}
 
 	/**
