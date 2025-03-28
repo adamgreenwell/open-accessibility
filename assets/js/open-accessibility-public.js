@@ -72,6 +72,19 @@
                 closeAccessibilityPanel();
             }
         });
+        
+        // Ensure widget stays in viewport on scroll
+        $(window).on('scroll', function() {
+            const $widget = $('.open-accessibility-widget-wrapper');
+            if ($widget.hasClass('position-left') || $widget.hasClass('position-right')) {
+                // Basic positioning for all modes
+                $widget.css({
+                    'position': 'fixed',
+                    'top': '50vh',
+                    'transform': 'translateY(-50%)'
+                });
+            }
+        });
     }
 
     // Toggle widget panel
@@ -159,7 +172,7 @@
     function handleContrast(mode) {
         // Remove existing contrast classes
         $('body').removeClass('open-accessibility-high-contrast open-accessibility-negative-contrast open-accessibility-light-background open-accessibility-dark-background');
-
+        
         // Clear active state on all contrast buttons
         $('.open-accessibility-action-button[data-action="contrast"]').removeClass('active');
 
