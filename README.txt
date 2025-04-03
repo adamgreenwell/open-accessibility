@@ -3,7 +3,7 @@ Contributors: adamgreenwell
 Tags: accessibility, wcag, ada, disability, readable
 Requires at least: 5.2
 Tested up to: 6.7
-Stable tag: 1.1.0
+Stable tag: 1.1.2
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -84,6 +84,12 @@ The plugin is designed to be lightweight and only loads what's necessary. The im
 Yes, all user preferences are saved using local storage in their browser, so settings persist between visits.
 
 == Changelog ==
+
+= 1.1.2 =
+* Update uninstaller with database query execution safety
+
+= 1.1.1 =
+* Added support for theme color modes (light and dark modes)
 
 = 1.1.0 =
 * Improved high contrast and negative contrast modes by switching from CSS filters to direct element styling
