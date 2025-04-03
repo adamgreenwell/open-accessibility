@@ -2,6 +2,33 @@
  * Frontend CSS for the Open Accessibility plugin
  */
 
+/* Theme variables */
+:root {
+    --oa-panel-bg: #fff;
+    --oa-panel-text: #333;
+    --oa-panel-border: #eee;
+    --oa-action-button-bg: #f0f0f0;
+    --oa-action-button-text: #333;
+    --oa-action-button-border: #ddd;
+    --oa-action-button-hover-bg: #e0e0e0;
+    --oa-link-color: #4054b2;
+    --oa-link-hover-color: #2c3e8e;
+}
+
+/* Dark mode variables - support both data-theme and data-bs-theme */
+[data-theme="dark"],
+[data-bs-theme="dark"] {
+    --oa-panel-bg: #212529;
+    --oa-panel-text: #f8f9fa;
+    --oa-panel-border: #495057;
+    --oa-action-button-bg: #343a40;
+    --oa-action-button-text: #f8f9fa;
+    --oa-action-button-border: #495057;
+    --oa-action-button-hover-bg: #495057;
+    --oa-link-color: #6ea8fe;
+    --oa-link-hover-color: #8bb9fe;
+}
+
 /* Skip to content link */
 .open-accessibility-skip-to-content-link {
     clip: rect(1px, 1px, 1px, 1px);
@@ -127,7 +154,8 @@
 /* Widget panel */
 .open-accessibility-widget-panel {
     position: absolute;
-    background-color: #fff;
+    background-color: var(--oa-panel-bg);
+    color: var(--oa-panel-text);
     border-radius: 8px;
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
     width: 320px;
@@ -177,6 +205,9 @@
     justify-content: space-between;
     padding: 15px;
     border-radius: 8px 8px 0 0;
+    background-color: var(--oa-panel-bg);
+    color: var(--oa-panel-text);
+    border-bottom: 1px solid var(--oa-panel-border);
 }
 
 .open-accessibility-widget-header h2 {
@@ -231,8 +262,9 @@
 }
 
 .open-accessibility-action-button {
-    background-color: #f0f0f0;
-    border: 1px solid #ddd;
+    background-color: var(--oa-action-button-bg);
+    color: var(--oa-action-button-text);
+    border: 1px solid var(--oa-action-button-border);
     border-radius: 4px;
     padding: 8px 12px;
     cursor: pointer;
@@ -242,7 +274,7 @@
 
 .open-accessibility-action-button:hover,
 .open-accessibility-action-button:focus {
-    background-color: #e0e0e0;
+    background-color: var(--oa-action-button-hover-bg);
     outline: none;
 }
 
@@ -257,6 +289,9 @@
     padding: 15px;
     text-align: center;
     border-radius: 0 0 8px 8px;
+    background-color: var(--oa-panel-bg);
+    color: var(--oa-panel-text);
+    border-top: 1px solid var(--oa-panel-border);
 }
 
 .open-accessibility-hide-widget {
@@ -285,14 +320,14 @@
 .open-accessibility-link {
     display: block;
     text-decoration: none;
-    color: #4054b2;
+    color: var(--oa-link-color);
     font-weight: 500;
     transition: color 0.2s ease;
 }
 
 .open-accessibility-link:hover,
 .open-accessibility-link:focus {
-    color: #2c3e8e;
+    color: var(--oa-link-hover-color);
     text-decoration: underline;
     outline: none;
 }
