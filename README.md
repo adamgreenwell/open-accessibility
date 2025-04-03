@@ -77,6 +77,9 @@ Yes, all user preferences are saved using local storage in their browser, so set
 
 ## Changelog
 
+### 1.1.3
+* Improve translation handing in WordPress versions prior to 4.6
+
 ### 1.1.2
 * Update uninstaller with database query execution safety
 
