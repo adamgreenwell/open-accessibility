@@ -168,7 +168,7 @@ function open_accessibility_get_icon_svg( $icon_type, $color ) {
 
 	<!-- Accessibility Widget Panel -->
 	<div class="open-accessibility-widget-panel" aria-hidden="true">
-		<div class="open-accessibility-widget-header" style="background-color: <?php echo esc_attr($bg_color); ?>; color: <?php echo esc_attr($icon_color); ?>;">
+		<div class="open-accessibility-widget-header">
 			<h2><?php esc_html_e('Accessibility Options', 'open-accessibility'); ?></h2>
 			<button class="open-accessibility-close" aria-label="<?php esc_attr_e('Close accessibility tools', 'open-accessibility'); ?>">
 				<span aria-hidden="true">×</span>
@@ -350,7 +350,7 @@ function open_accessibility_get_icon_svg( $icon_type, $color ) {
 			</div>
 		</div>
 
-		<div class="open-accessibility-widget-footer" style="background-color: <?php echo esc_attr($bg_color); ?>; color: <?php echo esc_attr($icon_color); ?>;">
+		<div class="open-accessibility-widget-footer">
 			<button class="open-accessibility-hide-widget">
 				<?php esc_html_e('Hide Accessibility Panel', 'open-accessibility'); ?>
 			</button>

@@ -347,7 +347,7 @@ class Open_Accessibility_DB {
 
 		// Drop tables - DB schema change is necessary during uninstall
 		$wpdb->query( 
-			sprintf( 'DROP TABLE IF EXISTS %s', 
+			$wpdb->prepare( 'DROP TABLE IF EXISTS %s', 
 				$wpdb->prefix . 'open_accessibility_stats' 
 			)
 		);
