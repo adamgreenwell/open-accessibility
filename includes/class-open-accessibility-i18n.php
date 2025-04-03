@@ -24,10 +24,13 @@ class Open_Accessibility_i18n {
 	 * @since    1.0.0
 	 */
 	public function load_plugin_textdomain() {
-		load_plugin_textdomain(
-			'open-accessibility',
-			false,
-			dirname( dirname( plugin_basename( __FILE__ ) ) ) . '/languages/'
-		);
+		// Only load translations manually for WordPress versions before 4.6
+		if ( version_compare( get_bloginfo( 'version' ), '4.6', '<' ) ) {
+			load_plugin_textdomain(
+				'open-accessibility',
+				false,
+				dirname( dirname( plugin_basename( __FILE__ ) ) ) . '/languages/'
+			);
+		}
 	}
 }
