@@ -77,6 +77,12 @@ Yes, all user preferences are saved using local storage in their browser, so set
 
 ## Changelog
 
+### 1.1.2
+* Update uninstaller with database query execution safety
+
+### 1.1.1
+* Added support for theme color modes (light and dark modes)
+
 ### 1.1.0
 * Improved high contrast and negative contrast modes by switching from CSS filters to direct element styling
 * Fixed widget positioning issue when contrast modes are enabled
