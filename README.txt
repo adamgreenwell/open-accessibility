@@ -1,9 +1,9 @@
 === Open Accessibility ===
 Contributors: adamgreenwell
 Tags: accessibility, wcag, ada, disability, readable
-Requires at least: 5.2
+Requires at least: 4.2
 Tested up to: 6.7
-Stable tag: 1.1.2
+Stable tag: 1.1.4
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -84,6 +84,12 @@ The plugin is designed to be lightweight and only loads what's necessary. The im
 Yes, all user preferences are saved using local storage in their browser, so settings persist between visits.
 
 == Changelog ==
+
+= 1.1.4 =
+* Remove legacy translations function and class as it is no longer needed
+
+= 1.1.3 =
+* Improve translation handing in WordPress versions prior to 4.6
 
 = 1.1.2 =
 * Update uninstaller with database query execution safety

@@ -77,6 +77,9 @@ Yes, all user preferences are saved using local storage in their browser, so set
 
 ## Changelog
 
+### 1.1.4
+* Remove legacy translations function and class as it is no longer needed
+
 ### 1.1.3
 * Improve translation handing in WordPress versions prior to 4.6
 
