@@ -249,7 +249,7 @@ class Open_Accessibility_Ajax {
 			$count = 0;
 
 			foreach ($files as $file) {
-				if (unlink($file)) {
+				if (wp_delete_file($file)) {
 					$count++;
 				}
 			}

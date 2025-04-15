@@ -62,12 +62,6 @@ class Open_Accessibility {
 		require_once OPEN_ACCESSIBILITY_PLUGIN_DIR . 'includes/class-open-accessibility-loader.php';
 
 		/**
-		 * The class responsible for defining internationalization functionality
-		 * of the plugin.
-		 */
-		require_once OPEN_ACCESSIBILITY_PLUGIN_DIR . 'includes/class-open-accessibility-i18n.php';
-
-		/**
 		 * The class responsible for defining all actions that occur in the admin area.
 		 */
 		require_once OPEN_ACCESSIBILITY_PLUGIN_DIR . 'admin/class-open-accessibility-admin.php';
@@ -104,18 +98,16 @@ class Open_Accessibility {
 	/**
 	 * Define the locale for this plugin for internationalization.
 	 *
-	 * Uses the Open_Accessibility_i18n class in order to set the domain and to register the hook
-	 * with WordPress.
+	 * Since WordPress 4.6+, translations are automatically loaded for plugins
+	 * hosted on WordPress.org. This method is kept for backward compatibility
+	 * with older WordPress versions.
 	 *
 	 * @since    1.0.0
 	 * @access   private
 	 */
 	private function set_locale() {
-		$plugin_i18n = new Open_Accessibility_i18n();
-
-		// Using 'init' hook as recommended for better compatibility with WordPress
-		// This is only needed for WordPress versions prior to 4.6
-		$this->loader->add_action( 'init', $plugin_i18n, 'load_plugin_textdomain' );
+		// WordPress 4.6+ automatically loads translations for plugins hosted on WordPress.org
+		// No action needed here
 	}
 
 	/**

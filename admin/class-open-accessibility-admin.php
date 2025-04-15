@@ -195,14 +195,6 @@ class Open_Accessibility_Admin {
 			'open-accessibility-settings'
 		);
 
-		// Add a new section for Advanced Settings
-		add_settings_section(
-			'open_accessibility_advanced',
-			__('Advanced Settings', 'open-accessibility'),
-			array($this, 'advanced_section_callback'),
-			'open-accessibility-settings'
-		);
-
 		// General Settings fields
 		add_settings_field(
 			'disable_widget',
@@ -304,6 +296,8 @@ class Open_Accessibility_Admin {
 			'enable_contrast' => __('Contrast Modes', 'open-accessibility'),
 			'enable_grayscale' => __('Grayscale', 'open-accessibility'),
 			'enable_text_size' => __('Text Size Adjustment', 'open-accessibility'),
+			'enable_letter_spacing' => __('Letter Spacing', 'open-accessibility'), // Add Letter Spacing
+			'enable_word_spacing' => __('Word Spacing', 'open-accessibility'), // Add Word Spacing
 			'enable_readable_font' => __('Readable Font', 'open-accessibility'),
 			'enable_links_underline' => __('Links Underline', 'open-accessibility'),
 			'enable_hide_images' => __('Hide Images', 'open-accessibility'),
@@ -311,7 +305,6 @@ class Open_Accessibility_Admin {
 			'enable_focus_outline' => __('Focus Outline', 'open-accessibility'),
 			'enable_line_height' => __('Line Height Adjustment', 'open-accessibility'),
 			'enable_text_align' => __('Text Alignment Options', 'open-accessibility'),
-			'enable_sitemap' => __('Sitemap', 'open-accessibility'),
 			'enable_animations_pause' => __('Pause Animations', 'open-accessibility')
 		);
 
@@ -341,19 +334,6 @@ class Open_Accessibility_Admin {
 				'id' => 'skip_to_element_id',
 				'default' => 'content',
 				'description' => __('HTML ID of the main content element (without the # symbol)', 'open-accessibility')
-			)
-		);
-
-		// Sitemap URL field
-		add_settings_field(
-			'sitemap_url',
-			__('Sitemap URL', 'open-accessibility'),
-			array($this, 'url_field_callback'),
-			'open-accessibility-settings',
-			'open_accessibility_features',
-			array(
-				'id' => 'sitemap_url',
-				'description' => __('Leave empty to use default WordPress sitemap or enter a custom sitemap URL', 'open-accessibility')
 			)
 		);
 
@@ -719,8 +699,9 @@ class Open_Accessibility_Admin {
 			'enable_focus_outline',
 			'enable_line_height',
 			'enable_text_align',
-			'enable_sitemap',
 			'enable_animations_pause',
+			'enable_letter_spacing',
+			'enable_word_spacing',
 			'enable_debug',
 		);
 
