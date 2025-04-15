@@ -128,7 +128,10 @@ class Open_Accessibility_Public {
 			'enable_contrast' => $this->get_option('enable_contrast', true),
 			'enable_grayscale' => $this->get_option('enable_grayscale', true),
 			'enable_text_size' => $this->get_option('enable_text_size', true),
-			'enable_readable_font' => $this->get_option('enable_readable_font', true),
+			'font_options' => array(
+                'atkinson' => $this->get_option('enable_font_atkinson', false),
+                'opendyslexic' => $this->get_option('enable_font_opendyslexic', false)
+            ),
 			'enable_links_underline' => $this->get_option('enable_links_underline', true),
 			'enable_hide_images' => $this->get_option('enable_hide_images', true),
 			'enable_reading_guide' => $this->get_option('enable_reading_guide', true),
@@ -181,7 +184,9 @@ class Open_Accessibility_Public {
 			'text_size_increase' => __('Increase Text', 'open-accessibility'),
 			'text_size_decrease' => __('Decrease Text', 'open-accessibility'),
 			'readable_font_title' => __('Readable Font', 'open-accessibility'),
-			'readable_font_text' => __('Readable Font', 'open-accessibility'),
+            'font_default' => __('Default Font', 'open-accessibility'),
+            'font_atkinson' => __('Atkinson Hyperlegible', 'open-accessibility'),
+            'font_opendyslexic' => __('OpenDyslexic', 'open-accessibility'),
 			'links_underline_title' => __('Links Underline', 'open-accessibility'),
 			'links_underline_text' => __('Links Underline', 'open-accessibility'),
 			'hide_images_title' => __('Hide Images', 'open-accessibility'),
