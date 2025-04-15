@@ -700,6 +700,8 @@ class Open_Accessibility_Admin {
 			'enable_line_height',
 			'enable_text_align',
 			'enable_animations_pause',
+			'enable_letter_spacing',
+			'enable_word_spacing',
 			'enable_debug',
 		);
 
