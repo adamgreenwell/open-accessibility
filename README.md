@@ -10,6 +10,8 @@ The plugin adds a customizable accessibility widget to your website that gives u
 
 * High contrast mode
 * Text size adjustment
+* Adjustable letter spacing
+* Adjustable word spacing
 * Grayscale filter
 * Reading guide
 * Readable fonts
@@ -23,7 +25,7 @@ The plugin adds a customizable accessibility widget to your website that gives u
 
 * **Skip to Content Link**: Allows keyboard users to bypass navigation menus
 * **Contrast Modes**: Multiple contrast options including high contrast, negative contrast, light, and dark backgrounds
-* **Text Adjustments**: Increase text size, line height, and enable readable fonts
+* **Text Adjustments**: Increase text size, line height, letter spacing, word spacing, and enable readable fonts
 * **Navigation Aids**: Reading guide, focus outlines, and link underlining
 * **Visual Accommodations**: Grayscale mode, hide images, and pause animations
 * **Accessibility Statement**: Built-in generator for creating accessibility statements
@@ -76,6 +78,11 @@ The plugin is designed to be lightweight and only loads what's necessary. The im
 Yes, all user preferences are saved using local storage in their browser, so settings persist between visits.
 
 ## Changelog
+
+### 1.2.0
+* Added adjustable letter spacing control
+* Added adjustable word spacing control
+* Added reading guide (line focus) tool
 
 ### 1.1.4
 * Remove legacy translations function and class as it is no longer needed
