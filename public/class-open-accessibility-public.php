@@ -138,6 +138,8 @@ class Open_Accessibility_Public {
 			'enable_animations_pause' => $this->get_option('enable_animations_pause', true),
 			'hide_on_mobile' => $this->get_option('hide_on_mobile', false),
 			'hide_on_desktop' => $this->get_option('hide_on_desktop', false),
+			'enable_letter_spacing' => $this->get_option('enable_letter_spacing', false),
+			'enable_word_spacing' => $this->get_option('enable_word_spacing', false),
 		);
 	}
 
@@ -196,8 +198,10 @@ class Open_Accessibility_Public {
 			'text_align_right' => __('Right', 'open-accessibility'),
 			'pause_animations_title' => __('Pause Animations', 'open-accessibility'),
 			'pause_animations_text' => __('Pause Animations', 'open-accessibility'),
-			'sitemap_title' => __('Sitemap', 'open-accessibility'),
-			'sitemap_text' => __('Sitemap', 'open-accessibility'),
+            'letter_spacing_title' => __('Letter Spacing', 'open-accessibility'),
+            'letter_spacing_text' => __('Letter Spacing', 'open-accessibility'),
+            'word_spacing_title' => __('Word Spacing', 'open-accessibility'),
+            'word_spacing_text' => __('Word Spacing', 'open-accessibility'),
 			'statement_title' => __('Accessibility Statement', 'open-accessibility'),
 			'statement_text' => __('Accessibility Statement', 'open-accessibility'),
 			'dismiss_text' => __('Dismiss', 'open-accessibility'),
