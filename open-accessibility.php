@@ -53,7 +53,6 @@ function open_accessibility_activate() {
 			'enable_focus_outline' => 1,
 			'enable_line_height' => 1,
 			'enable_text_align' => 1,
-			'enable_sitemap' => 1,
 			'enable_animations_pause' => 1,
 			'disable_widget' => 0,
 			'hide_on_mobile' => 0,
