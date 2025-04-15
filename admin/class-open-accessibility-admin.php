@@ -296,9 +296,10 @@ class Open_Accessibility_Admin {
 			'enable_contrast' => __('Contrast Modes', 'open-accessibility'),
 			'enable_grayscale' => __('Grayscale', 'open-accessibility'),
 			'enable_text_size' => __('Text Size Adjustment', 'open-accessibility'),
-			'enable_letter_spacing' => __('Letter Spacing', 'open-accessibility'), // Add Letter Spacing
-			'enable_word_spacing' => __('Word Spacing', 'open-accessibility'), // Add Word Spacing
-			'enable_readable_font' => __('Readable Font', 'open-accessibility'),
+			'enable_letter_spacing' => __('Letter Spacing', 'open-accessibility'),
+			'enable_word_spacing' => __('Word Spacing', 'open-accessibility'),
+			'enable_font_atkinson' => __('Font: Atkinson Hyperlegible', 'open-accessibility'),
+			'enable_font_opendyslexic' => __('Font: OpenDyslexic', 'open-accessibility'),
 			'enable_links_underline' => __('Links Underline', 'open-accessibility'),
 			'enable_hide_images' => __('Hide Images', 'open-accessibility'),
 			'enable_reading_guide' => __('Reading Guide', 'open-accessibility'),
@@ -692,7 +693,10 @@ class Open_Accessibility_Admin {
 			'enable_contrast',
 			'enable_grayscale',
 			'enable_text_size',
-			'enable_readable_font',
+			'enable_letter_spacing',
+			'enable_word_spacing',
+			'enable_font_atkinson',
+			'enable_font_opendyslexic',
 			'enable_links_underline',
 			'enable_hide_images',
 			'enable_reading_guide',
@@ -700,8 +704,6 @@ class Open_Accessibility_Admin {
 			'enable_line_height',
 			'enable_text_align',
 			'enable_animations_pause',
-			'enable_letter_spacing',
-			'enable_word_spacing',
 			'enable_debug',
 		);
 
