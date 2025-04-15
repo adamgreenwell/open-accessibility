@@ -135,7 +135,6 @@ class Open_Accessibility_Public {
 			'enable_focus_outline' => $this->get_option('enable_focus_outline', true),
 			'enable_line_height' => $this->get_option('enable_line_height', true),
 			'enable_text_align' => $this->get_option('enable_text_align', true),
-			'enable_sitemap' => $this->get_option('enable_sitemap', true),
 			'enable_animations_pause' => $this->get_option('enable_animations_pause', true),
 			'hide_on_mobile' => $this->get_option('hide_on_mobile', false),
 			'hide_on_desktop' => $this->get_option('hide_on_desktop', false),
