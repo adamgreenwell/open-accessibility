@@ -643,3 +643,31 @@ body.open-accessibility-negative-contrast .open-accessibility-action-button.acti
     color: white !important;
     border-color: #4054b2 !important;
 }
+
+/* Letter Spacing Levels */
+body.open-accessibility-letter-spacing-1 {
+    letter-spacing: 0.12em;
+}
+body.open-accessibility-letter-spacing-2 {
+    letter-spacing: 0.18em;
+}
+body.open-accessibility-letter-spacing-3 {
+    letter-spacing: 0.24em;
+}
+
+/* Word Spacing Levels */
+body.open-accessibility-word-spacing-1 {
+    word-spacing: 0.16em;
+}
+body.open-accessibility-word-spacing-2 {
+    word-spacing: 0.24em;
+}
+body.open-accessibility-word-spacing-3 {
+    word-spacing: 0.32em;
+}
+
+/* Ensure widget itself is not affected by spacing (redundant selector removed) */
+.open-accessibility-widget-wrapper * {
+    letter-spacing: initial;
+    word-spacing: initial;
+}
