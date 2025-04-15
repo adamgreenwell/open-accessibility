@@ -303,7 +303,6 @@ class Open_Accessibility_Admin {
 			'enable_focus_outline' => __('Focus Outline', 'open-accessibility'),
 			'enable_line_height' => __('Line Height Adjustment', 'open-accessibility'),
 			'enable_text_align' => __('Text Alignment Options', 'open-accessibility'),
-			'enable_sitemap' => __('Sitemap', 'open-accessibility'),
 			'enable_animations_pause' => __('Pause Animations', 'open-accessibility')
 		);
 
