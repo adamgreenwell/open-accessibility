@@ -296,6 +296,8 @@ class Open_Accessibility_Admin {
 			'enable_contrast' => __('Contrast Modes', 'open-accessibility'),
 			'enable_grayscale' => __('Grayscale', 'open-accessibility'),
 			'enable_text_size' => __('Text Size Adjustment', 'open-accessibility'),
+			'enable_letter_spacing' => __('Letter Spacing', 'open-accessibility'), // Add Letter Spacing
+			'enable_word_spacing' => __('Word Spacing', 'open-accessibility'), // Add Word Spacing
 			'enable_readable_font' => __('Readable Font', 'open-accessibility'),
 			'enable_links_underline' => __('Links Underline', 'open-accessibility'),
 			'enable_hide_images' => __('Hide Images', 'open-accessibility'),
