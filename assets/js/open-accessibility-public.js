@@ -21,8 +21,12 @@
         focusOutline: false,
         lineHeight: false,
         textAlign: '',
-        pauseAnimations: false
+        pauseAnimations: false,
+        letterSpacingLevel: 0,
+        wordSpacingLevel: 0
     };
+
+    const MAX_SPACING_LEVEL = 3;
 
     // Initialize
     function initAccessibility() {
@@ -161,6 +165,14 @@
 
             case 'pause-animations':
                 togglePauseAnimations();
+                break;
+
+            case 'letter-spacing':
+                adjustLetterSpacing(value);
+                break;
+
+            case 'word-spacing':
+                adjustWordSpacing(value);
                 break;
         }
 
@@ -325,6 +337,62 @@
         $('.open-accessibility-action-button[data-action="pause-animations"]').toggleClass('active', accessibilityState.pauseAnimations);
     }
 
+    // Adjust Letter Spacing Level
+    function adjustLetterSpacing(direction) {
+        const currentLevel = accessibilityState.letterSpacingLevel;
+        let newLevel = currentLevel;
+
+        if (direction === 'increase') {
+            newLevel = Math.min(currentLevel + 1, MAX_SPACING_LEVEL);
+        } else if (direction === 'decrease') {
+            newLevel = Math.max(currentLevel - 1, 0);
+        }
+
+        if (newLevel !== currentLevel) {
+            accessibilityState.letterSpacingLevel = newLevel;
+            // Remove previous level class
+            for (let i = 1; i <= MAX_SPACING_LEVEL; i++) {
+                $('body').removeClass(`open-accessibility-letter-spacing-${i}`);
+            }
+            // Add new level class if > 0
+            if (newLevel > 0) {
+                $('body').addClass(`open-accessibility-letter-spacing-${newLevel}`);
+            }
+            updateSpacingButtonStates('letter-spacing', newLevel);
+        }
+    }
+
+    // Adjust Word Spacing Level
+    function adjustWordSpacing(direction) {
+        const currentLevel = accessibilityState.wordSpacingLevel;
+        let newLevel = currentLevel;
+
+        if (direction === 'increase') {
+            newLevel = Math.min(currentLevel + 1, MAX_SPACING_LEVEL);
+        } else if (direction === 'decrease') {
+            newLevel = Math.max(currentLevel - 1, 0);
+        }
+
+        if (newLevel !== currentLevel) {
+            accessibilityState.wordSpacingLevel = newLevel;
+            // Remove previous level class
+            for (let i = 1; i <= MAX_SPACING_LEVEL; i++) {
+                $('body').removeClass(`open-accessibility-word-spacing-${i}`);
+            }
+            // Add new level class if > 0
+            if (newLevel > 0) {
+                $('body').addClass(`open-accessibility-word-spacing-${newLevel}`);
+            }
+            updateSpacingButtonStates('word-spacing', newLevel);
+        }
+    }
+
+    // Helper to update Increase/Decrease button states
+    function updateSpacingButtonStates(action, level) {
+        $(`.open-accessibility-action-button[data-action="${action}"][data-value="decrease"]`).prop('disabled', level <= 0);
+        $(`.open-accessibility-action-button[data-action="${action}"][data-value="increase"]`).prop('disabled', level >= MAX_SPACING_LEVEL);
+    }
+
     // Reset all settings to default
     $('.open-accessibility-reset-button').on('click', function() {
         // Remove all accessibility classes
@@ -334,13 +402,17 @@
         $('body').removeClass('open-accessibility-big-line-height open-accessibility-pause-animations');
         $('body').removeClass('open-accessibility-text-align-left open-accessibility-text-align-center open-accessibility-text-align-right');
 
-        // Remove text size classes
+        // Remove text size and spacing classes
         for (let i = 1; i <= 5; i++) {
             $('body').removeClass(`open-accessibility-text-size-${i}`);
         }
+        for (let i = 1; i <= MAX_SPACING_LEVEL; i++) {
+            $('body').removeClass(`open-accessibility-letter-spacing-${i}`);
+            $('body').removeClass(`open-accessibility-word-spacing-${i}`);
+        }
 
-        // Reset all buttons active state
-        $('.open-accessibility-action-button').removeClass('active');
+        // Reset all buttons active/disabled state
+        $('.open-accessibility-action-button').removeClass('active').prop('disabled', false);
 
         // Reset state
         accessibilityState = {
@@ -355,7 +427,9 @@
             focusOutline: false,
             lineHeight: false,
             textAlign: '',
-            pauseAnimations: false
+            pauseAnimations: false,
+            letterSpacingLevel: 0,
+            wordSpacingLevel: 0
         };
 
         // Clear the grayscale filter from all elements
@@ -452,6 +526,18 @@
             $('body').addClass('open-accessibility-pause-animations');
             $('.open-accessibility-action-button[data-action="pause-animations"]').addClass('active');
         }
+
+        // Apply letter spacing level
+        if (accessibilityState.letterSpacingLevel > 0) {
+            $('body').addClass(`open-accessibility-letter-spacing-${accessibilityState.letterSpacingLevel}`);
+        }
+        updateSpacingButtonStates('letter-spacing', accessibilityState.letterSpacingLevel);
+
+        // Apply word spacing level
+        if (accessibilityState.wordSpacingLevel > 0) {
+            $('body').addClass(`open-accessibility-word-spacing-${accessibilityState.wordSpacingLevel}`);
+        }
+        updateSpacingButtonStates('word-spacing', accessibilityState.wordSpacingLevel);
     }
 
     // Helper function to set cookies
