@@ -79,6 +79,9 @@ Yes, all user preferences are saved using local storage in their browser, so set
 
 ## Changelog
 
+### 1.2.1
+* Added font selection option (Default, Atkinson Hyperlegible, OpenDyslexic).
+
 ### 1.2.0
 * Added adjustable letter spacing control
 * Added adjustable word spacing control
@@ -116,6 +119,10 @@ Yes, all user preferences are saved using local storage in their browser, so set
 * PHP 7.4 or higher
 
 ## Credits
+
+This plugin utilizes the following fonts under their respective open licenses:
+* Atkinson Hyperlegible: Copyright (c) 2020, Braille Institute of America, Inc. ([https://brailleinstitute.org/freefont](https://brailleinstitute.org/freefont)) - SIL Open Font License, Version 1.1
+* OpenDyslexic: Copyright (c) 2011, Abelardo Gonzalez ([https://opendyslexic.org/](https://opendyslexic.org/)) - Creative Commons Attribution 3.0 Unported License
 
 This plugin was developed to help make the web more accessible to people with disabilities.
 

@@ -3,7 +3,7 @@ Contributors: adamgreenwell
 Tags: accessibility, wcag, ada, disability, readable
 Requires at least: 5.2
 Tested up to: 6.8
-Stable tag: 1.2.0
+Stable tag: 1.2.1
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -87,6 +87,9 @@ Yes, all user preferences are saved using local storage in their browser, so set
 
 == Changelog ==
 
+= 1.2.1 =
+* Added font selection option (Default, Atkinson Hyperlegible, OpenDyslexic).
+
 = 1.2.0 =
 * Added adjustable letter spacing control
 * Added adjustable word spacing control
@@ -133,5 +136,9 @@ This update improves the visual appearance of icons in both the settings page an
 Initial release of the Open Accessibility plugin.
 
 == Credits ==
+
+This plugin utilizes the following fonts under their respective open licenses:
+* Atkinson Hyperlegible: Copyright (c) 2020, Braille Institute of America, Inc. (https://brailleinstitute.org/freefont) - SIL Open Font License, Version 1.1
+* OpenDyslexic: Copyright (c) 2011, Abelardo Gonzalez (https://opendyslexic.org/) - Creative Commons Attribution 3.0 Unported License
 
 This plugin was developed to help make the web more accessible to people with disabilities.
