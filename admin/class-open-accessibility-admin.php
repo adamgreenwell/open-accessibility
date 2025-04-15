@@ -195,14 +195,6 @@ class Open_Accessibility_Admin {
 			'open-accessibility-settings'
 		);
 
-		// Add a new section for Advanced Settings
-		add_settings_section(
-			'open_accessibility_advanced',
-			__('Advanced Settings', 'open-accessibility'),
-			array($this, 'advanced_section_callback'),
-			'open-accessibility-settings'
-		);
-
 		// General Settings fields
 		add_settings_field(
 			'disable_widget',
