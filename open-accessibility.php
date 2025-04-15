@@ -54,6 +54,8 @@ function open_accessibility_activate() {
 			'enable_line_height' => 1,
 			'enable_text_align' => 1,
 			'enable_animations_pause' => 1,
+			'enable_letter_spacing' => 0,
+			'enable_word_spacing' => 0,
 			'disable_widget' => 0,
 			'hide_on_mobile' => 0,
 			'hide_on_desktop' => 0,
