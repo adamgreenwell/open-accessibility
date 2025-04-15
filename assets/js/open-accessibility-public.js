@@ -284,8 +284,13 @@
     // Toggle reading guide
     function toggleReadingGuide() {
         accessibilityState.readingGuide = !accessibilityState.readingGuide;
-        $('body').toggleClass('open-accessibility-reading-guide-active', accessibilityState.readingGuide);
         $('.open-accessibility-action-button[data-action="reading-guide"]').toggleClass('active', accessibilityState.readingGuide);
+        if (accessibilityState.readingGuide) {
+            $('.open-accessibility-reading-guide').show();
+        } else {
+            $('.open-accessibility-reading-guide').hide();
+        }
+        saveState();
     }
 
     // Handle reading guide mouse movement
@@ -432,6 +437,9 @@
             wordSpacingLevel: 0
         };
 
+        // Explicitly hide the reading guide on reset
+        $('.open-accessibility-reading-guide').hide(); 
+
         // Clear the grayscale filter from all elements
         $('body *').css('filter', '');
         $('.open-accessibility-widget-wrapper').removeClass('widget-grayscale');
@@ -499,8 +507,9 @@
 
         // Apply reading guide
         if (accessibilityState.readingGuide) {
-            $('body').addClass('open-accessibility-reading-guide-active');
-            $('.open-accessibility-action-button[data-action="reading-guide"]').addClass('active');
+            const initialGuideState = accessibilityState.readingGuide;
+            accessibilityState.readingGuide = !initialGuideState;
+            toggleReadingGuide();
         }
 
         // Apply focus outline
