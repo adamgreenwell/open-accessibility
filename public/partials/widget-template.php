@@ -244,6 +244,36 @@ function open_accessibility_get_icon_svg( $icon_type, $color ) {
 				</div>
 			<?php endif; ?>
 
+			<!-- Letter Spacing Section -->
+			<?php if (isset($options['enable_letter_spacing']) && $options['enable_letter_spacing']): ?>
+				<div class="open-accessibility-widget-section">
+					<h3><?php esc_html_e('Letter Spacing', 'open-accessibility'); ?></h3>
+					<div class="open-accessibility-actions">
+						<button class="open-accessibility-action-button" data-action="letter-spacing" data-value="decrease" aria-label="<?php esc_attr_e('Decrease letter spacing', 'open-accessibility'); ?>">
+							<?php esc_html_e('Decrease', 'open-accessibility'); ?>
+						</button>
+						<button class="open-accessibility-action-button" data-action="letter-spacing" data-value="increase" aria-label="<?php esc_attr_e('Increase letter spacing', 'open-accessibility'); ?>">
+							<?php esc_html_e('Increase', 'open-accessibility'); ?>
+						</button>
+					</div>
+				</div>
+			<?php endif; ?>
+
+			<!-- Word Spacing Section -->
+			<?php if (isset($options['enable_word_spacing']) && $options['enable_word_spacing']): ?>
+				<div class="open-accessibility-widget-section">
+					<h3><?php esc_html_e('Word Spacing', 'open-accessibility'); ?></h3>
+					<div class="open-accessibility-actions">
+						 <button class="open-accessibility-action-button" data-action="word-spacing" data-value="decrease" aria-label="<?php esc_attr_e('Decrease word spacing', 'open-accessibility'); ?>">
+							<?php esc_html_e('Decrease', 'open-accessibility'); ?>
+						</button>
+						<button class="open-accessibility-action-button" data-action="word-spacing" data-value="increase" aria-label="<?php esc_attr_e('Increase word spacing', 'open-accessibility'); ?>">
+							<?php esc_html_e('Increase', 'open-accessibility'); ?>
+						</button>
+					</div>
+				</div>
+			<?php endif; ?>
+
 			<!-- Links Underline Section -->
 			<?php if (isset($options['enable_links_underline']) && $options['enable_links_underline']): ?>
 				<div class="open-accessibility-widget-section">
