@@ -337,19 +337,6 @@ class Open_Accessibility_Admin {
 			)
 		);
 
-		// Sitemap URL field
-		add_settings_field(
-			'sitemap_url',
-			__('Sitemap URL', 'open-accessibility'),
-			array($this, 'url_field_callback'),
-			'open-accessibility-settings',
-			'open_accessibility_features',
-			array(
-				'id' => 'sitemap_url',
-				'description' => __('Leave empty to use default WordPress sitemap or enter a custom sitemap URL', 'open-accessibility')
-			)
-		);
-
 		// Accessibility Statement fields
 		add_settings_field(
 			'statement_url',
