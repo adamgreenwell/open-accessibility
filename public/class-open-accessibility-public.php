@@ -40,6 +40,15 @@ class Open_Accessibility_Public {
 	private $options;
 
 	/**
+	 * Debugging state
+	 *
+	 * @since    1.0.0 // Update this version if needed
+	 * @access   private
+	 * @var      boolean    $is_debug_enabled    Whether plugin debugging is on.
+	 */
+	private $is_debug_enabled;
+
+	/**
 	 * Initialize the class and set its properties.
 	 *
 	 * @since    1.0.0
