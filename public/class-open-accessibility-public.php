@@ -57,6 +57,8 @@ class Open_Accessibility_Public {
 		$this->plugin_name = 'open-accessibility';
 		$this->version = OPEN_ACCESSIBILITY_VERSION;
 		$this->options = get_option('open_accessibility_options', array());
+		// Set the debug state based on plugin options
+		$this->is_debug_enabled = $this->get_option('enable_debug', false);
 	}
 
 	/**
@@ -65,8 +67,10 @@ class Open_Accessibility_Public {
 	 * @since    1.0.0
 	 */
 	public function enqueue_styles() {
-		// Debug paths
-		error_log('Loading CSS from: ' . OPEN_ACCESSIBILITY_ASSETS_URL . 'css/open-accessibility-public.css');
+		// Debug paths only if plugin debug is enabled and WP_DEBUG_LOG is enabled
+		if ($this->is_debug_enabled && defined('WP_DEBUG') && WP_DEBUG && defined('WP_DEBUG_LOG') && WP_DEBUG_LOG) {
+			error_log('Loading CSS from: ' . OPEN_ACCESSIBILITY_ASSETS_URL . 'css/open-accessibility-public.css');
+		}
 
 		wp_enqueue_style(
 			$this->plugin_name,
@@ -95,8 +99,10 @@ class Open_Accessibility_Public {
 	 * @since    1.0.0
 	 */
 	public function enqueue_scripts() {
-		// Debug paths
-		error_log('Loading JS from: ' . OPEN_ACCESSIBILITY_ASSETS_URL . 'js/open-accessibility-public.js');
+		// Debug paths only if plugin debug is enabled and WP_DEBUG_LOG is enabled
+		if ($this->is_debug_enabled && defined('WP_DEBUG') && WP_DEBUG && defined('WP_DEBUG_LOG') && WP_DEBUG_LOG) {
+			error_log('Loading JS from: ' . OPEN_ACCESSIBILITY_ASSETS_URL . 'js/open-accessibility-public.js');
+		}
 
 		wp_enqueue_script(
 			$this->plugin_name,
