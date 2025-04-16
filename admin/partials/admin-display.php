@@ -106,16 +106,6 @@ if (!defined('ABSPATH')) {
                             <span class="open-accessibility-debug-status disabled"><?php esc_html_e('Debug mode is disabled', 'open-accessibility'); ?></span>
 						<?php endif; ?>
                     </p>
-
-                    <p>
-                        <button type="button" id="open-accessibility-view-logs" class="button button-secondary">
-							<?php esc_html_e('View Debug Logs', 'open-accessibility'); ?>
-                        </button>
-
-                        <button type="button" id="open-accessibility-clear-logs" class="button">
-							<?php esc_html_e('Clear Debug Logs', 'open-accessibility'); ?>
-                        </button>
-                    </p>
                 </div>
 
                 <div id="open-accessibility-log-viewer" style="display: none;">
