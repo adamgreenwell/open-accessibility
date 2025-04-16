@@ -40,6 +40,15 @@ class Open_Accessibility_Public {
 	private $options;
 
 	/**
+	 * Debugging state
+	 *
+	 * @since    1.0.0 // Update this version if needed
+	 * @access   private
+	 * @var      boolean    $is_debug_enabled    Whether plugin debugging is on.
+	 */
+	private $is_debug_enabled;
+
+	/**
 	 * Initialize the class and set its properties.
 	 *
 	 * @since    1.0.0
@@ -48,6 +57,8 @@ class Open_Accessibility_Public {
 		$this->plugin_name = 'open-accessibility';
 		$this->version = OPEN_ACCESSIBILITY_VERSION;
 		$this->options = get_option('open_accessibility_options', array());
+		// Set the debug state based on plugin options
+		$this->is_debug_enabled = $this->get_option('enable_debug', false);
 	}
 
 	/**
@@ -56,8 +67,10 @@ class Open_Accessibility_Public {
 	 * @since    1.0.0
 	 */
 	public function enqueue_styles() {
-		// Debug paths
-		error_log('Loading CSS from: ' . OPEN_ACCESSIBILITY_ASSETS_URL . 'css/open-accessibility-public.css');
+		// Debug paths only if plugin debug is enabled and WP_DEBUG_LOG is enabled
+		if ($this->is_debug_enabled && defined('WP_DEBUG') && WP_DEBUG && defined('WP_DEBUG_LOG') && WP_DEBUG_LOG) {
+			error_log('Loading CSS from: ' . OPEN_ACCESSIBILITY_ASSETS_URL . 'css/open-accessibility-public.css');
+		}
 
 		wp_enqueue_style(
 			$this->plugin_name,
@@ -86,8 +99,10 @@ class Open_Accessibility_Public {
 	 * @since    1.0.0
 	 */
 	public function enqueue_scripts() {
-		// Debug paths
-		error_log('Loading JS from: ' . OPEN_ACCESSIBILITY_ASSETS_URL . 'js/open-accessibility-public.js');
+		// Debug paths only if plugin debug is enabled and WP_DEBUG_LOG is enabled
+		if ($this->is_debug_enabled && defined('WP_DEBUG') && WP_DEBUG && defined('WP_DEBUG_LOG') && WP_DEBUG_LOG) {
+			error_log('Loading JS from: ' . OPEN_ACCESSIBILITY_ASSETS_URL . 'js/open-accessibility-public.js');
+		}
 
 		wp_enqueue_script(
 			$this->plugin_name,
@@ -128,7 +143,10 @@ class Open_Accessibility_Public {
 			'enable_contrast' => $this->get_option('enable_contrast', true),
 			'enable_grayscale' => $this->get_option('enable_grayscale', true),
 			'enable_text_size' => $this->get_option('enable_text_size', true),
-			'enable_readable_font' => $this->get_option('enable_readable_font', true),
+			'font_options' => array(
+                'atkinson' => $this->get_option('enable_font_atkinson', false),
+                'opendyslexic' => $this->get_option('enable_font_opendyslexic', false)
+            ),
 			'enable_links_underline' => $this->get_option('enable_links_underline', true),
 			'enable_hide_images' => $this->get_option('enable_hide_images', true),
 			'enable_reading_guide' => $this->get_option('enable_reading_guide', true),
@@ -181,7 +199,9 @@ class Open_Accessibility_Public {
 			'text_size_increase' => __('Increase Text', 'open-accessibility'),
 			'text_size_decrease' => __('Decrease Text', 'open-accessibility'),
 			'readable_font_title' => __('Readable Font', 'open-accessibility'),
-			'readable_font_text' => __('Readable Font', 'open-accessibility'),
+            'font_default' => __('Default Font', 'open-accessibility'),
+            'font_atkinson' => __('Atkinson Hyperlegible', 'open-accessibility'),
+            'font_opendyslexic' => __('OpenDyslexic', 'open-accessibility'),
 			'links_underline_title' => __('Links Underline', 'open-accessibility'),
 			'links_underline_text' => __('Links Underline', 'open-accessibility'),
 			'hide_images_title' => __('Hide Images', 'open-accessibility'),

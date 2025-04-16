@@ -97,13 +97,6 @@ class Open_Accessibility_Admin {
 					'accessibility_options' => __('Accessibility Options', 'open-accessibility'),
 					'preview_note' => __('This is a preview of the accessibility widget with your current settings.', 'open-accessibility'),
 					'widget_preview' => __('Widget Preview', 'open-accessibility'),
-					'view_logs' => __('View Debug Logs', 'open-accessibility'),
-					'hide_logs' => __('Hide Debug Logs', 'open-accessibility'),
-					'loading' => __('Loading logs...', 'open-accessibility'),
-					'no_logs' => __('No log entries found.', 'open-accessibility'),
-					'error_getting_logs' => __('Error retrieving log files.', 'open-accessibility'),
-					'confirm_clear_logs' => __('Are you sure you want to clear all debug logs? This action cannot be undone.', 'open-accessibility'),
-					'error_clearing_logs' => __('Error clearing log files.', 'open-accessibility')
 				)
 			)
 		);
@@ -296,9 +289,10 @@ class Open_Accessibility_Admin {
 			'enable_contrast' => __('Contrast Modes', 'open-accessibility'),
 			'enable_grayscale' => __('Grayscale', 'open-accessibility'),
 			'enable_text_size' => __('Text Size Adjustment', 'open-accessibility'),
-			'enable_letter_spacing' => __('Letter Spacing', 'open-accessibility'), // Add Letter Spacing
-			'enable_word_spacing' => __('Word Spacing', 'open-accessibility'), // Add Word Spacing
-			'enable_readable_font' => __('Readable Font', 'open-accessibility'),
+			'enable_letter_spacing' => __('Letter Spacing', 'open-accessibility'),
+			'enable_word_spacing' => __('Word Spacing', 'open-accessibility'),
+			'enable_font_atkinson' => __('Font: Atkinson Hyperlegible', 'open-accessibility'),
+			'enable_font_opendyslexic' => __('Font: OpenDyslexic', 'open-accessibility'),
 			'enable_links_underline' => __('Links Underline', 'open-accessibility'),
 			'enable_hide_images' => __('Hide Images', 'open-accessibility'),
 			'enable_reading_guide' => __('Reading Guide', 'open-accessibility'),
@@ -368,7 +362,7 @@ class Open_Accessibility_Admin {
 			array(
 				'id' => 'enable_debug',
 				'label' => __('Enable debug logging for troubleshooting', 'open-accessibility'),
-				'description' => __('When enabled, debug information will be logged to a file in the plugin directory.', 'open-accessibility')
+				'description' => __('When enabled, debug information will be logged to the WordPress debug.log file. Please make sure that your WordPress install also has debugging and debug logging enabled.', 'open-accessibility')
 			)
 		);
 	}
@@ -692,7 +686,10 @@ class Open_Accessibility_Admin {
 			'enable_contrast',
 			'enable_grayscale',
 			'enable_text_size',
-			'enable_readable_font',
+			'enable_letter_spacing',
+			'enable_word_spacing',
+			'enable_font_atkinson',
+			'enable_font_opendyslexic',
 			'enable_links_underline',
 			'enable_hide_images',
 			'enable_reading_guide',
@@ -700,8 +697,6 @@ class Open_Accessibility_Admin {
 			'enable_line_height',
 			'enable_text_align',
 			'enable_animations_pause',
-			'enable_letter_spacing',
-			'enable_word_spacing',
 			'enable_debug',
 		);
 
