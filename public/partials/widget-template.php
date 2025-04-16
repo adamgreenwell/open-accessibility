@@ -232,14 +232,28 @@ function open_accessibility_get_icon_svg( $icon_type, $color ) {
 				</div>
 			<?php endif; ?>
 
-			<!-- Readable Font Section -->
-			<?php if (isset($options['enable_readable_font']) && $options['enable_readable_font']): ?>
+			<!-- Font Selection Section -->
+			<?php 
+			$show_font_section = (isset($options['enable_font_atkinson']) && $options['enable_font_atkinson']) || 
+							   (isset($options['enable_font_opendyslexic']) && $options['enable_font_opendyslexic']);
+			if ($show_font_section): 
+			?>
 				<div class="open-accessibility-widget-section">
 					<h3><?php esc_html_e('Readable Font', 'open-accessibility'); ?></h3>
 					<div class="open-accessibility-actions">
-						<button class="open-accessibility-action-button" data-action="readable-font" data-value="toggle">
-							<?php esc_html_e('Readable Font', 'open-accessibility'); ?>
+						<button class="open-accessibility-action-button" data-action="set-font" data-value="default">
+							<?php esc_html_e('Default Font', 'open-accessibility'); ?>
 						</button>
+						<?php if (isset($options['enable_font_atkinson']) && $options['enable_font_atkinson']): ?>
+							<button class="open-accessibility-action-button" data-action="set-font" data-value="atkinson">
+								<?php esc_html_e('Atkinson Hyperlegible', 'open-accessibility'); ?>
+							</button>
+						<?php endif; ?>
+						<?php if (isset($options['enable_font_opendyslexic']) && $options['enable_font_opendyslexic']): ?>
+							<button class="open-accessibility-action-button" data-action="set-font" data-value="opendyslexic">
+								<?php esc_html_e('OpenDyslexic', 'open-accessibility'); ?>
+							</button>
+						<?php endif; ?>
 					</div>
 				</div>
 			<?php endif; ?>

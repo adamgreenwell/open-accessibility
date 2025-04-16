@@ -239,26 +239,12 @@ class Open_Accessibility_Utils {
 	 */
 	public static function log($message, $level = 'debug') {
 		$options = get_option('open_accessibility_options', array());
-		$debug_enabled = isset($options['enable_debug']) && $options['enable_debug'];
+		$plugin_debug_enabled = isset($options['enable_debug']) && $options['enable_debug'];
 
-		// Only log if plugin debug mode is enabled or WP_DEBUG is true
-		if ($debug_enabled || (defined('WP_DEBUG') && WP_DEBUG === true)) {
-			$log_dir = OPEN_ACCESSIBILITY_PLUGIN_DIR . 'logs';
-
-			// Create logs directory if it doesn't exist
-			if (!file_exists($log_dir)) {
-				wp_mkdir_p($log_dir);
-
-				// Create .htaccess file to prevent direct access
-				$htaccess_content = "# Prevent direct access to files\n";
-				$htaccess_content .= "<Files \"*\">\n";
-				$htaccess_content .= "Require all denied\n";
-				$htaccess_content .= "</Files>";
-				file_put_contents($log_dir . '/.htaccess', $htaccess_content);
-
-				// Create index.php file for security
-				file_put_contents($log_dir . '/index.php', '<?php // Silence is golden');
-			}
+		// Only log if plugin debug mode is enabled AND WordPress debug log is active
+		if ($plugin_debug_enabled && defined('WP_DEBUG') && WP_DEBUG === true && defined('WP_DEBUG_LOG') && WP_DEBUG_LOG === true) {
+			
+			// Removed log directory creation and file writing (.htaccess, index.php)
 
 			$date = gmdate('Y-m-d H:i:s');
 			$level_upper = strtoupper($level);
@@ -267,16 +253,13 @@ class Open_Accessibility_Utils {
 				$message = print_r($message, true);
 			}
 
-			$log_message = "[$date] [$level_upper] $message" . PHP_EOL;
-			$log_file = $log_dir . '/debug-' . gmdate('Y-m-d') . '.log';
+			$log_message = "[$date] [$level_upper] Open Accessibility: $message"; // Added plugin name for context
 
-			// Append to log file
-			error_log($log_message, 3, $log_file);
+			// Log to the standard WordPress debug log (respects WP_DEBUG_LOG location)
+			error_log($log_message);
 
-			// Also log to PHP error log if WP_DEBUG is enabled
-			if (defined('WP_DEBUG') && WP_DEBUG === true) {
-				error_log("Open Accessibility: $log_message");
-			}
+			// Removed writing to custom log file within plugin directory
+			// Removed duplicate logging logic
 		}
 	}
 }

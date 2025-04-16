@@ -77,7 +77,20 @@ The plugin is designed to be lightweight and only loads what's necessary. The im
 
 Yes, all user preferences are saved using local storage in their browser, so settings persist between visits.
 
+### How do I enable debug logging?
+
+To see debug messages from this plugin, you need to do two things:
+1. Enable the "Enable Debugging" option in the plugin's settings page (under the 'Accessibility' menu).
+2. Ensure that WordPress's core debugging constants are enabled in your `wp-config.php` file. Specifically, `WP_DEBUG` must be set to `true`, and `WP_DEBUG_LOG` must also be set to `true`. Logs will then appear in the `/wp-content/debug.log` file.
+
 ## Changelog
+
+### 1.2.2
+* Fixed plugin writing log files directly to the plugin directory, which is disallowed by WordPress Plugin Directory guidelines.
+* Debug logging now uses the standard WordPress debug log (`wp-content/debug.log`) and requires both the plugin's debug setting and the `WP_DEBUG` and `WP_DEBUG_LOG` constants to be enabled.
+
+### 1.2.1
+* Added font selection option (Default, Atkinson Hyperlegible, OpenDyslexic).
 
 ### 1.2.0
 * Added adjustable letter spacing control
@@ -116,6 +129,10 @@ Yes, all user preferences are saved using local storage in their browser, so set
 * PHP 7.4 or higher
 
 ## Credits
+
+This plugin utilizes the following fonts under their respective open licenses:
+* Atkinson Hyperlegible: Copyright (c) 2020, Braille Institute of America, Inc. ([https://brailleinstitute.org/freefont](https://brailleinstitute.org/freefont)) - SIL Open Font License, Version 1.1
+* OpenDyslexic: Copyright (c) 2011, Abelardo Gonzalez ([https://opendyslexic.org/](https://opendyslexic.org/)) - Creative Commons Attribution 3.0 Unported License
 
 This plugin was developed to help make the web more accessible to people with disabilities.
 

@@ -91,8 +91,6 @@ if (!defined('ABSPATH')) {
 
             <!-- Advanced Tab -->
             <div id="tab-advanced" class="open-accessibility-tab">
-                <h2><?php esc_html_e('Advanced Settings', 'open-accessibility'); ?></h2>
-
                 <div class="open-accessibility-debug-controls">
                     <p>
 						<?php
@@ -105,16 +103,6 @@ if (!defined('ABSPATH')) {
 						<?php else: ?>
                             <span class="open-accessibility-debug-status disabled"><?php esc_html_e('Debug mode is disabled', 'open-accessibility'); ?></span>
 						<?php endif; ?>
-                    </p>
-
-                    <p>
-                        <button type="button" id="open-accessibility-view-logs" class="button button-secondary">
-							<?php esc_html_e('View Debug Logs', 'open-accessibility'); ?>
-                        </button>
-
-                        <button type="button" id="open-accessibility-clear-logs" class="button">
-							<?php esc_html_e('Clear Debug Logs', 'open-accessibility'); ?>
-                        </button>
                     </p>
                 </div>
 
