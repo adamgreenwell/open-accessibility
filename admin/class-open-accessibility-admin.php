@@ -97,13 +97,6 @@ class Open_Accessibility_Admin {
 					'accessibility_options' => __('Accessibility Options', 'open-accessibility'),
 					'preview_note' => __('This is a preview of the accessibility widget with your current settings.', 'open-accessibility'),
 					'widget_preview' => __('Widget Preview', 'open-accessibility'),
-					'view_logs' => __('View Debug Logs', 'open-accessibility'),
-					'hide_logs' => __('Hide Debug Logs', 'open-accessibility'),
-					'loading' => __('Loading logs...', 'open-accessibility'),
-					'no_logs' => __('No log entries found.', 'open-accessibility'),
-					'error_getting_logs' => __('Error retrieving log files.', 'open-accessibility'),
-					'confirm_clear_logs' => __('Are you sure you want to clear all debug logs? This action cannot be undone.', 'open-accessibility'),
-					'error_clearing_logs' => __('Error clearing log files.', 'open-accessibility')
 				)
 			)
 		);
