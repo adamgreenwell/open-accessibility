@@ -91,8 +91,6 @@ if (!defined('ABSPATH')) {
 
             <!-- Advanced Tab -->
             <div id="tab-advanced" class="open-accessibility-tab">
-                <h2><?php esc_html_e('Advanced Settings', 'open-accessibility'); ?></h2>
-
                 <div class="open-accessibility-debug-controls">
                     <p>
 						<?php
