@@ -362,7 +362,7 @@ class Open_Accessibility_Admin {
 			array(
 				'id' => 'enable_debug',
 				'label' => __('Enable debug logging for troubleshooting', 'open-accessibility'),
-				'description' => __('When enabled, debug information will be logged to a file in the plugin directory.', 'open-accessibility')
+				'description' => __('When enabled, debug information will be logged to the WordPress debug.log file. Please make sure that your WordPress install also has debugging and debug logging enabled.', 'open-accessibility')
 			)
 		);
 	}
