@@ -500,14 +500,25 @@
 
         // Apply grayscale
         if (accessibilityState.grayscale) {
-            $('body').addClass('open-accessibility-grayscale');
+            // Re-apply the styles and classes managed by toggleGrayscale
+            $('body *').not('.open-accessibility-widget-wrapper, .open-accessibility-widget-wrapper *').css('filter', 'grayscale(100%)');
+            $('.open-accessibility-widget-wrapper').addClass('widget-grayscale');
             $('.open-accessibility-action-button[data-action="grayscale"]').addClass('active');
+        } else {
+            // Ensure styles/classes are removed if state is false
+            $('body *').not('.open-accessibility-widget-wrapper, .open-accessibility-widget-wrapper *').css('filter', '');
+            $('.open-accessibility-widget-wrapper').removeClass('widget-grayscale');
+            $('.open-accessibility-action-button[data-action="grayscale"]').removeClass('active');
         }
 
         // Apply text size
         if (accessibilityState.textSize > 0) {
             $('body').addClass(`open-accessibility-text-size-${accessibilityState.textSize}`);
         }
+        // Update button states regardless of whether size > 0
+        const maxTextSize = 5;
+        $('.open-accessibility-action-button[data-action="text-size"][data-value="decrease"]').prop('disabled', accessibilityState.textSize <= 0);
+        $('.open-accessibility-action-button[data-action="text-size"][data-value="increase"]').prop('disabled', accessibilityState.textSize >= maxTextSize);
 
         // Apply selected font
         setFont(accessibilityState.selectedFont || 'default');
