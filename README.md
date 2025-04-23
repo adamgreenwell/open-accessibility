@@ -85,6 +85,9 @@ To see debug messages from this plugin, you need to do two things:
 
 ## Changelog
 
+### 1.2.3
+* Fix for grayscale and text size preferences not persisting if a user leaves the site then returns
+
 ### 1.2.2
 * Fixed plugin writing log files directly to the plugin directory, which is disallowed by WordPress Plugin Directory guidelines.
 * Debug logging now uses the standard WordPress debug log (`wp-content/debug.log`) and requires both the plugin's debug setting and the `WP_DEBUG` and `WP_DEBUG_LOG` constants to be enabled.
