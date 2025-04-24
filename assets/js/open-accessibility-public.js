@@ -8,7 +8,8 @@
     'use strict';
 
     // Store state in local storage
-    const storageKey = 'open_accessibility_settings';
+    let sitePrefix = window.location.pathname.split('/')[1] || '';
+    const storageKey = sitePrefix ? `${sitePrefix}_open_accessibility_settings` : 'open_accessibility_settings';
     let accessibilityState = {
         active: false,
         contrast: '',
@@ -587,7 +588,10 @@
             date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
             expires = '; expires=' + date.toUTCString();
         }
-        document.cookie = name + '=' + (value || '') + expires + '; path=/; SameSite=Lax';
+        // Make cookie name site-specific for multisite: prefix with window.location.pathname
+        let sitePrefix = window.location.pathname.split('/')[1] || '';
+        let fullName = sitePrefix ? (sitePrefix + '_' + name) : name;
+        document.cookie = fullName + '=' + (value || '') + expires + '; path=/' + (sitePrefix ? sitePrefix + '/' : '') + '; SameSite=Lax';
     }
 
     // Helper function to get cookies
