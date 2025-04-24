@@ -413,9 +413,18 @@ class Open_Accessibility_Admin {
 	 * Checkbox field callback
 	 */
 	public function checkbox_field_callback($args) {
+		// Always merge saved options with defaults to avoid all checked/unchecked bugs
+		if ( ! class_exists( 'Open_Accessibility_Utils' ) ) {
+			require_once dirname( __DIR__ ) . '/includes/class-open-accessibility-utils.php';
+		}
+		$defaults = Open_Accessibility_Utils::get_default_options();
 		$options = get_option('open_accessibility_options');
+		if (!is_array($options)) {
+			$options = array();
+		}
+		$merged = array_merge($defaults, $options);
 		$id = $args['id'];
-		$checked = isset($options[$id]) ? $options[$id] : false;
+		$checked = isset($merged[$id]) ? $merged[$id] : false;
 
 		echo '<label>';
 		echo '<input type="checkbox" id="' . esc_attr($id) . '" name="open_accessibility_options[' . esc_attr($id) . ']" value="1" ' . checked(1, $checked, false) . '>';
