@@ -166,7 +166,7 @@
     transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
-.open-accessibility-widget-wrapper.active .open-accessibility-widget-panel {
+.open-accessibility-widget-panel.oa-panel-is-active {
     visibility: visible;
     opacity: 1;
 }
@@ -548,16 +548,22 @@ body.open-accessibility-pause-animations *::after {
 /* Responsive adjustments */
 @media screen and (max-width: 600px) {
     .open-accessibility-widget-panel {
-        width: 280px;
+        position: fixed !important;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        max-height: 100vh;
+        max-width: 100vw;
     }
 
-    .open-accessibility-widget-wrapper.position-left .open-accessibility-widget-panel,
+    .open-accessibility-widget-wrapper.position-left .open-accessibility-widget-panel {
+        left: -20px;
+        transform: none;
+    }
     .open-accessibility-widget-wrapper.position-right .open-accessibility-widget-panel {
-        bottom: calc(100% + 15px);
-        top: auto;
-        left: 50%;
-        right: auto;
-        transform: translateX(-50%);
+        right: -20px;
+        transform: none;
     }
 }
 
