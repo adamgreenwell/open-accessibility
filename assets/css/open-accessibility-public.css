@@ -166,7 +166,7 @@
     transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
-.open-accessibility-widget-wrapper.active .open-accessibility-widget-panel {
+.open-accessibility-widget-panel.oa-panel-is-active {
     visibility: visible;
     opacity: 1;
 }
@@ -447,20 +447,16 @@ body.open-accessibility-grayscale *:not(.open-accessibility-widget-wrapper *) {
     filter: grayscale(100%) !important;
 }
 
-/* Grayscale effect for the widget */
-.open-accessibility-widget-wrapper.widget-grayscale {
+/* Grayscale effect for the widget elements */
+.open-accessibility-toggle-button.widget-grayscale,
+.open-accessibility-widget-panel.widget-grayscale {
     filter: grayscale(100%);
 }
 
-/* Ensure the widget stays in its correct position */
-.open-accessibility-widget-wrapper.widget-grayscale {
-    position: fixed; /* Reinforce fixed positioning */
-}
-
-.open-accessibility-widget-wrapper.widget-grayscale .open-accessibility-toggle-button,
-.open-accessibility-widget-wrapper.widget-grayscale .open-accessibility-widget-panel,
-.open-accessibility-widget-wrapper.widget-grayscale .open-accessibility-icon svg {
-    filter: grayscale(100%); /* Ensure all parts of the widget get the grayscale effect */
+/* If the SVG icon within the button also needs an explicit filter 
+   (often inherited, but can be explicit if issues persist) */
+.open-accessibility-toggle-button.widget-grayscale .open-accessibility-icon svg {
+    filter: grayscale(100%); 
 }
 
 body.open-accessibility-links-underline a {
@@ -548,16 +544,22 @@ body.open-accessibility-pause-animations *::after {
 /* Responsive adjustments */
 @media screen and (max-width: 600px) {
     .open-accessibility-widget-panel {
-        width: 280px;
+        position: fixed !important;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        max-height: 100vh;
+        max-width: 100vw;
     }
 
-    .open-accessibility-widget-wrapper.position-left .open-accessibility-widget-panel,
+    .open-accessibility-widget-wrapper.position-left .open-accessibility-widget-panel {
+        left: -20px;
+        transform: none;
+    }
     .open-accessibility-widget-wrapper.position-right .open-accessibility-widget-panel {
-        bottom: calc(100% + 15px);
-        top: auto;
-        left: 50%;
-        right: auto;
-        transform: translateX(-50%);
+        right: -20px;
+        transform: none;
     }
 }
 

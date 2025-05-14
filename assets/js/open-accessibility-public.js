@@ -61,10 +61,12 @@
 
         // Close panel when clicking outside
         $(document).on('click', function(e) {
+            const $panel = $('.open-accessibility-widget-panel');
+            const $button = $('.open-accessibility-toggle-button');
             if (
-                $('.open-accessibility-widget-wrapper').hasClass('active') &&
-                !$(e.target).closest('.open-accessibility-widget-wrapper').length &&
-                !$(e.target).is('.open-accessibility-action-button')
+                $panel.hasClass('oa-panel-is-active') &&
+                !$(e.target).closest($panel).length &&
+                !$(e.target).closest($button).length
             ) {
                 closeAccessibilityPanel();
             }
@@ -73,41 +75,147 @@
         // Keyboard shortcuts
         $(document).on('keydown', function(e) {
             // ESC key closes the panel
-            if (e.key === 'Escape' && $('.open-accessibility-widget-wrapper').hasClass('active')) {
+            if (e.key === 'Escape' && $('.open-accessibility-widget-panel').hasClass('oa-panel-is-active')) {
                 closeAccessibilityPanel();
             }
         });
         
-        // Ensure widget stays in viewport on scroll
+        // Ensure widget wrapper stays in viewport on scroll
         $(window).on('scroll', function() {
-            const $widget = $('.open-accessibility-widget-wrapper');
-            if ($widget.hasClass('position-left') || $widget.hasClass('position-right')) {
-                // Basic positioning for all modes
-                $widget.css({
-                    'position': 'fixed',
-                    'top': '50vh',
-                    'transform': 'translateY(-50%)'
-                });
+            const $widgetWrapper = $('.open-accessibility-widget-wrapper');
+            const $panel = $('.open-accessibility-widget-panel');
+            const isMobile = window.innerWidth < 768;
+
+            if (!($panel.hasClass('oa-panel-is-active') && isMobile)) {
+                if ($widgetWrapper.hasClass('position-left') || $widgetWrapper.hasClass('position-right')) {
+                    $widgetWrapper.css({
+                        'top': '50vh',
+                        'transform': 'translateY(-50%)'
+                    });
+                } else {
+                    $widgetWrapper.css({'transform': '', 'top': ''}); // Reset for corner positions
+                }
+            }
+        });
+
+        // Handle window resize
+        $(window).on('resize', function() {
+            const $panel = $('.open-accessibility-widget-panel');
+            if ($panel.hasClass('oa-panel-is-active')) {
+                const $wrapper = $('.open-accessibility-widget-wrapper');
+                const isMobile = window.innerWidth < 768;
+
+                if (isMobile) {
+                    if ($wrapper.hasClass('position-left') || $wrapper.hasClass('position-right')) {
+                        const wrapperHeight = $wrapper.outerHeight();
+                        $wrapper.css('top', `calc(50vh - ${wrapperHeight / 2}px)`);
+                    }
+                    $wrapper.css('transform', 'none');
+                    $panel.css({
+                        'position': 'fixed', 'display': 'block', 'top': '0px', 'left': '0px',
+                        'width': '100vw', 'height': '100vh', 'max-height': '100vh',
+                        'transform': 'none', 'z-index': '1000001'
+                    });
+                } else { // Became desktop
+                    $wrapper.css({'transform': '', 'top': ''});
+                    $panel.css({
+                        'position': '', 'display': '', 'top': '', 'left': '',
+                        'width': '', 'height': '', 'max-height': '', 'transform': '', 'z-index': ''
+                    });
+                }
             }
         });
     }
 
     // Toggle widget panel
     function toggleAccessibilityPanel() {
-        $('.open-accessibility-widget-wrapper').toggleClass('active');
-        const isActive = $('.open-accessibility-widget-wrapper').hasClass('active');
-        $('.open-accessibility-widget-panel').attr('aria-hidden', !isActive);
+        const $panel = $('.open-accessibility-widget-panel');
+        const $wrapper = $('.open-accessibility-widget-wrapper');
+        const isMobile = window.innerWidth < 768;
+
+        $panel.toggleClass('oa-panel-is-active');
+        const isActive = $panel.hasClass('oa-panel-is-active');
+        $panel.attr('aria-hidden', !isActive);
+
+        if (isActive) { // Panel is OPENING
+            if (isMobile) {
+                if ($wrapper.hasClass('position-left') || $wrapper.hasClass('position-right')) {
+                    const wrapperHeight = $wrapper.outerHeight();
+                    $wrapper.css('top', `calc(50vh - ${wrapperHeight / 2}px)`);
+                }
+                $wrapper.css('transform', 'none');
+                $panel.css({
+                    'position': 'fixed', 'display': 'block', 'top': '0px', 'left': '0px',
+                    'width': '100vw', 'height': '100vh', 'max-height': '100vh',
+                    'transform': 'none', 'z-index': '1000001'
+                });
+            } else { // Desktop OPENING
+                $wrapper.css({'transform': '', 'top': ''});
+                $panel.css({
+                    'position': '', 'display': '', 'top': '', 'left': '',
+                    'width': '', 'height': '', 'max-height': '', 'transform': '', 'z-index': ''
+                });
+            }
+        } else { // Panel is CLOSING (via toggle button click)
+            if (isMobile) {
+                $panel.css({ // Re-assert full-screen styles for fade-out
+                    'position': 'fixed', 'display': 'block', 'top': '0px', 'left': '0px',
+                    'width': '100vw', 'height': '100vh', 'max-height': '100vh',
+                    'transform': 'none', 'z-index': '1000001' 
+                });
+                setTimeout(function() {
+                    $panel.css({ // Hide and reset panel
+                        'display': 'none', 'position': '', 'top': '', 'left': '', 'width': '', 
+                        'height': '', 'max-height': '', 'transform': '', 'z-index': ''
+                    });
+                    // Reset wrapper transform/top AFTER panel is hidden
+                    $wrapper.css({'transform': '', 'top': ''}); 
+                }, 350); 
+            } else { // Desktop CLOSING
+                $wrapper.css({'transform': '', 'top': ''}); // Reset wrapper immediately for desktop
+                $panel.css({
+                    'position': '', 'display': '', 'top': '','left': '',
+                    'width': '', 'height': '', 'max-height': '', 'transform': '', 'z-index': ''
+                });
+            }
+        }
     }
 
-    // Close widget panel
+    // Close widget panel (called by close button, ESC, click-outside)
     function closeAccessibilityPanel() {
-        $('.open-accessibility-widget-wrapper').removeClass('active');
-        $('.open-accessibility-widget-panel').attr('aria-hidden', true);
+        const $panel = $('.open-accessibility-widget-panel');
+        const $wrapper = $('.open-accessibility-widget-wrapper');
+        const isMobile = window.innerWidth < 768;
+
+        $panel.removeClass('oa-panel-is-active');
+        $panel.attr('aria-hidden', 'true');
+        
+        if (isMobile) {
+            $panel.css({ // Re-assert full-screen styles for fade-out
+                'position': 'fixed', 'display': 'block', 'top': '0px', 'left': '0px',
+                'width': '100vw', 'height': '100vh', 'max-height': '100vh',
+                'transform': 'none', 'z-index': '1000001' 
+            });
+            setTimeout(function() {
+                $panel.css({ // Hide and reset panel
+                    'display': 'none', 'position': '', 'top': '', 'left': '', 'width': '', 
+                    'height': '', 'max-height': '', 'transform': '', 'z-index': ''   
+                });
+                // Reset wrapper transform/top AFTER panel is hidden
+                $wrapper.css({'transform': '', 'top': ''}); 
+            }, 350); 
+        } else { // Desktop
+            $wrapper.css({'transform': '', 'top': ''}); // Reset wrapper immediately for desktop
+            $panel.css({
+                'position': '', 'display': '', 'top': '','left': '',
+                'width': '', 'height': '', 'max-height': '', 'transform': '', 'z-index': ''
+            });
+        }
     }
 
     // Hide widget (user choice)
     function hideAccessibilityWidget() {
-        $('.open-accessibility-widget-wrapper').css('display', 'none');
+        $('.open-accessibility-toggle-button, .open-accessibility-widget-panel').css('display', 'none');
 
         // Set a cookie to remember this choice temporarily
         setCookie('open_accessibility_hidden', '1', 1); // Hide for 1 day
@@ -224,19 +332,21 @@
     // Toggle grayscale
     function toggleGrayscale() {
         accessibilityState.grayscale = !accessibilityState.grayscale;
+        const $button = $('.open-accessibility-toggle-button');
+        const $panel = $('.open-accessibility-widget-panel');
 
         if (accessibilityState.grayscale) {
-            // Apply grayscale to the main content
-            $('body *').not('.open-accessibility-widget-wrapper, .open-accessibility-widget-wrapper *').css('filter', 'grayscale(100%)');
-
-            // Add a class to the widget wrapper for CSS targeting
-            $('.open-accessibility-widget-wrapper').addClass('widget-grayscale');
+            // Apply grayscale to the main content, excluding button, panel and panel's children
+            $('body *').not($button).not($panel).not($panel.find('*')).css('filter', 'grayscale(100%)');
+            // Add a class to the widget button and panel for CSS targeting
+            $button.addClass('widget-grayscale');
+            $panel.addClass('widget-grayscale');
         } else {
             // Remove grayscale from the main content
-            $('body *').not('.open-accessibility-widget-wrapper, .open-accessibility-widget-wrapper *').css('filter', '');
-
-            // Remove the class from the widget wrapper
-            $('.open-accessibility-widget-wrapper').removeClass('widget-grayscale');
+            $('body *').not($button).not($panel).not($panel.find('*')).css('filter', '');
+            // Remove the class from the widget button and panel
+            $button.removeClass('widget-grayscale');
+            $panel.removeClass('widget-grayscale');
         }
 
         // Toggle the button active state
@@ -465,7 +575,8 @@
 
         // Clear the grayscale filter from all elements
         $('body *').css('filter', '');
-        $('.open-accessibility-widget-wrapper').removeClass('widget-grayscale');
+        $('.open-accessibility-toggle-button').removeClass('widget-grayscale');
+        $('.open-accessibility-widget-panel').removeClass('widget-grayscale');
 
         // Save reset state
         saveState();
@@ -501,14 +612,20 @@
 
         // Apply grayscale
         if (accessibilityState.grayscale) {
+            const $button = $('.open-accessibility-toggle-button');
+            const $panel = $('.open-accessibility-widget-panel');
             // Re-apply the styles and classes managed by toggleGrayscale
-            $('body *').not('.open-accessibility-widget-wrapper, .open-accessibility-widget-wrapper *').css('filter', 'grayscale(100%)');
-            $('.open-accessibility-widget-wrapper').addClass('widget-grayscale');
+            $('body *').not($button).not($panel).not($panel.find('*')).css('filter', 'grayscale(100%)');
+            $button.addClass('widget-grayscale');
+            $panel.addClass('widget-grayscale');
             $('.open-accessibility-action-button[data-action="grayscale"]').addClass('active');
         } else {
+            const $button = $('.open-accessibility-toggle-button');
+            const $panel = $('.open-accessibility-widget-panel');
             // Ensure styles/classes are removed if state is false
-            $('body *').not('.open-accessibility-widget-wrapper, .open-accessibility-widget-wrapper *').css('filter', '');
-            $('.open-accessibility-widget-wrapper').removeClass('widget-grayscale');
+            $('body *').not($button).not($panel).not($panel.find('*')).css('filter', '');
+            $button.removeClass('widget-grayscale');
+            $panel.removeClass('widget-grayscale');
             $('.open-accessibility-action-button[data-action="grayscale"]').removeClass('active');
         }
 
@@ -610,9 +727,9 @@
     function checkWidgetVisibility() {
         const hidden = getCookie('open_accessibility_hidden');
         if (hidden === '1') {
-            $('.open-accessibility-widget-wrapper').css('display', 'none');
+            $('.open-accessibility-toggle-button, .open-accessibility-widget-panel').css('display', 'none');
         } else {
-            $('.open-accessibility-widget-wrapper').css('display', ''); // Reset to default display
+            $('.open-accessibility-toggle-button').css('display', '');
         }
     }
 
