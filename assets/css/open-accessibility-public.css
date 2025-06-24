@@ -648,6 +648,160 @@ body.open-accessibility-negative-contrast .open-accessibility-action-button.acti
     border-color: #4054b2 !important;
 }
 
+/* Enhanced high contrast styles for widget panel */
+body.open-accessibility-high-contrast .open-accessibility-widget-panel {
+    background-color: #000000 !important;
+    color: #ffffff !important;
+    border: 3px solid #ffffff !important;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.8) !important;
+}
+
+body.open-accessibility-high-contrast .open-accessibility-widget-header {
+    background-color: #000000 !important;
+    color: #ffffff !important;
+    border-bottom: 3px solid #ffffff !important;
+}
+
+body.open-accessibility-high-contrast .open-accessibility-widget-header h2 {
+    color: #ffffff !important;
+    background-color: #000000 !important;
+    font-weight: bold !important;
+}
+
+body.open-accessibility-high-contrast .open-accessibility-close {
+    color: #ffffff !important;
+    background-color: #000000 !important;
+    border: 2px solid #ffffff !important;
+    font-weight: bold !important;
+}
+
+body.open-accessibility-high-contrast .open-accessibility-close:hover,
+body.open-accessibility-high-contrast .open-accessibility-close:focus {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    border-color: #000000 !important;
+}
+
+body.open-accessibility-high-contrast .open-accessibility-widget-content {
+    background-color: #000000 !important;
+    color: #ffffff !important;
+}
+
+body.open-accessibility-high-contrast .open-accessibility-widget-section {
+    border-bottom: 2px solid #ffffff !important;
+}
+
+body.open-accessibility-high-contrast .open-accessibility-widget-section h3 {
+    color: #ffffff !important;
+    background-color: #000000 !important;
+    font-weight: bold !important;
+}
+
+body.open-accessibility-high-contrast .open-accessibility-action-button {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    border: 2px solid #000000 !important;
+    font-weight: bold !important;
+}
+
+body.open-accessibility-high-contrast .open-accessibility-action-button:hover,
+body.open-accessibility-high-contrast .open-accessibility-action-button:focus {
+    background-color: #ffff00 !important;
+    color: #000000 !important;
+    border-color: #000000 !important;
+}
+
+body.open-accessibility-high-contrast .open-accessibility-action-button.active {
+    background-color: #ffff00 !important;
+    color: #000000 !important;
+    border: 3px solid #000000 !important;
+    font-weight: bold !important;
+}
+
+body.open-accessibility-high-contrast .open-accessibility-widget-footer {
+    background-color: #000000 !important;
+    color: #ffffff !important;
+    border-top: 3px solid #ffffff !important;
+}
+
+body.open-accessibility-high-contrast .open-accessibility-hide-widget {
+    color: #ffffff !important;
+    background-color: #000000 !important;
+    border: 2px solid #ffffff !important;
+    font-weight: bold !important;
+}
+
+body.open-accessibility-high-contrast .open-accessibility-hide-widget:hover,
+body.open-accessibility-high-contrast .open-accessibility-hide-widget:focus {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+}
+
+body.open-accessibility-high-contrast .open-accessibility-reset-button {
+    background-color: #ff0000 !important;
+    color: #ffffff !important;
+    border: 3px solid #ffffff !important;
+    font-weight: bold !important;
+}
+
+body.open-accessibility-high-contrast .open-accessibility-reset-button:hover,
+body.open-accessibility-high-contrast .open-accessibility-reset-button:focus {
+    background-color: #ffffff !important;
+    color: #ff0000 !important;
+    border-color: #ff0000 !important;
+}
+
+/* Ensure toggle button is visible in high contrast mode */
+body.open-accessibility-high-contrast .open-accessibility-toggle-button {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    border: 3px solid #000000 !important;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.8) !important;
+    font-weight: bold !important;
+}
+
+body.open-accessibility-high-contrast .open-accessibility-toggle-button:hover,
+body.open-accessibility-high-contrast .open-accessibility-toggle-button:focus {
+    background-color: #ffff00 !important;
+    color: #000000 !important;
+    border-color: #000000 !important;
+    box-shadow: 0 0 20px rgba(255, 255, 0, 0.9) !important;
+}
+
+/* Ensure icon is visible in high contrast toggle button */
+body.open-accessibility-high-contrast .open-accessibility-toggle-button .open-accessibility-icon svg {
+    fill: #000000 !important;
+    stroke: #000000 !important;
+    color: #000000 !important;
+}
+
+body.open-accessibility-high-contrast .open-accessibility-toggle-button:hover .open-accessibility-icon svg,
+body.open-accessibility-high-contrast .open-accessibility-toggle-button:focus .open-accessibility-icon svg {
+    fill: #000000 !important;
+    stroke: #000000 !important;
+    color: #000000 !important;
+}
+
+/* Ensure all SVG elements within high contrast toggle button are visible */
+body.open-accessibility-high-contrast .open-accessibility-toggle-button .open-accessibility-icon svg *,
+body.open-accessibility-high-contrast .open-accessibility-toggle-button .open-accessibility-icon svg g,
+body.open-accessibility-high-contrast .open-accessibility-toggle-button .open-accessibility-icon svg path {
+    fill: #000000 !important;
+    stroke: #000000 !important;
+    color: #000000 !important;
+}
+
+body.open-accessibility-high-contrast .open-accessibility-toggle-button:hover .open-accessibility-icon svg *,
+body.open-accessibility-high-contrast .open-accessibility-toggle-button:hover .open-accessibility-icon svg g,
+body.open-accessibility-high-contrast .open-accessibility-toggle-button:hover .open-accessibility-icon svg path,
+body.open-accessibility-high-contrast .open-accessibility-toggle-button:focus .open-accessibility-icon svg *,
+body.open-accessibility-high-contrast .open-accessibility-toggle-button:focus .open-accessibility-icon svg g,
+body.open-accessibility-high-contrast .open-accessibility-toggle-button:focus .open-accessibility-icon svg path {
+    fill: #000000 !important;
+    stroke: #000000 !important;
+    color: #000000 !important;
+}
+
 /* Ensure toggle button is visible in negative contrast mode */
 body.open-accessibility-negative-contrast .open-accessibility-toggle-button {
     background-color: #00ffff !important;
