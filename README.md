@@ -89,8 +89,12 @@ To see debug messages from this plugin, you need to do two things:
 
 ## Changelog
 
+### 1.2.6
+* Fixed bug causing duplicate local storage objects for accessibility settings
+* Improve icon styling when in high contrast and negative contrast modes 
+
 ### 1.2.5
-* Fixed widget panel display on mobile when accessibility panel button is set to a middle position.
+* Fixed widget panel display on mobile when accessibility panel button is set to a middle position
 
 ### 1.2.4
 * Multisite compatibility: Frontend accessibility settings (localStorage and cookies) are now isolated per site in multisite subfolder setups
