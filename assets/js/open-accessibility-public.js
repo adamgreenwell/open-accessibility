@@ -328,6 +328,38 @@
         accessibilityState.contrast = mode;
     }
 
+    // Apply contrast from saved state (without toggle logic)
+    function applyContrast(mode) {
+        // Remove existing contrast classes
+        $('body').removeClass('open-accessibility-high-contrast open-accessibility-negative-contrast open-accessibility-light-background open-accessibility-dark-background');
+        
+        // Clear active state on all contrast buttons
+        $('.open-accessibility-action-button[data-action="contrast"]').removeClass('active');
+
+        // Apply the contrast mode and activate the correct button
+        switch (mode) {
+            case 'high':
+                $('body').addClass('open-accessibility-high-contrast');
+                $('.open-accessibility-action-button[data-action="contrast"][data-value="high"]').addClass('active');
+                break;
+
+            case 'negative':
+                $('body').addClass('open-accessibility-negative-contrast');
+                $('.open-accessibility-action-button[data-action="contrast"][data-value="negative"]').addClass('active');
+                break;
+
+            case 'light':
+                $('body').addClass('open-accessibility-light-background');
+                $('.open-accessibility-action-button[data-action="contrast"][data-value="light"]').addClass('active');
+                break;
+
+            case 'dark':
+                $('body').addClass('open-accessibility-dark-background');
+                $('.open-accessibility-action-button[data-action="contrast"][data-value="dark"]').addClass('active');
+                break;
+        }
+    }
+
     // Toggle grayscale
     function toggleGrayscale() {
         accessibilityState.grayscale = !accessibilityState.grayscale;
@@ -653,9 +685,9 @@
 
     // Apply current state to the UI
     function applyState() {
-        // Apply contrast
+        // Apply contrast (directly without toggle logic)
         if (accessibilityState.contrast) {
-            handleContrast(accessibilityState.contrast);
+            applyContrast(accessibilityState.contrast);
         }
 
         // Apply grayscale
