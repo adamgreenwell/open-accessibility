@@ -398,6 +398,26 @@
         }
     }
 
+    // Apply font from saved state (without toggle logic)
+    function applyFont(fontValue) {
+        // Remove previous font classes
+        $('body').removeClass('open-accessibility-font-atkinson open-accessibility-font-opendyslexic');
+        // Remove active class from all font buttons
+        $('.open-accessibility-action-button[data-action="set-font"]').removeClass('active');
+
+        // Apply the font class and activate the correct button
+        if (fontValue === 'atkinson') {
+            $('body').addClass('open-accessibility-font-atkinson');
+            $('.open-accessibility-action-button[data-action="set-font"][data-value="atkinson"]').addClass('active');
+        } else if (fontValue === 'opendyslexic') {
+            $('body').addClass('open-accessibility-font-opendyslexic');
+            $('.open-accessibility-action-button[data-action="set-font"][data-value="opendyslexic"]').addClass('active');
+        } else {
+            // Default font - just activate the default button
+            $('.open-accessibility-action-button[data-action="set-font"][data-value="default"]').addClass('active');
+        }
+    }
+
     // Toggle links underline
     function toggleLinksUnderline() {
         accessibilityState.linksUnderline = !accessibilityState.linksUnderline;
@@ -666,8 +686,8 @@
         $('.open-accessibility-action-button[data-action="text-size"][data-value="decrease"]').prop('disabled', accessibilityState.textSize <= 0);
         $('.open-accessibility-action-button[data-action="text-size"][data-value="increase"]').prop('disabled', accessibilityState.textSize >= maxTextSize);
 
-        // Apply selected font
-        setFont(accessibilityState.selectedFont || 'default');
+        // Apply selected font (directly without toggle logic)
+        applyFont(accessibilityState.selectedFont || 'default');
 
         // Apply links underline
         if (accessibilityState.linksUnderline) {
