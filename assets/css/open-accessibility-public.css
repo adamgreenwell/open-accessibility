@@ -619,8 +619,8 @@ body.open-accessibility-negative-contrast .open-accessibility-widget-panel {
     color: #333 !important;
 }
 
-body.open-accessibility-high-contrast .open-accessibility-widget-wrapper.active .open-accessibility-widget-panel,
-body.open-accessibility-negative-contrast .open-accessibility-widget-wrapper.active .open-accessibility-widget-panel {
+body.open-accessibility-high-contrast .open-accessibility-widget-panel.oa-panel-is-active,
+body.open-accessibility-negative-contrast .open-accessibility-widget-panel.oa-panel-is-active {
     visibility: visible !important;
     opacity: 1 !important;
 }
@@ -646,6 +646,22 @@ body.open-accessibility-negative-contrast .open-accessibility-action-button.acti
     background-color: #4054b2 !important;
     color: white !important;
     border-color: #4054b2 !important;
+}
+
+/* Ensure toggle button is visible in negative contrast mode */
+body.open-accessibility-negative-contrast .open-accessibility-toggle-button {
+    background-color: #00ffff !important;
+    color: #000 !important;
+    border: 2px solid #00ffff !important;
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.5) !important;
+}
+
+body.open-accessibility-negative-contrast .open-accessibility-toggle-button:hover,
+body.open-accessibility-negative-contrast .open-accessibility-toggle-button:focus {
+    background-color: #ffffff !important;
+    color: #000 !important;
+    border-color: #ffffff !important;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.7) !important;
 }
 
 /* Letter Spacing Levels */
