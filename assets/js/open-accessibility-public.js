@@ -7,9 +7,8 @@
 (function($) {
     'use strict';
 
-    // Store state in local storage
-    let sitePrefix = window.location.pathname.split('/')[1] || '';
-    const storageKey = sitePrefix ? `${sitePrefix}_open_accessibility_settings` : 'open_accessibility_settings';
+    // Store state in local storage - site-wide key
+    const storageKey = 'open-accessibility-settings';
     let accessibilityState = {
         active: false,
         contrast: '',
@@ -592,7 +591,36 @@
     // Load state from local storage
     function loadState() {
         if (typeof localStorage !== 'undefined') {
-            const savedState = localStorage.getItem(storageKey);
+            let savedState = localStorage.getItem(storageKey);
+            
+            // Migration: Look for old page-specific keys and consolidate them
+            if (!savedState) {
+                // Check for any page-specific keys that might exist
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key && key.endsWith('_open_accessibility_settings')) {
+                        const pageSpecificState = localStorage.getItem(key);
+                        if (pageSpecificState) {
+                            try {
+                                const parsedState = JSON.parse(pageSpecificState);
+                                // If this state shows accessibility was active, use it as our base
+                                if (parsedState.active) {
+                                    savedState = pageSpecificState;
+                                    // Save it to the new unified key
+                                    localStorage.setItem(storageKey, savedState);
+                                    console.log('Open Accessibility: Migrated settings from page-specific storage');
+                                }
+                                // Clean up the old page-specific key
+                                localStorage.removeItem(key);
+                            } catch (e) {
+                                console.error('Error parsing page-specific accessibility state', e);
+                                localStorage.removeItem(key); // Clean up corrupted data
+                            }
+                        }
+                    }
+                }
+            }
+            
             if (savedState) {
                 try {
                     accessibilityState = JSON.parse(savedState);
@@ -705,10 +733,7 @@
             date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
             expires = '; expires=' + date.toUTCString();
         }
-        // Make cookie name site-specific for multisite: prefix with window.location.pathname
-        let sitePrefix = window.location.pathname.split('/')[1] || '';
-        let fullName = sitePrefix ? (sitePrefix + '_' + name) : name;
-        document.cookie = fullName + '=' + (value || '') + expires + '; path=/' + (sitePrefix ? sitePrefix + '/' : '') + '; SameSite=Lax';
+        document.cookie = name + '=' + (value || '') + expires + '; path=/; SameSite=Lax';
     }
 
     // Helper function to get cookies
