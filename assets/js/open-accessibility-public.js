@@ -7,9 +7,8 @@
 (function($) {
     'use strict';
 
-    // Store state in local storage
-    let sitePrefix = window.location.pathname.split('/')[1] || '';
-    const storageKey = sitePrefix ? `${sitePrefix}_open_accessibility_settings` : 'open_accessibility_settings';
+    // Store state in local storage - site-wide key
+    const storageKey = 'open-accessibility-settings';
     let accessibilityState = {
         active: false,
         contrast: '',
@@ -329,6 +328,38 @@
         accessibilityState.contrast = mode;
     }
 
+    // Apply contrast from saved state (without toggle logic)
+    function applyContrast(mode) {
+        // Remove existing contrast classes
+        $('body').removeClass('open-accessibility-high-contrast open-accessibility-negative-contrast open-accessibility-light-background open-accessibility-dark-background');
+        
+        // Clear active state on all contrast buttons
+        $('.open-accessibility-action-button[data-action="contrast"]').removeClass('active');
+
+        // Apply the contrast mode and activate the correct button
+        switch (mode) {
+            case 'high':
+                $('body').addClass('open-accessibility-high-contrast');
+                $('.open-accessibility-action-button[data-action="contrast"][data-value="high"]').addClass('active');
+                break;
+
+            case 'negative':
+                $('body').addClass('open-accessibility-negative-contrast');
+                $('.open-accessibility-action-button[data-action="contrast"][data-value="negative"]').addClass('active');
+                break;
+
+            case 'light':
+                $('body').addClass('open-accessibility-light-background');
+                $('.open-accessibility-action-button[data-action="contrast"][data-value="light"]').addClass('active');
+                break;
+
+            case 'dark':
+                $('body').addClass('open-accessibility-dark-background');
+                $('.open-accessibility-action-button[data-action="contrast"][data-value="dark"]').addClass('active');
+                break;
+        }
+    }
+
     // Toggle grayscale
     function toggleGrayscale() {
         accessibilityState.grayscale = !accessibilityState.grayscale;
@@ -396,6 +427,26 @@
         // Ensure default button is active if state is default
         if (accessibilityState.selectedFont === 'default') {
              $('.open-accessibility-action-button[data-action="set-font"][data-value="default"]').addClass('active');
+        }
+    }
+
+    // Apply font from saved state (without toggle logic)
+    function applyFont(fontValue) {
+        // Remove previous font classes
+        $('body').removeClass('open-accessibility-font-atkinson open-accessibility-font-opendyslexic');
+        // Remove active class from all font buttons
+        $('.open-accessibility-action-button[data-action="set-font"]').removeClass('active');
+
+        // Apply the font class and activate the correct button
+        if (fontValue === 'atkinson') {
+            $('body').addClass('open-accessibility-font-atkinson');
+            $('.open-accessibility-action-button[data-action="set-font"][data-value="atkinson"]').addClass('active');
+        } else if (fontValue === 'opendyslexic') {
+            $('body').addClass('open-accessibility-font-opendyslexic');
+            $('.open-accessibility-action-button[data-action="set-font"][data-value="opendyslexic"]').addClass('active');
+        } else {
+            // Default font - just activate the default button
+            $('.open-accessibility-action-button[data-action="set-font"][data-value="default"]').addClass('active');
         }
     }
 
@@ -592,7 +643,36 @@
     // Load state from local storage
     function loadState() {
         if (typeof localStorage !== 'undefined') {
-            const savedState = localStorage.getItem(storageKey);
+            let savedState = localStorage.getItem(storageKey);
+            
+            // Migration: Look for old page-specific keys and consolidate them
+            if (!savedState) {
+                // Check for any page-specific keys that might exist
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key && key.endsWith('_open_accessibility_settings')) {
+                        const pageSpecificState = localStorage.getItem(key);
+                        if (pageSpecificState) {
+                            try {
+                                const parsedState = JSON.parse(pageSpecificState);
+                                // If this state shows accessibility was active, use it as our base
+                                if (parsedState.active) {
+                                    savedState = pageSpecificState;
+                                    // Save it to the new unified key
+                                    localStorage.setItem(storageKey, savedState);
+                                    console.log('Open Accessibility: Migrated settings from page-specific storage');
+                                }
+                                // Clean up the old page-specific key
+                                localStorage.removeItem(key);
+                            } catch (e) {
+                                console.error('Error parsing page-specific accessibility state', e);
+                                localStorage.removeItem(key); // Clean up corrupted data
+                            }
+                        }
+                    }
+                }
+            }
+            
             if (savedState) {
                 try {
                     accessibilityState = JSON.parse(savedState);
@@ -605,9 +685,9 @@
 
     // Apply current state to the UI
     function applyState() {
-        // Apply contrast
+        // Apply contrast (directly without toggle logic)
         if (accessibilityState.contrast) {
-            handleContrast(accessibilityState.contrast);
+            applyContrast(accessibilityState.contrast);
         }
 
         // Apply grayscale
@@ -638,8 +718,8 @@
         $('.open-accessibility-action-button[data-action="text-size"][data-value="decrease"]').prop('disabled', accessibilityState.textSize <= 0);
         $('.open-accessibility-action-button[data-action="text-size"][data-value="increase"]').prop('disabled', accessibilityState.textSize >= maxTextSize);
 
-        // Apply selected font
-        setFont(accessibilityState.selectedFont || 'default');
+        // Apply selected font (directly without toggle logic)
+        applyFont(accessibilityState.selectedFont || 'default');
 
         // Apply links underline
         if (accessibilityState.linksUnderline) {
@@ -705,10 +785,7 @@
             date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
             expires = '; expires=' + date.toUTCString();
         }
-        // Make cookie name site-specific for multisite: prefix with window.location.pathname
-        let sitePrefix = window.location.pathname.split('/')[1] || '';
-        let fullName = sitePrefix ? (sitePrefix + '_' + name) : name;
-        document.cookie = fullName + '=' + (value || '') + expires + '; path=/' + (sitePrefix ? sitePrefix + '/' : '') + '; SameSite=Lax';
+        document.cookie = name + '=' + (value || '') + expires + '; path=/; SameSite=Lax';
     }
 
     // Helper function to get cookies
