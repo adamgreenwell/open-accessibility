@@ -388,7 +388,188 @@ body.open-accessibility-high-contrast h2,
 body.open-accessibility-high-contrast h3,
 body.open-accessibility-high-contrast h4,
 body.open-accessibility-high-contrast h5,
-body.open-accessibility-high-contrast h6 {
+body.open-accessibility-high-contrast h6,
+body.open-accessibility-high-contrast p,
+body.open-accessibility-high-contrast .wp-block-columns,
+body.open-accessibility-high-contrast .wp-block-column,
+body.open-accessibility-high-contrast .wp-block-group,
+body.open-accessibility-high-contrast .wp-block-paragraph,
+body.open-accessibility-high-contrast .wp-block-heading,
+body.open-accessibility-high-contrast .wp-block-text,
+body.open-accessibility-high-contrast .wp-block-list,
+body.open-accessibility-high-contrast .wp-block-quote,
+body.open-accessibility-high-contrast .wp-block-pullquote,
+body.open-accessibility-high-contrast .wp-block-media-text,
+body.open-accessibility-high-contrast .wp-block-cover,
+body.open-accessibility-high-contrast .wp-block-buttons,
+body.open-accessibility-high-contrast .wp-block-button,
+body.open-accessibility-high-contrast .wp-block-navigation,
+body.open-accessibility-high-contrast .wp-block-site-title,
+body.open-accessibility-high-contrast .wp-block-site-tagline,
+body.open-accessibility-high-contrast .wp-block-post-title,
+body.open-accessibility-high-contrast .wp-block-post-excerpt,
+body.open-accessibility-high-contrast .wp-block-post-content,
+body.open-accessibility-high-contrast .wp-block-post-date,
+body.open-accessibility-high-contrast .wp-block-post-author,
+body.open-accessibility-high-contrast .wp-block-post-terms,
+body.open-accessibility-high-contrast .wp-block-query,
+body.open-accessibility-high-contrast .wp-block-query-loop,
+body.open-accessibility-high-contrast .wp-block-template-part,
+body.open-accessibility-high-contrast .wp-block-html,
+body.open-accessibility-high-contrast .wp-block-separator,
+body.open-accessibility-high-contrast .wp-block-spacer,
+body.open-accessibility-high-contrast .wp-block-image,
+body.open-accessibility-high-contrast .wp-block-gallery,
+body.open-accessibility-high-contrast .wp-block-video,
+body.open-accessibility-high-contrast .wp-block-audio,
+body.open-accessibility-high-contrast .wp-block-file,
+body.open-accessibility-high-contrast .wp-block-embed,
+body.open-accessibility-high-contrast .wp-block-calendar,
+body.open-accessibility-high-contrast .wp-block-rss,
+body.open-accessibility-high-contrast .wp-block-search,
+body.open-accessibility-high-contrast .wp-block-social-links,
+body.open-accessibility-high-contrast .wp-block-navigation-submenu,
+body.open-accessibility-high-contrast .wp-block-page-list,
+body.open-accessibility-high-contrast .wp-block-archives,
+body.open-accessibility-high-contrast .wp-block-categories,
+body.open-accessibility-high-contrast .wp-block-latest-posts,
+body.open-accessibility-high-contrast .wp-block-latest-comments,
+body.open-accessibility-high-contrast .wp-block-tag-cloud,
+body.open-accessibility-high-contrast .wp-block-shortcode,
+body.open-accessibility-high-contrast .wp-block-code,
+body.open-accessibility-high-contrast .wp-block-preformatted,
+body.open-accessibility-high-contrast .wp-block-table,
+body.open-accessibility-high-contrast .wp-block-verse,
+body.open-accessibility-high-contrast .wp-block-more,
+body.open-accessibility-high-contrast .wp-block-nextpage,
+body.open-accessibility-high-contrast .wp-block-comments,
+body.open-accessibility-high-contrast .wp-block-comment-template,
+body.open-accessibility-high-contrast .wp-block-comment-author-name,
+body.open-accessibility-high-contrast .wp-block-comment-date,
+body.open-accessibility-high-contrast .wp-block-comment-content,
+body.open-accessibility-high-contrast .wp-block-comment-reply-link,
+body.open-accessibility-high-contrast .wp-block-post-comments,
+body.open-accessibility-high-contrast .wp-block-loginout,
+body.open-accessibility-high-contrast .wp-block-avatar,
+body.open-accessibility-high-contrast .wp-block-post-author-biography,
+body.open-accessibility-high-contrast .wp-block-post-navigation-link,
+body.open-accessibility-high-contrast .wp-block-query-pagination,
+body.open-accessibility-high-contrast .wp-block-query-pagination-numbers,
+body.open-accessibility-high-contrast .wp-block-query-pagination-previous,
+body.open-accessibility-high-contrast .wp-block-query-pagination-next,
+body.open-accessibility-high-contrast .wp-block-query-title,
+body.open-accessibility-high-contrast .wp-block-query-no-results,
+body.open-accessibility-high-contrast .wp-block-read-more,
+body.open-accessibility-high-contrast .wp-block-home-link,
+body.open-accessibility-high-contrast .wp-block-site-logo,
+body.open-accessibility-high-contrast .wp-block-navigation-link,
+body.open-accessibility-high-contrast .wp-block-navigation-link-content,
+body.open-accessibility-high-contrast .wp-block-navigation-submenu-icon,
+body.open-accessibility-high-contrast .wp-block-navigation-link__submenu-icon,
+body.open-accessibility-high-contrast .wp-block-button__link,
+body.open-accessibility-high-contrast .wp-block-social-link,
+body.open-accessibility-high-contrast .wp-block-social-link-anchor,
+body.open-accessibility-high-contrast .wp-block-social-link-icon,
+body.open-accessibility-high-contrast .wp-block-social-link-label,
+body.open-accessibility-high-contrast .wp-block-search__input,
+body.open-accessibility-high-contrast .wp-block-search__button,
+body.open-accessibility-high-contrast .wp-block-search__inside-wrapper,
+body.open-accessibility-high-contrast .wp-block-search__label,
+body.open-accessibility-high-contrast .wp-block-file__button,
+body.open-accessibility-high-contrast .wp-block-file__content-wrapper,
+body.open-accessibility-high-contrast .wp-block-file__textlink,
+body.open-accessibility-high-contrast .wp-block-file__embed,
+body.open-accessibility-high-contrast .wp-block-embed__wrapper,
+body.open-accessibility-high-contrast .wp-block-embed figcaption,
+body.open-accessibility-high-contrast .wp-block-gallery .blocks-gallery-item,
+body.open-accessibility-high-contrast .wp-block-gallery .blocks-gallery-image,
+body.open-accessibility-high-contrast .wp-block-gallery .blocks-gallery-caption,
+body.open-accessibility-high-contrast .wp-block-gallery figcaption,
+body.open-accessibility-high-contrast .wp-block-image figcaption,
+body.open-accessibility-high-contrast .wp-block-video figcaption,
+body.open-accessibility-high-contrast .wp-block-audio figcaption,
+body.open-accessibility-high-contrast .wp-block-cover__inner-container,
+body.open-accessibility-high-contrast .wp-block-cover__background,
+body.open-accessibility-high-contrast .wp-block-cover__gradient-background,
+body.open-accessibility-high-contrast .wp-block-cover__image-background,
+body.open-accessibility-high-contrast .wp-block-cover__video-background,
+body.open-accessibility-high-contrast .wp-block-cover-text,
+body.open-accessibility-high-contrast .wp-block-cover-image-text,
+body.open-accessibility-high-contrast .wp-block-cover-image-text2,
+body.open-accessibility-high-contrast .wp-block-media-text__content,
+body.open-accessibility-high-contrast .wp-block-media-text__media,
+body.open-accessibility-high-contrast .wp-block-media-text__image,
+body.open-accessibility-high-contrast .wp-block-media-text__video,
+body.open-accessibility-high-contrast .wp-block-pullquote__citation,
+body.open-accessibility-high-contrast .wp-block-pullquote cite,
+body.open-accessibility-high-contrast .wp-block-quote cite,
+body.open-accessibility-high-contrast .wp-block-quote__citation,
+body.open-accessibility-high-contrast .wp-block-table table,
+body.open-accessibility-high-contrast .wp-block-table thead,
+body.open-accessibility-high-contrast .wp-block-table tbody,
+body.open-accessibility-high-contrast .wp-block-table tfoot,
+body.open-accessibility-high-contrast .wp-block-table tr,
+body.open-accessibility-high-contrast .wp-block-table th,
+body.open-accessibility-high-contrast .wp-block-table td,
+body.open-accessibility-high-contrast .wp-block-code code,
+body.open-accessibility-high-contrast .wp-block-verse pre,
+body.open-accessibility-high-contrast .wp-block-preformatted pre,
+body.open-accessibility-high-contrast .wp-block-latest-posts__list,
+body.open-accessibility-high-contrast .wp-block-latest-posts__list-item,
+body.open-accessibility-high-contrast .wp-block-latest-posts__post-date,
+body.open-accessibility-high-contrast .wp-block-latest-posts__post-author,
+body.open-accessibility-high-contrast .wp-block-latest-posts__post-excerpt,
+body.open-accessibility-high-contrast .wp-block-latest-comments__list,
+body.open-accessibility-high-contrast .wp-block-latest-comments__list-item,
+body.open-accessibility-high-contrast .wp-block-latest-comments__comment-date,
+body.open-accessibility-high-contrast .wp-block-latest-comments__comment-excerpt,
+body.open-accessibility-high-contrast .wp-block-latest-comments__comment-author,
+body.open-accessibility-high-contrast .wp-block-latest-comments__comment-link,
+body.open-accessibility-high-contrast .wp-block-archives__list,
+body.open-accessibility-high-contrast .wp-block-archives__list-item,
+body.open-accessibility-high-contrast .wp-block-categories__list,
+body.open-accessibility-high-contrast .wp-block-categories__list-item,
+body.open-accessibility-high-contrast .wp-block-calendar table,
+body.open-accessibility-high-contrast .wp-block-calendar th,
+body.open-accessibility-high-contrast .wp-block-calendar td,
+body.open-accessibility-high-contrast .wp-block-calendar caption,
+body.open-accessibility-high-contrast .wp-block-calendar tbody,
+body.open-accessibility-high-contrast .wp-block-calendar thead,
+body.open-accessibility-high-contrast .wp-block-rss__list,
+body.open-accessibility-high-contrast .wp-block-rss__list-item,
+body.open-accessibility-high-contrast .wp-block-rss__item-title,
+body.open-accessibility-high-contrast .wp-block-rss__item-publish-date,
+body.open-accessibility-high-contrast .wp-block-rss__item-author,
+body.open-accessibility-high-contrast .wp-block-rss__item-excerpt,
+body.open-accessibility-high-contrast .wp-block-tag-cloud__list,
+body.open-accessibility-high-contrast .wp-block-tag-cloud__list-item,
+body.open-accessibility-high-contrast .wp-block-tag-cloud__tag,
+body.open-accessibility-high-contrast .wp-block-page-list__list,
+body.open-accessibility-high-contrast .wp-block-page-list__list-item,
+body.open-accessibility-high-contrast .wp-block-page-list__page,
+body.open-accessibility-high-contrast .wp-block-navigation-link__label,
+body.open-accessibility-high-contrast .wp-block-navigation-link__description,
+body.open-accessibility-high-contrast .wp-block-navigation-link__submenu-icon,
+body.open-accessibility-high-contrast .wp-block-navigation-link__submenu-icon svg,
+body.open-accessibility-high-contrast .wp-block-navigation-link__submenu-icon path,
+body.open-accessibility-high-contrast .wp-block-navigation-link__submenu-icon rect,
+body.open-accessibility-high-contrast .wp-block-navigation-link__submenu-icon circle,
+body.open-accessibility-high-contrast .wp-block-navigation-link__submenu-icon polygon,
+body.open-accessibility-high-contrast .wp-block-navigation-link__submenu-icon line,
+body.open-accessibility-high-contrast .wp-block-navigation-link__submenu-icon polyline,
+body.open-accessibility-high-contrast .wp-block-navigation-link__submenu-icon ellipse,
+body.open-accessibility-high-contrast .wp-block-navigation-link__submenu-icon text,
+body.open-accessibility-high-contrast .wp-block-navigation-link__submenu-icon g,
+body.open-accessibility-high-contrast .wp-block-navigation-link__submenu-icon *,
+body.open-accessibility-high-contrast .wp-block-navigation-link__submenu-icon:hover,
+body.open-accessibility-high-contrast .wp-block-navigation-link__submenu-icon:focus,
+body.open-accessibility-high-contrast .wp-block-navigation-link__submenu-icon:active,
+body.open-accessibility-high-contrast .wp-block-navigation-link__submenu-icon:visited,
+body.open-accessibility-high-contrast .wp-block-navigation-link__submenu-icon:link,
+body.open-accessibility-high-contrast .wp-block-navigation-link__submenu-icon:before,
+body.open-accessibility-high-contrast .wp-block-navigation-link__submenu-icon:after,
+body.open-accessibility-high-contrast .wp-block-navigation-link__submenu-icon::before,
+body.open-accessibility-high-contrast .wp-block-navigation-link__submenu-icon::after {
     background-color: #000 !important;
     color: #ffff00 !important;
     border-color: #ffff00 !important;
@@ -409,7 +590,188 @@ body.open-accessibility-negative-contrast h2,
 body.open-accessibility-negative-contrast h3,
 body.open-accessibility-negative-contrast h4,
 body.open-accessibility-negative-contrast h5,
-body.open-accessibility-negative-contrast h6 {
+body.open-accessibility-negative-contrast h6,
+body.open-accessibility-negative-contrast p,
+body.open-accessibility-negative-contrast .wp-block-columns,
+body.open-accessibility-negative-contrast .wp-block-column,
+body.open-accessibility-negative-contrast .wp-block-group,
+body.open-accessibility-negative-contrast .wp-block-paragraph,
+body.open-accessibility-negative-contrast .wp-block-heading,
+body.open-accessibility-negative-contrast .wp-block-text,
+body.open-accessibility-negative-contrast .wp-block-list,
+body.open-accessibility-negative-contrast .wp-block-quote,
+body.open-accessibility-negative-contrast .wp-block-pullquote,
+body.open-accessibility-negative-contrast .wp-block-media-text,
+body.open-accessibility-negative-contrast .wp-block-cover,
+body.open-accessibility-negative-contrast .wp-block-buttons,
+body.open-accessibility-negative-contrast .wp-block-button,
+body.open-accessibility-negative-contrast .wp-block-navigation,
+body.open-accessibility-negative-contrast .wp-block-site-title,
+body.open-accessibility-negative-contrast .wp-block-site-tagline,
+body.open-accessibility-negative-contrast .wp-block-post-title,
+body.open-accessibility-negative-contrast .wp-block-post-excerpt,
+body.open-accessibility-negative-contrast .wp-block-post-content,
+body.open-accessibility-negative-contrast .wp-block-post-date,
+body.open-accessibility-negative-contrast .wp-block-post-author,
+body.open-accessibility-negative-contrast .wp-block-post-terms,
+body.open-accessibility-negative-contrast .wp-block-query,
+body.open-accessibility-negative-contrast .wp-block-query-loop,
+body.open-accessibility-negative-contrast .wp-block-template-part,
+body.open-accessibility-negative-contrast .wp-block-html,
+body.open-accessibility-negative-contrast .wp-block-separator,
+body.open-accessibility-negative-contrast .wp-block-spacer,
+body.open-accessibility-negative-contrast .wp-block-image,
+body.open-accessibility-negative-contrast .wp-block-gallery,
+body.open-accessibility-negative-contrast .wp-block-video,
+body.open-accessibility-negative-contrast .wp-block-audio,
+body.open-accessibility-negative-contrast .wp-block-file,
+body.open-accessibility-negative-contrast .wp-block-embed,
+body.open-accessibility-negative-contrast .wp-block-calendar,
+body.open-accessibility-negative-contrast .wp-block-rss,
+body.open-accessibility-negative-contrast .wp-block-search,
+body.open-accessibility-negative-contrast .wp-block-social-links,
+body.open-accessibility-negative-contrast .wp-block-navigation-submenu,
+body.open-accessibility-negative-contrast .wp-block-page-list,
+body.open-accessibility-negative-contrast .wp-block-archives,
+body.open-accessibility-negative-contrast .wp-block-categories,
+body.open-accessibility-negative-contrast .wp-block-latest-posts,
+body.open-accessibility-negative-contrast .wp-block-latest-comments,
+body.open-accessibility-negative-contrast .wp-block-tag-cloud,
+body.open-accessibility-negative-contrast .wp-block-shortcode,
+body.open-accessibility-negative-contrast .wp-block-code,
+body.open-accessibility-negative-contrast .wp-block-preformatted,
+body.open-accessibility-negative-contrast .wp-block-table,
+body.open-accessibility-negative-contrast .wp-block-verse,
+body.open-accessibility-negative-contrast .wp-block-more,
+body.open-accessibility-negative-contrast .wp-block-nextpage,
+body.open-accessibility-negative-contrast .wp-block-comments,
+body.open-accessibility-negative-contrast .wp-block-comment-template,
+body.open-accessibility-negative-contrast .wp-block-comment-author-name,
+body.open-accessibility-negative-contrast .wp-block-comment-date,
+body.open-accessibility-negative-contrast .wp-block-comment-content,
+body.open-accessibility-negative-contrast .wp-block-comment-reply-link,
+body.open-accessibility-negative-contrast .wp-block-post-comments,
+body.open-accessibility-negative-contrast .wp-block-loginout,
+body.open-accessibility-negative-contrast .wp-block-avatar,
+body.open-accessibility-negative-contrast .wp-block-post-author-biography,
+body.open-accessibility-negative-contrast .wp-block-post-navigation-link,
+body.open-accessibility-negative-contrast .wp-block-query-pagination,
+body.open-accessibility-negative-contrast .wp-block-query-pagination-numbers,
+body.open-accessibility-negative-contrast .wp-block-query-pagination-previous,
+body.open-accessibility-negative-contrast .wp-block-query-pagination-next,
+body.open-accessibility-negative-contrast .wp-block-query-title,
+body.open-accessibility-negative-contrast .wp-block-query-no-results,
+body.open-accessibility-negative-contrast .wp-block-read-more,
+body.open-accessibility-negative-contrast .wp-block-home-link,
+body.open-accessibility-negative-contrast .wp-block-site-logo,
+body.open-accessibility-negative-contrast .wp-block-navigation-link,
+body.open-accessibility-negative-contrast .wp-block-navigation-link-content,
+body.open-accessibility-negative-contrast .wp-block-navigation-submenu-icon,
+body.open-accessibility-negative-contrast .wp-block-navigation-link__submenu-icon,
+body.open-accessibility-negative-contrast .wp-block-button__link,
+body.open-accessibility-negative-contrast .wp-block-social-link,
+body.open-accessibility-negative-contrast .wp-block-social-link-anchor,
+body.open-accessibility-negative-contrast .wp-block-social-link-icon,
+body.open-accessibility-negative-contrast .wp-block-social-link-label,
+body.open-accessibility-negative-contrast .wp-block-search__input,
+body.open-accessibility-negative-contrast .wp-block-search__button,
+body.open-accessibility-negative-contrast .wp-block-search__inside-wrapper,
+body.open-accessibility-negative-contrast .wp-block-search__label,
+body.open-accessibility-negative-contrast .wp-block-file__button,
+body.open-accessibility-negative-contrast .wp-block-file__content-wrapper,
+body.open-accessibility-negative-contrast .wp-block-file__textlink,
+body.open-accessibility-negative-contrast .wp-block-file__embed,
+body.open-accessibility-negative-contrast .wp-block-embed__wrapper,
+body.open-accessibility-negative-contrast .wp-block-embed figcaption,
+body.open-accessibility-negative-contrast .wp-block-gallery .blocks-gallery-item,
+body.open-accessibility-negative-contrast .wp-block-gallery .blocks-gallery-image,
+body.open-accessibility-negative-contrast .wp-block-gallery .blocks-gallery-caption,
+body.open-accessibility-negative-contrast .wp-block-gallery figcaption,
+body.open-accessibility-negative-contrast .wp-block-image figcaption,
+body.open-accessibility-negative-contrast .wp-block-video figcaption,
+body.open-accessibility-negative-contrast .wp-block-audio figcaption,
+body.open-accessibility-negative-contrast .wp-block-cover__inner-container,
+body.open-accessibility-negative-contrast .wp-block-cover__background,
+body.open-accessibility-negative-contrast .wp-block-cover__gradient-background,
+body.open-accessibility-negative-contrast .wp-block-cover__image-background,
+body.open-accessibility-negative-contrast .wp-block-cover__video-background,
+body.open-accessibility-negative-contrast .wp-block-cover-text,
+body.open-accessibility-negative-contrast .wp-block-cover-image-text,
+body.open-accessibility-negative-contrast .wp-block-cover-image-text2,
+body.open-accessibility-negative-contrast .wp-block-media-text__content,
+body.open-accessibility-negative-contrast .wp-block-media-text__media,
+body.open-accessibility-negative-contrast .wp-block-media-text__image,
+body.open-accessibility-negative-contrast .wp-block-media-text__video,
+body.open-accessibility-negative-contrast .wp-block-pullquote__citation,
+body.open-accessibility-negative-contrast .wp-block-pullquote cite,
+body.open-accessibility-negative-contrast .wp-block-quote cite,
+body.open-accessibility-negative-contrast .wp-block-quote__citation,
+body.open-accessibility-negative-contrast .wp-block-table table,
+body.open-accessibility-negative-contrast .wp-block-table thead,
+body.open-accessibility-negative-contrast .wp-block-table tbody,
+body.open-accessibility-negative-contrast .wp-block-table tfoot,
+body.open-accessibility-negative-contrast .wp-block-table tr,
+body.open-accessibility-negative-contrast .wp-block-table th,
+body.open-accessibility-negative-contrast .wp-block-table td,
+body.open-accessibility-negative-contrast .wp-block-code code,
+body.open-accessibility-negative-contrast .wp-block-verse pre,
+body.open-accessibility-negative-contrast .wp-block-preformatted pre,
+body.open-accessibility-negative-contrast .wp-block-latest-posts__list,
+body.open-accessibility-negative-contrast .wp-block-latest-posts__list-item,
+body.open-accessibility-negative-contrast .wp-block-latest-posts__post-date,
+body.open-accessibility-negative-contrast .wp-block-latest-posts__post-author,
+body.open-accessibility-negative-contrast .wp-block-latest-posts__post-excerpt,
+body.open-accessibility-negative-contrast .wp-block-latest-comments__list,
+body.open-accessibility-negative-contrast .wp-block-latest-comments__list-item,
+body.open-accessibility-negative-contrast .wp-block-latest-comments__comment-date,
+body.open-accessibility-negative-contrast .wp-block-latest-comments__comment-excerpt,
+body.open-accessibility-negative-contrast .wp-block-latest-comments__comment-author,
+body.open-accessibility-negative-contrast .wp-block-latest-comments__comment-link,
+body.open-accessibility-negative-contrast .wp-block-archives__list,
+body.open-accessibility-negative-contrast .wp-block-archives__list-item,
+body.open-accessibility-negative-contrast .wp-block-categories__list,
+body.open-accessibility-negative-contrast .wp-block-categories__list-item,
+body.open-accessibility-negative-contrast .wp-block-calendar table,
+body.open-accessibility-negative-contrast .wp-block-calendar th,
+body.open-accessibility-negative-contrast .wp-block-calendar td,
+body.open-accessibility-negative-contrast .wp-block-calendar caption,
+body.open-accessibility-negative-contrast .wp-block-calendar tbody,
+body.open-accessibility-negative-contrast .wp-block-calendar thead,
+body.open-accessibility-negative-contrast .wp-block-rss__list,
+body.open-accessibility-negative-contrast .wp-block-rss__list-item,
+body.open-accessibility-negative-contrast .wp-block-rss__item-title,
+body.open-accessibility-negative-contrast .wp-block-rss__item-publish-date,
+body.open-accessibility-negative-contrast .wp-block-rss__item-author,
+body.open-accessibility-negative-contrast .wp-block-rss__item-excerpt,
+body.open-accessibility-negative-contrast .wp-block-tag-cloud__list,
+body.open-accessibility-negative-contrast .wp-block-tag-cloud__list-item,
+body.open-accessibility-negative-contrast .wp-block-tag-cloud__tag,
+body.open-accessibility-negative-contrast .wp-block-page-list__list,
+body.open-accessibility-negative-contrast .wp-block-page-list__list-item,
+body.open-accessibility-negative-contrast .wp-block-page-list__page,
+body.open-accessibility-negative-contrast .wp-block-navigation-link__label,
+body.open-accessibility-negative-contrast .wp-block-navigation-link__description,
+body.open-accessibility-negative-contrast .wp-block-navigation-link__submenu-icon,
+body.open-accessibility-negative-contrast .wp-block-navigation-link__submenu-icon svg,
+body.open-accessibility-negative-contrast .wp-block-navigation-link__submenu-icon path,
+body.open-accessibility-negative-contrast .wp-block-navigation-link__submenu-icon rect,
+body.open-accessibility-negative-contrast .wp-block-navigation-link__submenu-icon circle,
+body.open-accessibility-negative-contrast .wp-block-navigation-link__submenu-icon polygon,
+body.open-accessibility-negative-contrast .wp-block-navigation-link__submenu-icon line,
+body.open-accessibility-negative-contrast .wp-block-navigation-link__submenu-icon polyline,
+body.open-accessibility-negative-contrast .wp-block-navigation-link__submenu-icon ellipse,
+body.open-accessibility-negative-contrast .wp-block-navigation-link__submenu-icon text,
+body.open-accessibility-negative-contrast .wp-block-navigation-link__submenu-icon g,
+body.open-accessibility-negative-contrast .wp-block-navigation-link__submenu-icon *,
+body.open-accessibility-negative-contrast .wp-block-navigation-link__submenu-icon:hover,
+body.open-accessibility-negative-contrast .wp-block-navigation-link__submenu-icon:focus,
+body.open-accessibility-negative-contrast .wp-block-navigation-link__submenu-icon:active,
+body.open-accessibility-negative-contrast .wp-block-navigation-link__submenu-icon:visited,
+body.open-accessibility-negative-contrast .wp-block-navigation-link__submenu-icon:link,
+body.open-accessibility-negative-contrast .wp-block-navigation-link__submenu-icon:before,
+body.open-accessibility-negative-contrast .wp-block-navigation-link__submenu-icon:after,
+body.open-accessibility-negative-contrast .wp-block-navigation-link__submenu-icon::before,
+body.open-accessibility-negative-contrast .wp-block-navigation-link__submenu-icon::after {
     background-color: #000 !important;
     color: #00ffff !important;
     border-color: #00ffff !important;
@@ -423,6 +785,40 @@ body.open-accessibility-light-background {
 body.open-accessibility-light-background * {
     background-color: #fff !important;
     color: #000 !important;
+}
+
+/* Make accessibility icon black in light background mode */
+body.open-accessibility-light-background .open-accessibility-toggle-button .open-accessibility-icon svg {
+    fill: #000000 !important;
+    stroke: #000000 !important;
+    color: #000000 !important;
+}
+
+body.open-accessibility-light-background .open-accessibility-toggle-button:hover .open-accessibility-icon svg,
+body.open-accessibility-light-background .open-accessibility-toggle-button:focus .open-accessibility-icon svg {
+    fill: #000000 !important;
+    stroke: #000000 !important;
+    color: #000000 !important;
+}
+
+/* Ensure all SVG elements within light background toggle button are black */
+body.open-accessibility-light-background .open-accessibility-toggle-button .open-accessibility-icon svg *,
+body.open-accessibility-light-background .open-accessibility-toggle-button .open-accessibility-icon svg g,
+body.open-accessibility-light-background .open-accessibility-toggle-button .open-accessibility-icon svg path {
+    fill: #000000 !important;
+    stroke: #000000 !important;
+    color: #000000 !important;
+}
+
+body.open-accessibility-light-background .open-accessibility-toggle-button:hover .open-accessibility-icon svg *,
+body.open-accessibility-light-background .open-accessibility-toggle-button:hover .open-accessibility-icon svg g,
+body.open-accessibility-light-background .open-accessibility-toggle-button:hover .open-accessibility-icon svg path,
+body.open-accessibility-light-background .open-accessibility-toggle-button:focus .open-accessibility-icon svg *,
+body.open-accessibility-light-background .open-accessibility-toggle-button:focus .open-accessibility-icon svg g,
+body.open-accessibility-light-background .open-accessibility-toggle-button:focus .open-accessibility-icon svg path {
+    fill: #000000 !important;
+    stroke: #000000 !important;
+    color: #000000 !important;
 }
 
 body.open-accessibility-dark-background {
@@ -619,8 +1015,8 @@ body.open-accessibility-negative-contrast .open-accessibility-widget-panel {
     color: #333 !important;
 }
 
-body.open-accessibility-high-contrast .open-accessibility-widget-wrapper.active .open-accessibility-widget-panel,
-body.open-accessibility-negative-contrast .open-accessibility-widget-wrapper.active .open-accessibility-widget-panel {
+body.open-accessibility-high-contrast .open-accessibility-widget-panel.oa-panel-is-active,
+body.open-accessibility-negative-contrast .open-accessibility-widget-panel.oa-panel-is-active {
     visibility: visible !important;
     opacity: 1 !important;
 }
@@ -646,6 +1042,313 @@ body.open-accessibility-negative-contrast .open-accessibility-action-button.acti
     background-color: #4054b2 !important;
     color: white !important;
     border-color: #4054b2 !important;
+}
+
+/* Enhanced high contrast styles for widget panel */
+body.open-accessibility-high-contrast .open-accessibility-widget-panel {
+    background-color: #000000 !important;
+    color: #ffffff !important;
+    border: 3px solid #ffffff !important;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.8) !important;
+}
+
+body.open-accessibility-high-contrast .open-accessibility-widget-header {
+    background-color: #000000 !important;
+    color: #ffffff !important;
+    border-bottom: 3px solid #ffffff !important;
+}
+
+body.open-accessibility-high-contrast .open-accessibility-widget-header h2 {
+    color: #ffffff !important;
+    background-color: #000000 !important;
+    font-weight: bold !important;
+}
+
+body.open-accessibility-high-contrast .open-accessibility-close {
+    color: #ffffff !important;
+    background-color: #000000 !important;
+    border: 2px solid #ffffff !important;
+    font-weight: bold !important;
+}
+
+body.open-accessibility-high-contrast .open-accessibility-close:hover,
+body.open-accessibility-high-contrast .open-accessibility-close:focus {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    border-color: #000000 !important;
+}
+
+body.open-accessibility-high-contrast .open-accessibility-widget-content {
+    background-color: #000000 !important;
+    color: #ffffff !important;
+}
+
+body.open-accessibility-high-contrast .open-accessibility-widget-section {
+    border-bottom: 2px solid #ffffff !important;
+}
+
+body.open-accessibility-high-contrast .open-accessibility-widget-section h3 {
+    color: #ffffff !important;
+    background-color: #000000 !important;
+    font-weight: bold !important;
+}
+
+body.open-accessibility-high-contrast .open-accessibility-action-button {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    border: 2px solid #000000 !important;
+    font-weight: bold !important;
+}
+
+body.open-accessibility-high-contrast .open-accessibility-action-button:hover,
+body.open-accessibility-high-contrast .open-accessibility-action-button:focus {
+    background-color: #ffff00 !important;
+    color: #000000 !important;
+    border-color: #000000 !important;
+}
+
+body.open-accessibility-high-contrast .open-accessibility-action-button.active {
+    background-color: #ffff00 !important;
+    color: #000000 !important;
+    border: 3px solid #000000 !important;
+    font-weight: bold !important;
+}
+
+body.open-accessibility-high-contrast .open-accessibility-widget-footer {
+    background-color: #000000 !important;
+    color: #ffffff !important;
+    border-top: 3px solid #ffffff !important;
+}
+
+body.open-accessibility-high-contrast .open-accessibility-hide-widget {
+    color: #ffffff !important;
+    background-color: #000000 !important;
+    border: 2px solid #ffffff !important;
+    font-weight: bold !important;
+}
+
+body.open-accessibility-high-contrast .open-accessibility-hide-widget:hover,
+body.open-accessibility-high-contrast .open-accessibility-hide-widget:focus {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+}
+
+body.open-accessibility-high-contrast .open-accessibility-reset-button {
+    background-color: #ff0000 !important;
+    color: #ffffff !important;
+    border: 3px solid #ffffff !important;
+    font-weight: bold !important;
+}
+
+body.open-accessibility-high-contrast .open-accessibility-reset-button:hover,
+body.open-accessibility-high-contrast .open-accessibility-reset-button:focus {
+    background-color: #ffffff !important;
+    color: #ff0000 !important;
+    border-color: #ff0000 !important;
+}
+
+/* Ensure toggle button is visible in high contrast mode */
+body.open-accessibility-high-contrast .open-accessibility-toggle-button {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    border: 3px solid #000000 !important;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.8) !important;
+    font-weight: bold !important;
+}
+
+body.open-accessibility-high-contrast .open-accessibility-toggle-button:hover,
+body.open-accessibility-high-contrast .open-accessibility-toggle-button:focus {
+    background-color: #ffff00 !important;
+    color: #000000 !important;
+    border-color: #000000 !important;
+    box-shadow: 0 0 20px rgba(255, 255, 0, 0.9) !important;
+}
+
+/* Ensure icon is visible in high contrast toggle button */
+body.open-accessibility-high-contrast .open-accessibility-toggle-button .open-accessibility-icon svg {
+    fill: #000000 !important;
+    stroke: #000000 !important;
+    color: #000000 !important;
+}
+
+body.open-accessibility-high-contrast .open-accessibility-toggle-button:hover .open-accessibility-icon svg,
+body.open-accessibility-high-contrast .open-accessibility-toggle-button:focus .open-accessibility-icon svg {
+    fill: #000000 !important;
+    stroke: #000000 !important;
+    color: #000000 !important;
+}
+
+/* Ensure all SVG elements within high contrast toggle button are visible */
+body.open-accessibility-high-contrast .open-accessibility-toggle-button .open-accessibility-icon svg *,
+body.open-accessibility-high-contrast .open-accessibility-toggle-button .open-accessibility-icon svg g,
+body.open-accessibility-high-contrast .open-accessibility-toggle-button .open-accessibility-icon svg path {
+    fill: #000000 !important;
+    stroke: #000000 !important;
+    color: #000000 !important;
+}
+
+body.open-accessibility-high-contrast .open-accessibility-toggle-button:hover .open-accessibility-icon svg *,
+body.open-accessibility-high-contrast .open-accessibility-toggle-button:hover .open-accessibility-icon svg g,
+body.open-accessibility-high-contrast .open-accessibility-toggle-button:hover .open-accessibility-icon svg path,
+body.open-accessibility-high-contrast .open-accessibility-toggle-button:focus .open-accessibility-icon svg *,
+body.open-accessibility-high-contrast .open-accessibility-toggle-button:focus .open-accessibility-icon svg g,
+body.open-accessibility-high-contrast .open-accessibility-toggle-button:focus .open-accessibility-icon svg path {
+    fill: #000000 !important;
+    stroke: #000000 !important;
+    color: #000000 !important;
+}
+
+/* Ensure toggle button is visible in negative contrast mode */
+body.open-accessibility-negative-contrast .open-accessibility-toggle-button {
+    background-color: #00ffff !important;
+    color: #000 !important;
+    border: 2px solid #00ffff !important;
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.5) !important;
+}
+
+body.open-accessibility-negative-contrast .open-accessibility-toggle-button:hover,
+body.open-accessibility-negative-contrast .open-accessibility-toggle-button:focus {
+    background-color: #ffffff !important;
+    color: #000 !important;
+    border-color: #ffffff !important;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.7) !important;
+}
+
+/* Ensure icon is visible in negative contrast toggle button */
+body.open-accessibility-negative-contrast .open-accessibility-toggle-button .open-accessibility-icon svg {
+    fill: #000000 !important;
+    stroke: #000000 !important;
+    color: #000000 !important;
+}
+
+body.open-accessibility-negative-contrast .open-accessibility-toggle-button:hover .open-accessibility-icon svg,
+body.open-accessibility-negative-contrast .open-accessibility-toggle-button:focus .open-accessibility-icon svg {
+    fill: #000000 !important;
+    stroke: #000000 !important;
+    color: #000000 !important;
+}
+
+/* Ensure all SVG elements within negative contrast toggle button are visible */
+body.open-accessibility-negative-contrast .open-accessibility-toggle-button .open-accessibility-icon svg *,
+body.open-accessibility-negative-contrast .open-accessibility-toggle-button .open-accessibility-icon svg g,
+body.open-accessibility-negative-contrast .open-accessibility-toggle-button .open-accessibility-icon svg path {
+    fill: #000000 !important;
+    stroke: #000000 !important;
+    color: #000000 !important;
+}
+
+body.open-accessibility-negative-contrast .open-accessibility-toggle-button:hover .open-accessibility-icon svg *,
+body.open-accessibility-negative-contrast .open-accessibility-toggle-button:hover .open-accessibility-icon svg g,
+body.open-accessibility-negative-contrast .open-accessibility-toggle-button:hover .open-accessibility-icon svg path,
+body.open-accessibility-negative-contrast .open-accessibility-toggle-button:focus .open-accessibility-icon svg *,
+body.open-accessibility-negative-contrast .open-accessibility-toggle-button:focus .open-accessibility-icon svg g,
+body.open-accessibility-negative-contrast .open-accessibility-toggle-button:focus .open-accessibility-icon svg path {
+    fill: #000000 !important;
+    stroke: #000000 !important;
+    color: #000000 !important;
+}
+
+/* Enhanced negative contrast styles for widget panel */
+body.open-accessibility-negative-contrast .open-accessibility-widget-panel {
+    background-color: #000000 !important;
+    color: #00ffff !important;
+    border: 3px solid #00ffff !important;
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.8) !important;
+}
+
+body.open-accessibility-negative-contrast .open-accessibility-widget-header {
+    background-color: #000000 !important;
+    color: #00ffff !important;
+    border-bottom: 3px solid #00ffff !important;
+}
+
+body.open-accessibility-negative-contrast .open-accessibility-widget-header h2 {
+    color: #00ffff !important;
+    background-color: #000000 !important;
+    font-weight: bold !important;
+}
+
+body.open-accessibility-negative-contrast .open-accessibility-close {
+    color: #00ffff !important;
+    background-color: #000000 !important;
+    border: 2px solid #00ffff !important;
+    font-weight: bold !important;
+}
+
+body.open-accessibility-negative-contrast .open-accessibility-close:hover,
+body.open-accessibility-negative-contrast .open-accessibility-close:focus {
+    background-color: #00ffff !important;
+    color: #000000 !important;
+    border-color: #000000 !important;
+}
+
+body.open-accessibility-negative-contrast .open-accessibility-widget-content {
+    background-color: #000000 !important;
+    color: #00ffff !important;
+}
+
+body.open-accessibility-negative-contrast .open-accessibility-widget-section {
+    border-bottom: 2px solid #00ffff !important;
+}
+
+body.open-accessibility-negative-contrast .open-accessibility-widget-section h3 {
+    color: #00ffff !important;
+    background-color: #000000 !important;
+    font-weight: bold !important;
+}
+
+body.open-accessibility-negative-contrast .open-accessibility-action-button {
+    background-color: #000000 !important;
+    color: #00ffff !important;
+    border: 2px solid #00ffff !important;
+    font-weight: bold !important;
+}
+
+body.open-accessibility-negative-contrast .open-accessibility-action-button:hover,
+body.open-accessibility-negative-contrast .open-accessibility-action-button:focus {
+    background-color: #00ffff !important;
+    color: #000000 !important;
+    border-color: #000000 !important;
+}
+
+body.open-accessibility-negative-contrast .open-accessibility-action-button.active {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    border: 3px solid #00ffff !important;
+    font-weight: bold !important;
+}
+
+body.open-accessibility-negative-contrast .open-accessibility-widget-footer {
+    background-color: #000000 !important;
+    color: #00ffff !important;
+    border-top: 3px solid #00ffff !important;
+}
+
+body.open-accessibility-negative-contrast .open-accessibility-hide-widget {
+    color: #00ffff !important;
+    background-color: #000000 !important;
+    border: 2px solid #00ffff !important;
+    font-weight: bold !important;
+}
+
+body.open-accessibility-negative-contrast .open-accessibility-hide-widget:hover,
+body.open-accessibility-negative-contrast .open-accessibility-hide-widget:focus {
+    background-color: #00ffff !important;
+    color: #000000 !important;
+}
+
+body.open-accessibility-negative-contrast .open-accessibility-reset-button {
+    background-color: #ff0000 !important;
+    color: #00ffff !important;
+    border: 3px solid #00ffff !important;
+    font-weight: bold !important;
+}
+
+body.open-accessibility-negative-contrast .open-accessibility-reset-button:hover,
+body.open-accessibility-negative-contrast .open-accessibility-reset-button:focus {
+    background-color: #00ffff !important;
+    color: #ff0000 !important;
+    border-color: #ff0000 !important;
 }
 
 /* Letter Spacing Levels */
