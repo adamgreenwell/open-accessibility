@@ -97,6 +97,12 @@ To see debug messages from this plugin, you need to do two things:
 
 == Changelog ==
 
+= 1.2.7 =
+* Added comprehensive CSS targeting for `.wp-block-*` elements in high contrast and negative contrast modes
+* Fixed paragraph tags (`p`) not being properly targeted in contrast modes
+* Improved accessibility icon styling in light background mode (now displays as black for better contrast)
+* Better support for block-based themes like Twenty Twenty-Four and child themes
+
 = 1.2.6 =
 * Fixed bug causing duplicate local storage objects for accessibility settings
 * Improve icon styling when in high contrast and negative contrast modes
