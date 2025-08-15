@@ -39,9 +39,24 @@ if (!defined('ABSPATH')) {
             <a href="#tab-advanced" class="nav-tab"><?php esc_html_e('Advanced', 'open-accessibility'); ?></a>
 		</nav>
 	</div>
+	
+	<!-- No-JS fallback notice -->
+	<noscript>
+		<div class="notice notice-warning">
+			<p><?php esc_html_e('JavaScript is required for the tabbed interface to work properly. Please enable JavaScript in your browser.', 'open-accessibility'); ?></p>
+		</div>
+	</noscript>
 
-	<form method="post" action="options.php">
+	<?php
+	// Get current tab from URL or default to general
+	$current_tab = isset($_GET['tab']) ? sanitize_text_field($_GET['tab']) : 'general';
+	$form_action = add_query_arg('tab', $current_tab, 'options.php');
+	?>
+	<form method="post" action="<?php echo esc_url($form_action); ?>">
 		<?php settings_fields('open_accessibility_options_group'); ?>
+		
+		<!-- Hidden field to preserve active tab during form submission -->
+		<input type="hidden" name="open_accessibility_active_tab" value="<?php echo esc_attr($current_tab); ?>">
 
 		<div class="open-accessibility-admin-content">
 			<!-- General Tab -->
