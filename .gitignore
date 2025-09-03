@@ -1,0 +1,35 @@
+# Translation files - keep .pot, ignore generated .po and .mo files
+languages/*.po
+languages/*.mo
+
+# SVN and version control artifacts
+*.svn/
+*.svn-base
+.svn/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+
+# Build artifacts
+node_modules/
+vendor/
+build/
+dist/
