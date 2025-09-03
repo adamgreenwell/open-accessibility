@@ -575,6 +575,82 @@ body.open-accessibility-high-contrast .wp-block-navigation-link__submenu-icon::a
     border-color: #ffff00 !important;
 }
 
+/* Bootstrap 5 Background Classes - High Contrast Mode */
+body.open-accessibility-high-contrast .bg-primary,
+body.open-accessibility-high-contrast .bg-secondary,
+body.open-accessibility-high-contrast .bg-success,
+body.open-accessibility-high-contrast .bg-danger,
+body.open-accessibility-high-contrast .bg-warning,
+body.open-accessibility-high-contrast .bg-info,
+body.open-accessibility-high-contrast .bg-light,
+body.open-accessibility-high-contrast .bg-dark,
+body.open-accessibility-high-contrast .bg-body,
+body.open-accessibility-high-contrast .bg-body-secondary,
+body.open-accessibility-high-contrast .bg-body-tertiary,
+body.open-accessibility-high-contrast .bg-transparent,
+body.open-accessibility-high-contrast .bg-white,
+body.open-accessibility-high-contrast .bg-black,
+body.open-accessibility-high-contrast .bg-opacity-10,
+body.open-accessibility-high-contrast .bg-opacity-25,
+body.open-accessibility-high-contrast .bg-opacity-50,
+body.open-accessibility-high-contrast .bg-opacity-75,
+body.open-accessibility-high-contrast .bg-opacity-100,
+body.open-accessibility-high-contrast .bg-gradient,
+body.open-accessibility-high-contrast .bg-primary-subtle,
+body.open-accessibility-high-contrast .bg-secondary-subtle,
+body.open-accessibility-high-contrast .bg-success-subtle,
+body.open-accessibility-high-contrast .bg-danger-subtle,
+body.open-accessibility-high-contrast .bg-warning-subtle,
+body.open-accessibility-high-contrast .bg-info-subtle,
+body.open-accessibility-high-contrast .bg-light-subtle,
+body.open-accessibility-high-contrast .bg-dark-subtle {
+    background-color: #000 !important;
+    color: #ffff00 !important;
+    border-color: #ffff00 !important;
+}
+
+/* Bootstrap 5 Text Color Classes - High Contrast Mode */
+body.open-accessibility-high-contrast .text-primary,
+body.open-accessibility-high-contrast .text-secondary,
+body.open-accessibility-high-contrast .text-success,
+body.open-accessibility-high-contrast .text-danger,
+body.open-accessibility-high-contrast .text-warning,
+body.open-accessibility-high-contrast .text-info,
+body.open-accessibility-high-contrast .text-light,
+body.open-accessibility-high-contrast .text-dark,
+body.open-accessibility-high-contrast .text-body,
+body.open-accessibility-high-contrast .text-body-emphasis,
+body.open-accessibility-high-contrast .text-body-secondary,
+body.open-accessibility-high-contrast .text-body-tertiary,
+body.open-accessibility-high-contrast .text-black,
+body.open-accessibility-high-contrast .text-white,
+body.open-accessibility-high-contrast .text-opacity-25,
+body.open-accessibility-high-contrast .text-opacity-50,
+body.open-accessibility-high-contrast .text-opacity-75,
+body.open-accessibility-high-contrast .text-opacity-100 {
+    color: #ffff00 !important;
+}
+
+/* Bootstrap 5 Border Classes - High Contrast Mode */
+body.open-accessibility-high-contrast .border,
+body.open-accessibility-high-contrast .border-primary,
+body.open-accessibility-high-contrast .border-secondary,
+body.open-accessibility-high-contrast .border-success,
+body.open-accessibility-high-contrast .border-danger,
+body.open-accessibility-high-contrast .border-warning,
+body.open-accessibility-high-contrast .border-info,
+body.open-accessibility-high-contrast .border-light,
+body.open-accessibility-high-contrast .border-dark,
+body.open-accessibility-high-contrast .border-white,
+body.open-accessibility-high-contrast .border-black,
+body.open-accessibility-high-contrast .border-opacity-10,
+body.open-accessibility-high-contrast .border-opacity-25,
+body.open-accessibility-high-contrast .border-opacity-50,
+body.open-accessibility-high-contrast .border-opacity-75,
+body.open-accessibility-high-contrast .border-opacity-100 {
+    border-color: #ffff00 !important;
+}
+
 body.open-accessibility-negative-contrast {
     background-color: #000 !important;
     color: #fff !important;
@@ -777,6 +853,82 @@ body.open-accessibility-negative-contrast .wp-block-navigation-link__submenu-ico
     border-color: #00ffff !important;
 }
 
+/* Bootstrap 5 Background Classes - Negative Contrast Mode */
+body.open-accessibility-negative-contrast .bg-primary,
+body.open-accessibility-negative-contrast .bg-secondary,
+body.open-accessibility-negative-contrast .bg-success,
+body.open-accessibility-negative-contrast .bg-danger,
+body.open-accessibility-negative-contrast .bg-warning,
+body.open-accessibility-negative-contrast .bg-info,
+body.open-accessibility-negative-contrast .bg-light,
+body.open-accessibility-negative-contrast .bg-dark,
+body.open-accessibility-negative-contrast .bg-body,
+body.open-accessibility-negative-contrast .bg-body-secondary,
+body.open-accessibility-negative-contrast .bg-body-tertiary,
+body.open-accessibility-negative-contrast .bg-transparent,
+body.open-accessibility-negative-contrast .bg-white,
+body.open-accessibility-negative-contrast .bg-black,
+body.open-accessibility-negative-contrast .bg-opacity-10,
+body.open-accessibility-negative-contrast .bg-opacity-25,
+body.open-accessibility-negative-contrast .bg-opacity-50,
+body.open-accessibility-negative-contrast .bg-opacity-75,
+body.open-accessibility-negative-contrast .bg-opacity-100,
+body.open-accessibility-negative-contrast .bg-gradient,
+body.open-accessibility-negative-contrast .bg-primary-subtle,
+body.open-accessibility-negative-contrast .bg-secondary-subtle,
+body.open-accessibility-negative-contrast .bg-success-subtle,
+body.open-accessibility-negative-contrast .bg-danger-subtle,
+body.open-accessibility-negative-contrast .bg-warning-subtle,
+body.open-accessibility-negative-contrast .bg-info-subtle,
+body.open-accessibility-negative-contrast .bg-light-subtle,
+body.open-accessibility-negative-contrast .bg-dark-subtle {
+    background-color: #000 !important;
+    color: #00ffff !important;
+    border-color: #00ffff !important;
+}
+
+/* Bootstrap 5 Text Color Classes - Negative Contrast Mode */
+body.open-accessibility-negative-contrast .text-primary,
+body.open-accessibility-negative-contrast .text-secondary,
+body.open-accessibility-negative-contrast .text-success,
+body.open-accessibility-negative-contrast .text-danger,
+body.open-accessibility-negative-contrast .text-warning,
+body.open-accessibility-negative-contrast .text-info,
+body.open-accessibility-negative-contrast .text-light,
+body.open-accessibility-negative-contrast .text-dark,
+body.open-accessibility-negative-contrast .text-body,
+body.open-accessibility-negative-contrast .text-body-emphasis,
+body.open-accessibility-negative-contrast .text-body-secondary,
+body.open-accessibility-negative-contrast .text-body-tertiary,
+body.open-accessibility-negative-contrast .text-black,
+body.open-accessibility-negative-contrast .text-white,
+body.open-accessibility-negative-contrast .text-opacity-25,
+body.open-accessibility-negative-contrast .text-opacity-50,
+body.open-accessibility-negative-contrast .text-opacity-75,
+body.open-accessibility-negative-contrast .text-opacity-100 {
+    color: #00ffff !important;
+}
+
+/* Bootstrap 5 Border Classes - Negative Contrast Mode */
+body.open-accessibility-negative-contrast .border,
+body.open-accessibility-negative-contrast .border-primary,
+body.open-accessibility-negative-contrast .border-secondary,
+body.open-accessibility-negative-contrast .border-success,
+body.open-accessibility-negative-contrast .border-danger,
+body.open-accessibility-negative-contrast .border-warning,
+body.open-accessibility-negative-contrast .border-info,
+body.open-accessibility-negative-contrast .border-light,
+body.open-accessibility-negative-contrast .border-dark,
+body.open-accessibility-negative-contrast .border-white,
+body.open-accessibility-negative-contrast .border-black,
+body.open-accessibility-negative-contrast .border-opacity-10,
+body.open-accessibility-negative-contrast .border-opacity-25,
+body.open-accessibility-negative-contrast .border-opacity-50,
+body.open-accessibility-negative-contrast .border-opacity-75,
+body.open-accessibility-negative-contrast .border-opacity-100 {
+    border-color: #00ffff !important;
+}
+
 body.open-accessibility-light-background {
     background-color: #fff !important;
     color: #000 !important;
@@ -785,6 +937,82 @@ body.open-accessibility-light-background {
 body.open-accessibility-light-background * {
     background-color: #fff !important;
     color: #000 !important;
+}
+
+/* Bootstrap 5 Background Classes - Light Background Mode */
+body.open-accessibility-light-background .bg-primary,
+body.open-accessibility-light-background .bg-secondary,
+body.open-accessibility-light-background .bg-success,
+body.open-accessibility-light-background .bg-danger,
+body.open-accessibility-light-background .bg-warning,
+body.open-accessibility-light-background .bg-info,
+body.open-accessibility-light-background .bg-light,
+body.open-accessibility-light-background .bg-dark,
+body.open-accessibility-light-background .bg-body,
+body.open-accessibility-light-background .bg-body-secondary,
+body.open-accessibility-light-background .bg-body-tertiary,
+body.open-accessibility-light-background .bg-transparent,
+body.open-accessibility-light-background .bg-white,
+body.open-accessibility-light-background .bg-black,
+body.open-accessibility-light-background .bg-opacity-10,
+body.open-accessibility-light-background .bg-opacity-25,
+body.open-accessibility-light-background .bg-opacity-50,
+body.open-accessibility-light-background .bg-opacity-75,
+body.open-accessibility-light-background .bg-opacity-100,
+body.open-accessibility-light-background .bg-gradient,
+body.open-accessibility-light-background .bg-primary-subtle,
+body.open-accessibility-light-background .bg-secondary-subtle,
+body.open-accessibility-light-background .bg-success-subtle,
+body.open-accessibility-light-background .bg-danger-subtle,
+body.open-accessibility-light-background .bg-warning-subtle,
+body.open-accessibility-light-background .bg-info-subtle,
+body.open-accessibility-light-background .bg-light-subtle,
+body.open-accessibility-light-background .bg-dark-subtle {
+    background-color: #fff !important;
+    color: #000 !important;
+    border-color: #000 !important;
+}
+
+/* Bootstrap 5 Text Color Classes - Light Background Mode */
+body.open-accessibility-light-background .text-primary,
+body.open-accessibility-light-background .text-secondary,
+body.open-accessibility-light-background .text-success,
+body.open-accessibility-light-background .text-danger,
+body.open-accessibility-light-background .text-warning,
+body.open-accessibility-light-background .text-info,
+body.open-accessibility-light-background .text-light,
+body.open-accessibility-light-background .text-dark,
+body.open-accessibility-light-background .text-body,
+body.open-accessibility-light-background .text-body-emphasis,
+body.open-accessibility-light-background .text-body-secondary,
+body.open-accessibility-light-background .text-body-tertiary,
+body.open-accessibility-light-background .text-black,
+body.open-accessibility-light-background .text-white,
+body.open-accessibility-light-background .text-opacity-25,
+body.open-accessibility-light-background .text-opacity-50,
+body.open-accessibility-light-background .text-opacity-75,
+body.open-accessibility-light-background .text-opacity-100 {
+    color: #000 !important;
+}
+
+/* Bootstrap 5 Border Classes - Light Background Mode */
+body.open-accessibility-light-background .border,
+body.open-accessibility-light-background .border-primary,
+body.open-accessibility-light-background .border-secondary,
+body.open-accessibility-light-background .border-success,
+body.open-accessibility-light-background .border-danger,
+body.open-accessibility-light-background .border-warning,
+body.open-accessibility-light-background .border-info,
+body.open-accessibility-light-background .border-light,
+body.open-accessibility-light-background .border-dark,
+body.open-accessibility-light-background .border-white,
+body.open-accessibility-light-background .border-black,
+body.open-accessibility-light-background .border-opacity-10,
+body.open-accessibility-light-background .border-opacity-25,
+body.open-accessibility-light-background .border-opacity-50,
+body.open-accessibility-light-background .border-opacity-75,
+body.open-accessibility-light-background .border-opacity-100 {
+    border-color: #000 !important;
 }
 
 /* Make accessibility icon black in light background mode */
@@ -829,6 +1057,258 @@ body.open-accessibility-dark-background {
 body.open-accessibility-dark-background * {
     background-color: #000 !important;
     color: #fff !important;
+}
+
+/* Bootstrap 5 Background Classes - Dark Background Mode */
+body.open-accessibility-dark-background .bg-primary,
+body.open-accessibility-dark-background .bg-secondary,
+body.open-accessibility-dark-background .bg-success,
+body.open-accessibility-dark-background .bg-danger,
+body.open-accessibility-dark-background .bg-warning,
+body.open-accessibility-dark-background .bg-info,
+body.open-accessibility-dark-background .bg-light,
+body.open-accessibility-dark-background .bg-dark,
+body.open-accessibility-dark-background .bg-body,
+body.open-accessibility-dark-background .bg-body-secondary,
+body.open-accessibility-dark-background .bg-body-tertiary,
+body.open-accessibility-dark-background .bg-transparent,
+body.open-accessibility-dark-background .bg-white,
+body.open-accessibility-dark-background .bg-black,
+body.open-accessibility-dark-background .bg-opacity-10,
+body.open-accessibility-dark-background .bg-opacity-25,
+body.open-accessibility-dark-background .bg-opacity-50,
+body.open-accessibility-dark-background .bg-opacity-75,
+body.open-accessibility-dark-background .bg-opacity-100,
+body.open-accessibility-dark-background .bg-gradient,
+body.open-accessibility-dark-background .bg-primary-subtle,
+body.open-accessibility-dark-background .bg-secondary-subtle,
+body.open-accessibility-dark-background .bg-success-subtle,
+body.open-accessibility-dark-background .bg-danger-subtle,
+body.open-accessibility-dark-background .bg-warning-subtle,
+body.open-accessibility-dark-background .bg-info-subtle,
+body.open-accessibility-dark-background .bg-light-subtle,
+body.open-accessibility-dark-background .bg-dark-subtle {
+    background-color: #000 !important;
+    color: #fff !important;
+    border-color: #fff !important;
+}
+
+/* Bootstrap 5 Text Color Classes - Dark Background Mode */
+body.open-accessibility-dark-background .text-primary,
+body.open-accessibility-dark-background .text-secondary,
+body.open-accessibility-dark-background .text-success,
+body.open-accessibility-dark-background .text-danger,
+body.open-accessibility-dark-background .text-warning,
+body.open-accessibility-dark-background .text-info,
+body.open-accessibility-dark-background .text-light,
+body.open-accessibility-dark-background .text-dark,
+body.open-accessibility-dark-background .text-body,
+body.open-accessibility-dark-background .text-body-emphasis,
+body.open-accessibility-dark-background .text-body-secondary,
+body.open-accessibility-dark-background .text-body-tertiary,
+body.open-accessibility-dark-background .text-black,
+body.open-accessibility-dark-background .text-white,
+body.open-accessibility-dark-background .text-opacity-25,
+body.open-accessibility-dark-background .text-opacity-50,
+body.open-accessibility-dark-background .text-opacity-75,
+body.open-accessibility-dark-background .text-opacity-100 {
+    color: #fff !important;
+}
+
+/* Bootstrap 5 Border Classes - Dark Background Mode */
+body.open-accessibility-dark-background .border,
+body.open-accessibility-dark-background .border-primary,
+body.open-accessibility-dark-background .border-secondary,
+body.open-accessibility-dark-background .border-success,
+body.open-accessibility-dark-background .border-danger,
+body.open-accessibility-dark-background .border-warning,
+body.open-accessibility-dark-background .border-info,
+body.open-accessibility-dark-background .border-light,
+body.open-accessibility-dark-background .border-dark,
+body.open-accessibility-dark-background .border-white,
+body.open-accessibility-dark-background .border-black,
+body.open-accessibility-dark-background .border-opacity-10,
+body.open-accessibility-dark-background .border-opacity-25,
+body.open-accessibility-dark-background .border-opacity-50,
+body.open-accessibility-dark-background .border-opacity-75,
+body.open-accessibility-dark-background .border-opacity-100 {
+    border-color: #fff !important;
+}
+
+/* Additional Bootstrap 5 Component Classes - High Contrast Mode */
+body.open-accessibility-high-contrast .alert,
+body.open-accessibility-high-contrast .alert-primary,
+body.open-accessibility-high-contrast .alert-secondary,
+body.open-accessibility-high-contrast .alert-success,
+body.open-accessibility-high-contrast .alert-danger,
+body.open-accessibility-high-contrast .alert-warning,
+body.open-accessibility-high-contrast .alert-info,
+body.open-accessibility-high-contrast .alert-light,
+body.open-accessibility-high-contrast .alert-dark,
+body.open-accessibility-high-contrast .card,
+body.open-accessibility-high-contrast .card-header,
+body.open-accessibility-high-contrast .card-body,
+body.open-accessibility-high-contrast .card-footer,
+body.open-accessibility-high-contrast .modal-content,
+body.open-accessibility-high-contrast .modal-header,
+body.open-accessibility-high-contrast .modal-body,
+body.open-accessibility-high-contrast .modal-footer,
+body.open-accessibility-high-contrast .dropdown-menu,
+body.open-accessibility-high-contrast .navbar,
+body.open-accessibility-high-contrast .navbar-brand,
+body.open-accessibility-high-contrast .navbar-nav,
+body.open-accessibility-high-contrast .nav-link,
+body.open-accessibility-high-contrast .nav-tabs,
+body.open-accessibility-high-contrast .nav-pills,
+body.open-accessibility-high-contrast .tab-content,
+body.open-accessibility-high-contrast .tab-pane,
+body.open-accessibility-high-contrast .list-group,
+body.open-accessibility-high-contrast .list-group-item,
+body.open-accessibility-high-contrast .badge,
+body.open-accessibility-high-contrast .btn,
+body.open-accessibility-high-contrast .form-control,
+body.open-accessibility-high-contrast .input-group,
+body.open-accessibility-high-contrast .table,
+body.open-accessibility-high-contrast .progress,
+body.open-accessibility-high-contrast .jumbotron,
+body.open-accessibility-high-contrast .toast,
+body.open-accessibility-high-contrast .tooltip,
+body.open-accessibility-high-contrast .popover {
+    background-color: #000 !important;
+    color: #ffff00 !important;
+    border-color: #ffff00 !important;
+}
+
+/* Additional Bootstrap 5 Component Classes - Negative Contrast Mode */
+body.open-accessibility-negative-contrast .alert,
+body.open-accessibility-negative-contrast .alert-primary,
+body.open-accessibility-negative-contrast .alert-secondary,
+body.open-accessibility-negative-contrast .alert-success,
+body.open-accessibility-negative-contrast .alert-danger,
+body.open-accessibility-negative-contrast .alert-warning,
+body.open-accessibility-negative-contrast .alert-info,
+body.open-accessibility-negative-contrast .alert-light,
+body.open-accessibility-negative-contrast .alert-dark,
+body.open-accessibility-negative-contrast .card,
+body.open-accessibility-negative-contrast .card-header,
+body.open-accessibility-negative-contrast .card-body,
+body.open-accessibility-negative-contrast .card-footer,
+body.open-accessibility-negative-contrast .modal-content,
+body.open-accessibility-negative-contrast .modal-header,
+body.open-accessibility-negative-contrast .modal-body,
+body.open-accessibility-negative-contrast .modal-footer,
+body.open-accessibility-negative-contrast .dropdown-menu,
+body.open-accessibility-negative-contrast .navbar,
+body.open-accessibility-negative-contrast .navbar-brand,
+body.open-accessibility-negative-contrast .navbar-nav,
+body.open-accessibility-negative-contrast .nav-link,
+body.open-accessibility-negative-contrast .nav-tabs,
+body.open-accessibility-negative-contrast .nav-pills,
+body.open-accessibility-negative-contrast .tab-content,
+body.open-accessibility-negative-contrast .tab-pane,
+body.open-accessibility-negative-contrast .list-group,
+body.open-accessibility-negative-contrast .list-group-item,
+body.open-accessibility-negative-contrast .badge,
+body.open-accessibility-negative-contrast .btn,
+body.open-accessibility-negative-contrast .form-control,
+body.open-accessibility-negative-contrast .input-group,
+body.open-accessibility-negative-contrast .table,
+body.open-accessibility-negative-contrast .progress,
+body.open-accessibility-negative-contrast .jumbotron,
+body.open-accessibility-negative-contrast .toast,
+body.open-accessibility-negative-contrast .tooltip,
+body.open-accessibility-negative-contrast .popover {
+    background-color: #000 !important;
+    color: #00ffff !important;
+    border-color: #00ffff !important;
+}
+
+/* Additional Bootstrap 5 Component Classes - Light Background Mode */
+body.open-accessibility-light-background .alert,
+body.open-accessibility-light-background .alert-primary,
+body.open-accessibility-light-background .alert-secondary,
+body.open-accessibility-light-background .alert-success,
+body.open-accessibility-light-background .alert-danger,
+body.open-accessibility-light-background .alert-warning,
+body.open-accessibility-light-background .alert-info,
+body.open-accessibility-light-background .alert-light,
+body.open-accessibility-light-background .alert-dark,
+body.open-accessibility-light-background .card,
+body.open-accessibility-light-background .card-header,
+body.open-accessibility-light-background .card-body,
+body.open-accessibility-light-background .card-footer,
+body.open-accessibility-light-background .modal-content,
+body.open-accessibility-light-background .modal-header,
+body.open-accessibility-light-background .modal-body,
+body.open-accessibility-light-background .modal-footer,
+body.open-accessibility-light-background .dropdown-menu,
+body.open-accessibility-light-background .navbar,
+body.open-accessibility-light-background .navbar-brand,
+body.open-accessibility-light-background .navbar-nav,
+body.open-accessibility-light-background .nav-link,
+body.open-accessibility-light-background .nav-tabs,
+body.open-accessibility-light-background .nav-pills,
+body.open-accessibility-light-background .tab-content,
+body.open-accessibility-light-background .tab-pane,
+body.open-accessibility-light-background .list-group,
+body.open-accessibility-light-background .list-group-item,
+body.open-accessibility-light-background .badge,
+body.open-accessibility-light-background .btn,
+body.open-accessibility-light-background .form-control,
+body.open-accessibility-light-background .input-group,
+body.open-accessibility-light-background .table,
+body.open-accessibility-light-background .progress,
+body.open-accessibility-light-background .jumbotron,
+body.open-accessibility-light-background .toast,
+body.open-accessibility-light-background .tooltip,
+body.open-accessibility-light-background .popover {
+    background-color: #fff !important;
+    color: #000 !important;
+    border-color: #000 !important;
+}
+
+/* Additional Bootstrap 5 Component Classes - Dark Background Mode */
+body.open-accessibility-dark-background .alert,
+body.open-accessibility-dark-background .alert-primary,
+body.open-accessibility-dark-background .alert-secondary,
+body.open-accessibility-dark-background .alert-success,
+body.open-accessibility-dark-background .alert-danger,
+body.open-accessibility-dark-background .alert-warning,
+body.open-accessibility-dark-background .alert-info,
+body.open-accessibility-dark-background .alert-light,
+body.open-accessibility-dark-background .alert-dark,
+body.open-accessibility-dark-background .card,
+body.open-accessibility-dark-background .card-header,
+body.open-accessibility-dark-background .card-body,
+body.open-accessibility-dark-background .card-footer,
+body.open-accessibility-dark-background .modal-content,
+body.open-accessibility-dark-background .modal-header,
+body.open-accessibility-dark-background .modal-body,
+body.open-accessibility-dark-background .modal-footer,
+body.open-accessibility-dark-background .dropdown-menu,
+body.open-accessibility-dark-background .navbar,
+body.open-accessibility-dark-background .navbar-brand,
+body.open-accessibility-dark-background .navbar-nav,
+body.open-accessibility-dark-background .nav-link,
+body.open-accessibility-dark-background .nav-tabs,
+body.open-accessibility-dark-background .nav-pills,
+body.open-accessibility-dark-background .tab-content,
+body.open-accessibility-dark-background .tab-pane,
+body.open-accessibility-dark-background .list-group,
+body.open-accessibility-dark-background .list-group-item,
+body.open-accessibility-dark-background .badge,
+body.open-accessibility-dark-background .btn,
+body.open-accessibility-dark-background .form-control,
+body.open-accessibility-dark-background .input-group,
+body.open-accessibility-dark-background .table,
+body.open-accessibility-dark-background .progress,
+body.open-accessibility-dark-background .jumbotron,
+body.open-accessibility-dark-background .toast,
+body.open-accessibility-dark-background .tooltip,
+body.open-accessibility-dark-background .popover {
+    background-color: #000 !important;
+    color: #fff !important;
+    border-color: #fff !important;
 }
 
 body.open-accessibility-grayscale {

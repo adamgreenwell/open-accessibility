@@ -36,6 +36,34 @@ class Open_Accessibility_Admin {
 	public function __construct() {
 		$this->plugin_name = 'open-accessibility';
 		$this->version = OPEN_ACCESSIBILITY_VERSION;
+		
+		// Add filter to preserve tab parameter in settings redirect
+		add_filter('wp_redirect', array($this, 'preserve_tab_in_redirect'), 10, 2);
+	}
+
+
+
+	/**
+	 * Preserve tab parameter in settings redirect
+	 *
+	 * @since    1.0.0
+	 * @param string $location The redirect URL
+	 * @param int    $status   The redirect status code
+	 * @return string Modified redirect URL
+	 */
+	public function preserve_tab_in_redirect($location, $status) {
+		// Only modify redirects for our settings page
+		if (strpos($location, 'open-accessibility-settings') !== false && 
+			isset($_POST['open_accessibility_active_tab'])) {
+			
+			$active_tab = sanitize_text_field($_POST['open_accessibility_active_tab']);
+			
+			// Add the tab parameter to the redirect URL
+			$location = add_query_arg('tab', $active_tab, $location);
+			
+		}
+		
+		return $location;
 	}
 
 	/**
@@ -683,6 +711,7 @@ class Open_Accessibility_Admin {
 	 * Sanitize options
 	 */
 	public function sanitize_options($input) {
+
 		// Create a new array for sanitized values
 		$sanitized = array();
 
