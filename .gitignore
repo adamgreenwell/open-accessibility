@@ -6,6 +6,7 @@ languages/*.mo
 *.svn/
 *.svn-base
 .svn/
+/open-accessibility-svn/
 
 # IDE and editor files
 .vscode/
