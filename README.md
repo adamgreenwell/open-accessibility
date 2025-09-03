@@ -89,6 +89,10 @@ To see debug messages from this plugin, you need to do two things:
 
 ## Changelog
 
+### 1.2.71
+* Improve color mode application for Bootstrap 5 elements
+* Persist active tab when saving settings
+
 ### 1.2.7
 * Added comprehensive CSS targeting for `.wp-block-*` elements in high contrast and negative contrast modes
 * Fixed paragraph tags (`p`) not being properly targeted in contrast modes

@@ -473,19 +473,57 @@
         initWidgetPreview();
         initDebugLogViewer();
 
-        // Tab navigation
-        $('.nav-tab').on('click', function(e) {
-            e.preventDefault();
-
+        // Tab navigation with state persistence
+        function switchTab(tabId) {
             // Update active tab
             $('.nav-tab').removeClass('nav-tab-active');
-            $(this).addClass('nav-tab-active');
+            $(`a[href="${tabId}"]`).addClass('nav-tab-active');
 
             // Show selected tab content
-            const target = $(this).attr('href');
             $('.open-accessibility-tab').removeClass('active');
-            $(target).addClass('active');
+            $(tabId).addClass('active');
+
+            // Store active tab in localStorage
+            localStorage.setItem('open_accessibility_active_tab', tabId);
+            
+            // Update hidden field for form submission
+            const tabName = tabId.replace('#tab-', '');
+            $('input[name="open_accessibility_active_tab"]').val(tabName);
+            
+            // Update URL with tab parameter (without page reload)
+            const currentUrl = new URL(window.location);
+            currentUrl.searchParams.set('tab', tabName);
+            window.history.replaceState({}, '', currentUrl);
+            
+        }
+
+        // Tab click handler
+        $('.nav-tab').on('click', function(e) {
+            e.preventDefault();
+            const target = $(this).attr('href');
+            switchTab(target);
         });
+
+        // Restore active tab on page load
+        const savedTab = localStorage.getItem('open_accessibility_active_tab');
+        const urlHash = window.location.hash;
+        
+        // Get tab from URL parameters (for redirects after form submission)
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlTab = urlParams.get('tab');
+        const urlTabId = urlTab ? '#tab-' + urlTab : null;
+        
+        if (urlTabId && $('.nav-tab[href="' + urlTabId + '"]').length > 0) {
+            // Use URL tab parameter if present and valid (takes priority for redirects)
+            switchTab(urlTabId);
+        } else if (savedTab && $('.nav-tab[href="' + savedTab + '"]').length > 0) {
+            // Fall back to saved tab if it exists and is valid
+            switchTab(savedTab);
+        } else {
+            // Default to first tab
+            const firstTab = $('.nav-tab').first().attr('href');
+            switchTab(firstTab);
+        }
     });
 
 })(jQuery);
