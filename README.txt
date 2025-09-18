@@ -3,7 +3,7 @@ Contributors: adamgreenwell
 Tags: accessibility, wcag, ada, disability, readable
 Requires at least: 5.2
 Tested up to: 6.8.2
-Stable tag: 1.2.72
+Stable tag: 1.2.73
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -96,6 +96,9 @@ To see debug messages from this plugin, you need to do two things:
 2. Ensure that WordPress's core debugging constants are enabled in your `wp-config.php` file. Specifically, `WP_DEBUG` must be set to `true`, and `WP_DEBUG_LOG` must also be set to `true`. Logs will then appear in the `/wp-content/debug.log` file.
 
 == Changelog ==
+
+= 1.2.73 =
+* Fix accessibility options panel positioning on mobile when negative or high contrast color modes are enabled
 
 = 1.2.72 =
 * Improved translation support and internationalization
