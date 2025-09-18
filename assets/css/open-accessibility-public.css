@@ -1468,26 +1468,9 @@ body.open-accessibility-negative-contrast .open-accessibility-widget-wrapper {
     z-index: 9999;
 }
 
-body.open-accessibility-high-contrast .open-accessibility-widget-wrapper.position-left,
-body.open-accessibility-negative-contrast .open-accessibility-widget-wrapper.position-left {
-    left: 20px !important;
-    top: 50vh !important;
-    transform: translateY(-50%) !important;
-    position: fixed !important;
-}
-
-body.open-accessibility-high-contrast .open-accessibility-widget-wrapper.position-right,
-body.open-accessibility-negative-contrast .open-accessibility-widget-wrapper.position-right {
-    right: 20px !important;
-    top: 50vh !important;
-    transform: translateY(-50%) !important;
-    position: fixed !important;
-}
-
 /* Special panel handling for contrast modes */
 body.open-accessibility-high-contrast .open-accessibility-widget-panel,
 body.open-accessibility-negative-contrast .open-accessibility-widget-panel {
-    position: absolute !important;
     visibility: hidden;
     opacity: 0;
     z-index: 9999;
