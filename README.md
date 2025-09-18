@@ -89,6 +89,12 @@ To see debug messages from this plugin, you need to do two things:
 
 ## Changelog
 
+### 1.2.73
+* Fix accessibility options panel positioning on mobile when negative or high contrast color modes are enabled
+
+### 1.2.72
+* Improved translation support and internationalization
+
 ### 1.2.71
 * Improve color mode application for Bootstrap 5 elements
 * Persist active tab when saving settings
