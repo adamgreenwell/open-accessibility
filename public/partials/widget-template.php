@@ -222,11 +222,12 @@ function open_accessibility_get_icon_svg( $icon_type, $color ) {
 				<div class="open-accessibility-widget-section">
 					<h3><?php esc_html_e('Text Size', 'open-accessibility'); ?></h3>
 					<div class="open-accessibility-actions">
-						<button class="open-accessibility-action-button" data-action="text-size" data-value="increase">
-							<?php esc_html_e('Increase Text', 'open-accessibility'); ?>
-						</button>
 						<button class="open-accessibility-action-button" data-action="text-size" data-value="decrease">
-							<?php esc_html_e('Decrease Text', 'open-accessibility'); ?>
+							<?php esc_html_e('Decrease', 'open-accessibility'); ?>
+						</button>
+						<span class="open-accessibility-indicator" data-action="text-size" data-max="5" aria-label="<?php esc_attr_e('Text size level', 'open-accessibility'); ?>"></span>
+						<button class="open-accessibility-action-button" data-action="text-size" data-value="increase">
+							<?php esc_html_e('Increase', 'open-accessibility'); ?>
 						</button>
 					</div>
 				</div>
@@ -266,6 +267,7 @@ function open_accessibility_get_icon_svg( $icon_type, $color ) {
 						<button class="open-accessibility-action-button" data-action="letter-spacing" data-value="decrease" aria-label="<?php esc_attr_e('Decrease letter spacing', 'open-accessibility'); ?>">
 							<?php esc_html_e('Decrease', 'open-accessibility'); ?>
 						</button>
+						<span class="open-accessibility-indicator" data-action="letter-spacing" data-max="3" aria-label="<?php esc_attr_e('Letter spacing level', 'open-accessibility'); ?>"></span>
 						<button class="open-accessibility-action-button" data-action="letter-spacing" data-value="increase" aria-label="<?php esc_attr_e('Increase letter spacing', 'open-accessibility'); ?>">
 							<?php esc_html_e('Increase', 'open-accessibility'); ?>
 						</button>
@@ -281,6 +283,7 @@ function open_accessibility_get_icon_svg( $icon_type, $color ) {
 						 <button class="open-accessibility-action-button" data-action="word-spacing" data-value="decrease" aria-label="<?php esc_attr_e('Decrease word spacing', 'open-accessibility'); ?>">
 							<?php esc_html_e('Decrease', 'open-accessibility'); ?>
 						</button>
+						<span class="open-accessibility-indicator" data-action="word-spacing" data-max="3" aria-label="<?php esc_attr_e('Word spacing level', 'open-accessibility'); ?>"></span>
 						<button class="open-accessibility-action-button" data-action="word-spacing" data-value="increase" aria-label="<?php esc_attr_e('Increase word spacing', 'open-accessibility'); ?>">
 							<?php esc_html_e('Increase', 'open-accessibility'); ?>
 						</button>
@@ -341,8 +344,12 @@ function open_accessibility_get_icon_svg( $icon_type, $color ) {
 				<div class="open-accessibility-widget-section">
 					<h3><?php esc_html_e('Line Height', 'open-accessibility'); ?></h3>
 					<div class="open-accessibility-actions">
-						<button class="open-accessibility-action-button" data-action="line-height" data-value="toggle">
-							<?php esc_html_e('Increase Line Height', 'open-accessibility'); ?>
+						<button class="open-accessibility-action-button" data-action="line-height" data-value="decrease" aria-label="<?php esc_attr_e('Decrease line height', 'open-accessibility'); ?>">
+							<?php esc_html_e('Decrease', 'open-accessibility'); ?>
+						</button>
+						<span class="open-accessibility-indicator" data-action="line-height" data-max="3" aria-label="<?php esc_attr_e('Line height level', 'open-accessibility'); ?>"></span>
+						<button class="open-accessibility-action-button" data-action="line-height" data-value="increase" aria-label="<?php esc_attr_e('Increase line height', 'open-accessibility'); ?>">
+							<?php esc_html_e('Increase', 'open-accessibility'); ?>
 						</button>
 					</div>
 				</div>
