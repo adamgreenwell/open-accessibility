@@ -89,6 +89,9 @@ To see debug messages from this plugin, you need to do two things:
 
 ## Changelog
 
+### 1.2.74
+* Add visual indication of scale level for text size, letter spacing, word spacing and line height
+
 ### 1.2.73
 * Fix accessibility options panel positioning on mobile when negative or high contrast color modes are enabled
 
