@@ -266,6 +266,19 @@ class Open_Accessibility_Public {
 			return;
 		}
 
-		include_once OPEN_ACCESSIBILITY_PLUGIN_DIR . 'public/partials/widget-template.php';
+		// Skip footer widget if shortcode was used on this page
+		if ( Open_Accessibility_Shortcode::was_rendered() ) {
+			return;
+		}
+
+		// Fallback: check if current post content contains the shortcode
+		if ( is_singular() ) {
+			$post = get_post();
+			if ( $post && has_shortcode( $post->post_content, 'open_accessibility' ) ) {
+				return;
+			}
+		}
+
+		include OPEN_ACCESSIBILITY_PLUGIN_DIR . 'public/partials/widget-template.php';
 	}
 }
