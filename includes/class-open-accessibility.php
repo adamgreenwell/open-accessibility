@@ -92,6 +92,11 @@ class Open_Accessibility {
 		 */
 		require_once OPEN_ACCESSIBILITY_PLUGIN_DIR . 'includes/ajax/class-open-accessibility-ajax.php';
 
+		/**
+		 * The class responsible for the shortcode.
+		 */
+		require_once OPEN_ACCESSIBILITY_PLUGIN_DIR . 'includes/class-open-accessibility-shortcode.php';
+
 		$this->loader = new Open_Accessibility_Loader();
 	}
 
