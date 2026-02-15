@@ -29,10 +29,15 @@
     const MAX_SPACING_LEVEL = 3;
     const MAX_TEXT_SIZE = 5;
 
+    let isShortcodeEmbed = false;
+
     // Initialize
     function initAccessibility() {
         // Load saved state
         loadState();
+
+        // Detect if widget is embedded via shortcode (inline positioning)
+        isShortcodeEmbed = $('.open-accessibility-widget-wrapper').closest('.open-accessibility-shortcode').length > 0;
 
         // Create reading guide element
         if ($('.open-accessibility-reading-guide').length === 0) {
@@ -82,6 +87,8 @@
         
         // Ensure widget wrapper stays in viewport on scroll
         $(window).on('scroll', function() {
+            if (isShortcodeEmbed) return;
+
             const $widgetWrapper = $('.open-accessibility-widget-wrapper');
             const $panel = $('.open-accessibility-widget-panel');
             const isMobile = window.innerWidth < 768;
@@ -100,6 +107,8 @@
 
         // Handle window resize
         $(window).on('resize', function() {
+            if (isShortcodeEmbed) return;
+
             const $panel = $('.open-accessibility-widget-panel');
             if ($panel.hasClass('oa-panel-is-active')) {
                 const $wrapper = $('.open-accessibility-widget-wrapper');
@@ -136,6 +145,11 @@
         $panel.toggleClass('oa-panel-is-active');
         const isActive = $panel.hasClass('oa-panel-is-active');
         $panel.attr('aria-hidden', !isActive);
+
+        // Shortcode embed: simple show/hide, no positioning logic
+        if (isShortcodeEmbed) {
+            return;
+        }
 
         if (isActive) { // Panel is OPENING
             if (isMobile) {
@@ -189,7 +203,12 @@
 
         $panel.removeClass('oa-panel-is-active');
         $panel.attr('aria-hidden', 'true');
-        
+
+        // Shortcode embed: simple hide, no positioning logic
+        if (isShortcodeEmbed) {
+            return;
+        }
+
         if (isMobile) {
             $panel.css({ // Re-assert full-screen styles for fade-out
                 'position': 'fixed', 'display': 'block', 'top': '0px', 'left': '0px',
