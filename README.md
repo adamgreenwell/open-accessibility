@@ -89,6 +89,9 @@ To see debug messages from this plugin, you need to do two things:
 
 ## Changelog
 
+### 1.2.75
+* Accessibility widget can now be placed with a shortcode
+
 ### 1.2.74
 * Add visual indication of scale level for text size, letter spacing, word spacing and line height
 
