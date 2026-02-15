@@ -1459,6 +1459,46 @@ body.open-accessibility-pause-animations *::after {
     transition: top 0.05s ease-out; /* Add subtle smoothing */
 }
 
+/* ==========================================================================
+   Shortcode Embed Overrides
+   ========================================================================== */
+
+.open-accessibility-shortcode {
+    position: relative;
+    display: inline-block;
+}
+
+.open-accessibility-shortcode .open-accessibility-widget-wrapper {
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    transform: none;
+    z-index: 100;
+    filter: none !important;
+}
+
+.open-accessibility-shortcode .open-accessibility-widget-panel {
+    position: absolute;
+    top: auto;
+    left: auto;
+    right: auto;
+    bottom: calc(100% + 15px);
+    transform: none;
+}
+
+.open-accessibility-shortcode .open-accessibility-widget-wrapper.position-left .open-accessibility-widget-panel,
+.open-accessibility-shortcode .open-accessibility-widget-wrapper.position-right .open-accessibility-widget-panel,
+.open-accessibility-shortcode .open-accessibility-widget-wrapper.position-bottom-left .open-accessibility-widget-panel,
+.open-accessibility-shortcode .open-accessibility-widget-wrapper.position-bottom-right .open-accessibility-widget-panel {
+    left: 0;
+    right: auto;
+    top: auto;
+    bottom: calc(100% + 15px);
+    transform: none;
+}
+
 /* Responsive adjustments */
 @media screen and (max-width: 600px) {
     .open-accessibility-widget-panel {
@@ -1478,6 +1518,22 @@ body.open-accessibility-pause-animations *::after {
     .open-accessibility-widget-wrapper.position-right .open-accessibility-widget-panel {
         right: -20px;
         transform: none;
+    }
+
+    .open-accessibility-shortcode .open-accessibility-widget-wrapper {
+        position: relative;
+        top: auto;
+        left: auto;
+        right: auto;
+        bottom: auto;
+        transform: none;
+    }
+
+    .open-accessibility-shortcode .open-accessibility-widget-panel {
+        position: absolute;
+        width: 300px;
+        max-height: 80vh;
+        height: auto;
     }
 }
 
