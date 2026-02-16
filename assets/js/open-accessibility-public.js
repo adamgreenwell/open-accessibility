@@ -19,7 +19,7 @@
         hideImages: false,
         readingGuide: false,
         focusOutline: false,
-        lineHeight: false,
+        lineHeightLevel: 0,
         textAlign: '',
         pauseAnimations: false,
         letterSpacingLevel: 0,
@@ -27,11 +27,17 @@
     };
 
     const MAX_SPACING_LEVEL = 3;
+    const MAX_TEXT_SIZE = 5;
+
+    let isShortcodeEmbed = false;
 
     // Initialize
     function initAccessibility() {
         // Load saved state
         loadState();
+
+        // Detect if widget is embedded via shortcode (inline positioning)
+        isShortcodeEmbed = $('.open-accessibility-widget-wrapper').closest('.open-accessibility-shortcode').length > 0;
 
         // Create reading guide element
         if ($('.open-accessibility-reading-guide').length === 0) {
@@ -81,6 +87,8 @@
         
         // Ensure widget wrapper stays in viewport on scroll
         $(window).on('scroll', function() {
+            if (isShortcodeEmbed) return;
+
             const $widgetWrapper = $('.open-accessibility-widget-wrapper');
             const $panel = $('.open-accessibility-widget-panel');
             const isMobile = window.innerWidth < 768;
@@ -99,6 +107,8 @@
 
         // Handle window resize
         $(window).on('resize', function() {
+            if (isShortcodeEmbed) return;
+
             const $panel = $('.open-accessibility-widget-panel');
             if ($panel.hasClass('oa-panel-is-active')) {
                 const $wrapper = $('.open-accessibility-widget-wrapper');
@@ -135,6 +145,11 @@
         $panel.toggleClass('oa-panel-is-active');
         const isActive = $panel.hasClass('oa-panel-is-active');
         $panel.attr('aria-hidden', !isActive);
+
+        // Shortcode embed: simple show/hide, no positioning logic
+        if (isShortcodeEmbed) {
+            return;
+        }
 
         if (isActive) { // Panel is OPENING
             if (isMobile) {
@@ -188,7 +203,12 @@
 
         $panel.removeClass('oa-panel-is-active');
         $panel.attr('aria-hidden', 'true');
-        
+
+        // Shortcode embed: simple hide, no positioning logic
+        if (isShortcodeEmbed) {
+            return;
+        }
+
         if (isMobile) {
             $panel.css({ // Re-assert full-screen styles for fade-out
                 'position': 'fixed', 'display': 'block', 'top': '0px', 'left': '0px',
@@ -264,7 +284,7 @@
                 break;
 
             case 'line-height':
-                toggleLineHeight();
+                adjustLineHeight(value);
                 break;
 
             case 'text-align':
@@ -387,12 +407,12 @@
     // Adjust text size
     function adjustTextSize(direction) {
         // Remove existing text size classes
-        for (let i = 1; i <= 5; i++) {
+        for (let i = 1; i <= MAX_TEXT_SIZE; i++) {
             $('body').removeClass(`open-accessibility-text-size-${i}`);
         }
 
         if (direction === 'increase') {
-            accessibilityState.textSize = Math.min(accessibilityState.textSize + 1, 5);
+            accessibilityState.textSize = Math.min(accessibilityState.textSize + 1, MAX_TEXT_SIZE);
         } else if (direction === 'decrease') {
             accessibilityState.textSize = Math.max(accessibilityState.textSize - 1, 0);
         }
@@ -400,6 +420,10 @@
         if (accessibilityState.textSize > 0) {
             $('body').addClass(`open-accessibility-text-size-${accessibilityState.textSize}`);
         }
+        
+        // Update button states and indicator
+        updateSpacingButtonStates('text-size', accessibilityState.textSize);
+        updateIndicator('text-size', accessibilityState.textSize);
     }
 
     // Set selected font
@@ -490,12 +514,6 @@
         $('.open-accessibility-action-button[data-action="focus-outline"]').toggleClass('active', accessibilityState.focusOutline);
     }
 
-    // Toggle line height
-    function toggleLineHeight() {
-        accessibilityState.lineHeight = !accessibilityState.lineHeight;
-        $('body').toggleClass('open-accessibility-big-line-height', accessibilityState.lineHeight);
-        $('.open-accessibility-action-button[data-action="line-height"]').toggleClass('active', accessibilityState.lineHeight);
-    }
 
     // Set text align
     function setTextAlign(align) {
@@ -547,6 +565,7 @@
                 $('body').addClass(`open-accessibility-letter-spacing-${newLevel}`);
             }
             updateSpacingButtonStates('letter-spacing', newLevel);
+            updateIndicator('letter-spacing', newLevel);
         }
     }
 
@@ -572,13 +591,66 @@
                 $('body').addClass(`open-accessibility-word-spacing-${newLevel}`);
             }
             updateSpacingButtonStates('word-spacing', newLevel);
+            updateIndicator('word-spacing', newLevel);
+        }
+    }
+
+    // Adjust Line Height Level
+    function adjustLineHeight(direction) {
+        const currentLevel = accessibilityState.lineHeightLevel;
+        let newLevel = currentLevel;
+
+        if (direction === 'increase') {
+            newLevel = Math.min(currentLevel + 1, MAX_SPACING_LEVEL);
+        } else if (direction === 'decrease') {
+            newLevel = Math.max(currentLevel - 1, 0);
+        }
+
+        if (newLevel !== currentLevel) {
+            accessibilityState.lineHeightLevel = newLevel;
+            // Remove previous level class
+            for (let i = 1; i <= MAX_SPACING_LEVEL; i++) {
+                $('body').removeClass(`open-accessibility-line-height-${i}`);
+            }
+            // Add new level class if > 0
+            if (newLevel > 0) {
+                $('body').addClass(`open-accessibility-line-height-${newLevel}`);
+            }
+            updateSpacingButtonStates('line-height', newLevel);
+            updateIndicator('line-height', newLevel);
         }
     }
 
     // Helper to update Increase/Decrease button states
     function updateSpacingButtonStates(action, level) {
+        const maxLevel = action === 'text-size' ? MAX_TEXT_SIZE : MAX_SPACING_LEVEL;
         $(`.open-accessibility-action-button[data-action="${action}"][data-value="decrease"]`).prop('disabled', level <= 0);
-        $(`.open-accessibility-action-button[data-action="${action}"][data-value="increase"]`).prop('disabled', level >= MAX_SPACING_LEVEL);
+        $(`.open-accessibility-action-button[data-action="${action}"][data-value="increase"]`).prop('disabled', level >= maxLevel);
+    }
+
+    // Update visual indicator (dots/dashes) for incremental controls
+    function updateIndicator(action, currentLevel) {
+        const $indicator = $(`.open-accessibility-indicator[data-action="${action}"]`);
+        if ($indicator.length === 0) {
+            return;
+        }
+
+        const maxLevel = parseInt($indicator.data('max'), 10);
+        const totalDots = maxLevel + 1; // 0 to maxLevel inclusive
+        
+        // Clear existing dots
+        $indicator.empty();
+        
+        // Create dots for each level
+        for (let i = 0; i <= maxLevel; i++) {
+            const $dot = $('<span></span>')
+                .addClass('open-accessibility-indicator-dot')
+                .addClass(i <= currentLevel ? 'active' : '');
+            $indicator.append($dot);
+        }
+        
+        // Update aria-label
+        $indicator.attr('aria-label', `Level ${currentLevel} of ${maxLevel}`);
     }
 
     // Reset all settings to default
@@ -587,17 +659,18 @@
         $('body').removeClass('open-accessibility-high-contrast open-accessibility-negative-contrast open-accessibility-light-background open-accessibility-dark-background');
         $('body').removeClass('open-accessibility-grayscale open-accessibility-links-underline');
         $('body').removeClass('open-accessibility-hide-images open-accessibility-reading-guide-active open-accessibility-focus-outline');
-        $('body').removeClass('open-accessibility-big-line-height open-accessibility-pause-animations');
+        $('body').removeClass('open-accessibility-pause-animations');
         $('body').removeClass('open-accessibility-text-align-left open-accessibility-text-align-center open-accessibility-text-align-right');
         $('body').removeClass('open-accessibility-font-atkinson open-accessibility-font-opendyslexic');
 
         // Remove text size and spacing classes
-        for (let i = 1; i <= 5; i++) {
+        for (let i = 1; i <= MAX_TEXT_SIZE; i++) {
             $('body').removeClass(`open-accessibility-text-size-${i}`);
         }
         for (let i = 1; i <= MAX_SPACING_LEVEL; i++) {
             $('body').removeClass(`open-accessibility-letter-spacing-${i}`);
             $('body').removeClass(`open-accessibility-word-spacing-${i}`);
+            $('body').removeClass(`open-accessibility-line-height-${i}`);
         }
 
         // Reset all buttons active/disabled state
@@ -614,12 +687,18 @@
             hideImages: false,
             readingGuide: false,
             focusOutline: false,
-            lineHeight: false,
+            lineHeightLevel: 0,
             textAlign: '',
             pauseAnimations: false,
             letterSpacingLevel: 0,
             wordSpacingLevel: 0
         };
+
+        // Update all indicators
+        updateIndicator('text-size', 0);
+        updateIndicator('letter-spacing', 0);
+        updateIndicator('word-spacing', 0);
+        updateIndicator('line-height', 0);
 
         // Explicitly hide the reading guide on reset
         $('.open-accessibility-reading-guide').hide(); 
@@ -675,7 +754,17 @@
             
             if (savedState) {
                 try {
-                    accessibilityState = JSON.parse(savedState);
+                    const parsedState = JSON.parse(savedState);
+                    // Migration: Convert old lineHeight boolean to lineHeightLevel
+                    if (parsedState.hasOwnProperty('lineHeight') && typeof parsedState.lineHeight === 'boolean') {
+                        parsedState.lineHeightLevel = parsedState.lineHeight ? 2 : 0; // Old toggle was equivalent to level 2
+                        delete parsedState.lineHeight;
+                    }
+                    // Ensure lineHeightLevel exists
+                    if (!parsedState.hasOwnProperty('lineHeightLevel')) {
+                        parsedState.lineHeightLevel = 0;
+                    }
+                    accessibilityState = parsedState;
                 } catch (e) {
                     console.error('Error parsing saved accessibility state', e);
                 }
@@ -713,10 +802,9 @@
         if (accessibilityState.textSize > 0) {
             $('body').addClass(`open-accessibility-text-size-${accessibilityState.textSize}`);
         }
-        // Update button states regardless of whether size > 0
-        const maxTextSize = 5;
-        $('.open-accessibility-action-button[data-action="text-size"][data-value="decrease"]').prop('disabled', accessibilityState.textSize <= 0);
-        $('.open-accessibility-action-button[data-action="text-size"][data-value="increase"]').prop('disabled', accessibilityState.textSize >= maxTextSize);
+        // Update button states and indicator
+        updateSpacingButtonStates('text-size', accessibilityState.textSize);
+        updateIndicator('text-size', accessibilityState.textSize);
 
         // Apply selected font (directly without toggle logic)
         applyFont(accessibilityState.selectedFont || 'default');
@@ -747,10 +835,11 @@
         }
 
         // Apply line height
-        if (accessibilityState.lineHeight) {
-            $('body').addClass('open-accessibility-big-line-height');
-            $('.open-accessibility-action-button[data-action="line-height"]').addClass('active');
+        if (accessibilityState.lineHeightLevel > 0) {
+            $('body').addClass(`open-accessibility-line-height-${accessibilityState.lineHeightLevel}`);
         }
+        updateSpacingButtonStates('line-height', accessibilityState.lineHeightLevel);
+        updateIndicator('line-height', accessibilityState.lineHeightLevel);
 
         // Apply text align
         if (accessibilityState.textAlign) {
@@ -769,12 +858,14 @@
             $('body').addClass(`open-accessibility-letter-spacing-${accessibilityState.letterSpacingLevel}`);
         }
         updateSpacingButtonStates('letter-spacing', accessibilityState.letterSpacingLevel);
+        updateIndicator('letter-spacing', accessibilityState.letterSpacingLevel);
 
         // Apply word spacing level
         if (accessibilityState.wordSpacingLevel > 0) {
             $('body').addClass(`open-accessibility-word-spacing-${accessibilityState.wordSpacingLevel}`);
         }
         updateSpacingButtonStates('word-spacing', accessibilityState.wordSpacingLevel);
+        updateIndicator('word-spacing', accessibilityState.wordSpacingLevel);
     }
 
     // Helper function to set cookies

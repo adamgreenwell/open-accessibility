@@ -393,6 +393,15 @@ class Open_Accessibility_Admin {
 				'description' => __('When enabled, debug information will be logged to the WordPress debug.log file. Please make sure that your WordPress install also has debugging and debug logging enabled.', 'open-accessibility')
 			)
 		);
+
+		// Shortcode info field
+		add_settings_field(
+			'shortcode_info',
+			__('Shortcode Embed', 'open-accessibility'),
+			array($this, 'shortcode_info_callback'),
+			'open-accessibility-settings',
+			'open_accessibility_advanced'
+		);
 	}
 
 	/**
@@ -435,6 +444,20 @@ class Open_Accessibility_Admin {
 	 */
 	public function advanced_section_callback() {
 		echo '<p>' . esc_html__('Advanced settings for the accessibility widget.', 'open-accessibility') . '</p>';
+	}
+
+	/**
+	 * Shortcode info field callback
+	 *
+	 * @since 1.2.75
+	 */
+	public function shortcode_info_callback() {
+		echo '<p>';
+		echo '<code>[open_accessibility]</code>';
+		echo '</p>';
+		echo '<p class="description">';
+		echo esc_html__( 'Use this shortcode to embed the accessibility widget in any page or post. When the shortcode is present on a page, the default fixed-position widget is automatically hidden on that page.', 'open-accessibility' );
+		echo '</p>';
 	}
 
 	/**

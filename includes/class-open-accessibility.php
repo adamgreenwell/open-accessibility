@@ -92,6 +92,11 @@ class Open_Accessibility {
 		 */
 		require_once OPEN_ACCESSIBILITY_PLUGIN_DIR . 'includes/ajax/class-open-accessibility-ajax.php';
 
+		/**
+		 * The class responsible for the shortcode.
+		 */
+		require_once OPEN_ACCESSIBILITY_PLUGIN_DIR . 'includes/class-open-accessibility-shortcode.php';
+
 		$this->loader = new Open_Accessibility_Loader();
 	}
 
@@ -140,6 +145,7 @@ class Open_Accessibility {
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
 		$this->loader->add_action( 'wp_footer', $plugin_public, 'render_accessibility_widget' );
 		$this->loader->add_action( 'wp_head', $plugin_public, 'add_skip_to_content_link' );
+		$this->loader->add_action( 'init', 'Open_Accessibility_Shortcode', 'init' );
 	}
 
 	/**
