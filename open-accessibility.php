@@ -3,7 +3,7 @@
  * Plugin Name: Open Accessibility
  * Plugin URI: https://github.com/adamgreenwell/open-accessibility
  * Description: An open-source accessibility solution for WordPress websites, providing tools to improve usability and ensure WCAG compliance.
- * Version: 1.2.75
+ * Version: 1.2.76
  * Requires at least: 5.2
  * Requires PHP: 7.4
  * Author: Adam Greenwell
@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'OPEN_ACCESSIBILITY_VERSION', '1.2.75' );
+define( 'OPEN_ACCESSIBILITY_VERSION', '1.2.76' );
 define( 'OPEN_ACCESSIBILITY_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'OPEN_ACCESSIBILITY_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'OPEN_ACCESSIBILITY_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
@@ -64,6 +64,9 @@ function open_accessibility_activate() {
 		);
 		update_option('open_accessibility_options', $default_options);
 	}
+
+	require_once OPEN_ACCESSIBILITY_PLUGIN_DIR . 'includes/database/class-open-accessibility-db.php';
+	Open_Accessibility_DB::create_tables();
 }
 register_activation_hook(__FILE__, 'open_accessibility_activate');
 

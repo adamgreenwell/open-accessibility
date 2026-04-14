@@ -89,6 +89,10 @@ To see debug messages from this plugin, you need to do two things:
 
 ## Changelog
 
+### 1.2.76
+* Fix analytics stats and cleanup queries when the stats table is missing or outdated
+* Preserve accessibility statement cleanup during uninstall
+
 ### 1.2.75
 * Accessibility widget can now be placed with a shortcode
 
