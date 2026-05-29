@@ -120,7 +120,7 @@ add_filter( 'open_accessibility_target_config', function( $config ) {
 } );
 ```
 
-Use `open_accessibility_target_group_selectors` to refine a specific target group such as `readable_text`, `headings`, `links`, `media`, or `interactive`. If a theme needs complete control, `open_accessibility_target_config` receives the final full targeting array before it is passed to the frontend.
+Use `open_accessibility_target_group_selectors` to refine a specific target group such as `readable_text`, `headings`, `links`, `media`, or `interactive`. If a theme needs complete control, `open_accessibility_target_config` receives the final full targeting array before it is passed to the frontend. Returning an empty selector array disables that default selector set; for example, empty `roots` disables the automatic body fallback unless a template opts back in with `data-oa-root`.
 
 Templates can also use attributes:
 

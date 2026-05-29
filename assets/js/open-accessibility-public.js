@@ -193,32 +193,34 @@
             .filter((selector) => typeof selector === 'string' && selector.trim().length > 0)
             .map((selector) => selector.trim());
 
-        return selectors.length ? Array.from(new Set(selectors)) : fallbackSelectors.slice();
+        return Array.from(new Set(selectors));
     }
 
     function normalizeTargetConfig(config) {
         const source = config && typeof config === 'object' ? config : {};
-        const sourceGroups = source.groups && typeof source.groups === 'object' ? source.groups : {};
+        const hasOwn = Object.prototype.hasOwnProperty;
+        const hasGroups = hasOwn.call(source, 'groups') && source.groups && typeof source.groups === 'object';
+        const sourceGroups = hasGroups ? source.groups : DEFAULT_TARGET_CONFIG.groups;
         const normalizedGroups = {};
 
-        Object.keys(DEFAULT_TARGET_CONFIG.groups).forEach((groupName) => {
+        Object.keys(sourceGroups).forEach((groupName) => {
             normalizedGroups[groupName] = normalizeSelectorList(
                 sourceGroups[groupName],
-                DEFAULT_TARGET_CONFIG.groups[groupName]
+                hasGroups ? [] : DEFAULT_TARGET_CONFIG.groups[groupName]
             );
         });
 
-        Object.keys(sourceGroups).forEach((groupName) => {
-            if (!Object.prototype.hasOwnProperty.call(normalizedGroups, groupName)) {
-                normalizedGroups[groupName] = normalizeSelectorList(sourceGroups[groupName], []);
-            }
-        });
+        const roots = normalizeSelectorList(source.roots, DEFAULT_TARGET_CONFIG.roots);
+        const hasExplicitEmptyRoots = hasOwn.call(source, 'roots') &&
+            Array.isArray(source.roots) &&
+            roots.length === 0;
 
         return {
-            roots: normalizeSelectorList(source.roots, DEFAULT_TARGET_CONFIG.roots),
+            roots,
             groups: normalizedGroups,
             layoutContainers: normalizeSelectorList(source.layout_containers, DEFAULT_TARGET_CONFIG.layout_containers),
-            excluded: normalizeSelectorList(source.excluded, DEFAULT_TARGET_CONFIG.excluded)
+            excluded: normalizeSelectorList(source.excluded, DEFAULT_TARGET_CONFIG.excluded),
+            useBodyFallback: !hasExplicitEmptyRoots
         };
     }
 
@@ -535,7 +537,7 @@
 
             roots = uniqueElements(configuredRoots);
 
-            if (!roots.length) {
+            if (!roots.length && config.useBodyFallback) {
                 roots = [document.body];
             }
         }
