@@ -26,12 +26,17 @@ $widget_classes = array(
 	'size-' . $icon_size
 );
 
+$panel_id = 'open-accessibility-widget-panel';
+$panel_title_id = 'open-accessibility-widget-title';
+
 ?>
 
-<div class="<?php echo esc_attr(implode(' ', $widget_classes)); ?>">
+<div class="<?php echo esc_attr(implode(' ', $widget_classes)); ?>" data-oa-ignore="true">
 	<!-- Accessibility Widget Toggle Button -->
     <button
             aria-label="<?php esc_attr_e('Open accessibility tools', 'open-accessibility'); ?>"
+            aria-controls="<?php echo esc_attr( $panel_id ); ?>"
+            aria-expanded="false"
             class="open-accessibility-toggle-button"
             style="background-color: <?php echo esc_attr($bg_color); ?>; color: <?php echo esc_attr($icon_color); ?>;"
     >
@@ -70,12 +75,12 @@ $widget_classes = array(
 	        )
         ); ?>
     </span>
-    </button>
+	</button>
 
 	<!-- Accessibility Widget Panel -->
-	<div class="open-accessibility-widget-panel" aria-hidden="true">
+	<div id="<?php echo esc_attr( $panel_id ); ?>" class="open-accessibility-widget-panel" role="region" aria-labelledby="<?php echo esc_attr( $panel_title_id ); ?>" aria-hidden="true">
 		<div class="open-accessibility-widget-header">
-			<h2><?php esc_html_e('Accessibility Options', 'open-accessibility'); ?></h2>
+			<h2 id="<?php echo esc_attr( $panel_title_id ); ?>"><?php esc_html_e('Accessibility Options', 'open-accessibility'); ?></h2>
 			<button class="open-accessibility-close" aria-label="<?php esc_attr_e('Close accessibility tools', 'open-accessibility'); ?>">
 				<span aria-hidden="true">&times;</span>
 			</button>
@@ -95,16 +100,16 @@ $widget_classes = array(
 				<div class="open-accessibility-widget-section">
 					<h3><?php esc_html_e('Contrast', 'open-accessibility'); ?></h3>
 					<div class="open-accessibility-actions">
-						<button class="open-accessibility-action-button" data-action="contrast" data-value="high">
+						<button class="open-accessibility-action-button" data-action="contrast" data-value="high" aria-pressed="false">
 							<?php esc_html_e('High Contrast', 'open-accessibility'); ?>
 						</button>
-						<button class="open-accessibility-action-button" data-action="contrast" data-value="negative">
+						<button class="open-accessibility-action-button" data-action="contrast" data-value="negative" aria-pressed="false">
 							<?php esc_html_e('Negative Contrast', 'open-accessibility'); ?>
 						</button>
-						<button class="open-accessibility-action-button" data-action="contrast" data-value="light">
+						<button class="open-accessibility-action-button" data-action="contrast" data-value="light" aria-pressed="false">
 							<?php esc_html_e('Light Background', 'open-accessibility'); ?>
 						</button>
-						<button class="open-accessibility-action-button" data-action="contrast" data-value="dark">
+						<button class="open-accessibility-action-button" data-action="contrast" data-value="dark" aria-pressed="false">
 							<?php esc_html_e('Dark Background', 'open-accessibility'); ?>
 						</button>
 					</div>
@@ -116,7 +121,7 @@ $widget_classes = array(
 				<div class="open-accessibility-widget-section">
 					<h3><?php esc_html_e('Grayscale', 'open-accessibility'); ?></h3>
 					<div class="open-accessibility-actions">
-						<button class="open-accessibility-action-button" data-action="grayscale" data-value="toggle">
+						<button class="open-accessibility-action-button" data-action="grayscale" data-value="toggle" aria-pressed="false">
 							<?php esc_html_e('Grayscale', 'open-accessibility'); ?>
 						</button>
 					</div>
@@ -131,7 +136,7 @@ $widget_classes = array(
 						<button class="open-accessibility-action-button" data-action="text-size" data-value="decrease">
 							<?php esc_html_e('Decrease', 'open-accessibility'); ?>
 						</button>
-						<span class="open-accessibility-indicator" data-action="text-size" data-max="5" aria-label="<?php esc_attr_e('Text size level', 'open-accessibility'); ?>"></span>
+						<span class="open-accessibility-indicator" data-action="text-size" data-max="5" role="status" aria-live="polite" aria-atomic="true" aria-label="<?php esc_attr_e('Text size level', 'open-accessibility'); ?>"></span>
 						<button class="open-accessibility-action-button" data-action="text-size" data-value="increase">
 							<?php esc_html_e('Increase', 'open-accessibility'); ?>
 						</button>
@@ -148,16 +153,16 @@ $widget_classes = array(
 				<div class="open-accessibility-widget-section">
 					<h3><?php esc_html_e('Readable Font', 'open-accessibility'); ?></h3>
 					<div class="open-accessibility-actions">
-						<button class="open-accessibility-action-button" data-action="set-font" data-value="default">
+						<button class="open-accessibility-action-button" data-action="set-font" data-value="default" aria-pressed="false">
 							<?php esc_html_e('Default Font', 'open-accessibility'); ?>
 						</button>
 						<?php if (isset($options['enable_font_atkinson']) && $options['enable_font_atkinson']): ?>
-							<button class="open-accessibility-action-button" data-action="set-font" data-value="atkinson">
+							<button class="open-accessibility-action-button" data-action="set-font" data-value="atkinson" aria-pressed="false">
 								<?php esc_html_e('Atkinson Hyperlegible', 'open-accessibility'); ?>
 							</button>
 						<?php endif; ?>
 						<?php if (isset($options['enable_font_opendyslexic']) && $options['enable_font_opendyslexic']): ?>
-							<button class="open-accessibility-action-button" data-action="set-font" data-value="opendyslexic">
+							<button class="open-accessibility-action-button" data-action="set-font" data-value="opendyslexic" aria-pressed="false">
 								<?php esc_html_e('OpenDyslexic', 'open-accessibility'); ?>
 							</button>
 						<?php endif; ?>
@@ -173,7 +178,7 @@ $widget_classes = array(
 						<button class="open-accessibility-action-button" data-action="letter-spacing" data-value="decrease" aria-label="<?php esc_attr_e('Decrease letter spacing', 'open-accessibility'); ?>">
 							<?php esc_html_e('Decrease', 'open-accessibility'); ?>
 						</button>
-						<span class="open-accessibility-indicator" data-action="letter-spacing" data-max="3" aria-label="<?php esc_attr_e('Letter spacing level', 'open-accessibility'); ?>"></span>
+						<span class="open-accessibility-indicator" data-action="letter-spacing" data-max="3" role="status" aria-live="polite" aria-atomic="true" aria-label="<?php esc_attr_e('Letter spacing level', 'open-accessibility'); ?>"></span>
 						<button class="open-accessibility-action-button" data-action="letter-spacing" data-value="increase" aria-label="<?php esc_attr_e('Increase letter spacing', 'open-accessibility'); ?>">
 							<?php esc_html_e('Increase', 'open-accessibility'); ?>
 						</button>
@@ -189,7 +194,7 @@ $widget_classes = array(
 						 <button class="open-accessibility-action-button" data-action="word-spacing" data-value="decrease" aria-label="<?php esc_attr_e('Decrease word spacing', 'open-accessibility'); ?>">
 							<?php esc_html_e('Decrease', 'open-accessibility'); ?>
 						</button>
-						<span class="open-accessibility-indicator" data-action="word-spacing" data-max="3" aria-label="<?php esc_attr_e('Word spacing level', 'open-accessibility'); ?>"></span>
+						<span class="open-accessibility-indicator" data-action="word-spacing" data-max="3" role="status" aria-live="polite" aria-atomic="true" aria-label="<?php esc_attr_e('Word spacing level', 'open-accessibility'); ?>"></span>
 						<button class="open-accessibility-action-button" data-action="word-spacing" data-value="increase" aria-label="<?php esc_attr_e('Increase word spacing', 'open-accessibility'); ?>">
 							<?php esc_html_e('Increase', 'open-accessibility'); ?>
 						</button>
@@ -202,7 +207,7 @@ $widget_classes = array(
 				<div class="open-accessibility-widget-section">
 					<h3><?php esc_html_e('Links Underline', 'open-accessibility'); ?></h3>
 					<div class="open-accessibility-actions">
-						<button class="open-accessibility-action-button" data-action="links-underline" data-value="toggle">
+						<button class="open-accessibility-action-button" data-action="links-underline" data-value="toggle" aria-pressed="false">
 							<?php esc_html_e('Links Underline', 'open-accessibility'); ?>
 						</button>
 					</div>
@@ -214,7 +219,7 @@ $widget_classes = array(
 				<div class="open-accessibility-widget-section">
 					<h3><?php esc_html_e('Hide Images', 'open-accessibility'); ?></h3>
 					<div class="open-accessibility-actions">
-						<button class="open-accessibility-action-button" data-action="hide-images" data-value="toggle">
+						<button class="open-accessibility-action-button" data-action="hide-images" data-value="toggle" aria-pressed="false">
 							<?php esc_html_e('Hide Images', 'open-accessibility'); ?>
 						</button>
 					</div>
@@ -226,7 +231,7 @@ $widget_classes = array(
 				<div class="open-accessibility-widget-section">
 					<h3><?php esc_html_e('Reading Guide', 'open-accessibility'); ?></h3>
 					<div class="open-accessibility-actions">
-						<button class="open-accessibility-action-button" data-action="reading-guide" data-value="toggle">
+						<button class="open-accessibility-action-button" data-action="reading-guide" data-value="toggle" aria-pressed="false">
 							<?php esc_html_e('Reading Guide', 'open-accessibility'); ?>
 						</button>
 					</div>
@@ -238,7 +243,7 @@ $widget_classes = array(
 				<div class="open-accessibility-widget-section">
 					<h3><?php esc_html_e('Focus Outline', 'open-accessibility'); ?></h3>
 					<div class="open-accessibility-actions">
-						<button class="open-accessibility-action-button" data-action="focus-outline" data-value="toggle">
+						<button class="open-accessibility-action-button" data-action="focus-outline" data-value="toggle" aria-pressed="false">
 							<?php esc_html_e('Focus Outline', 'open-accessibility'); ?>
 						</button>
 					</div>
@@ -253,7 +258,7 @@ $widget_classes = array(
 						<button class="open-accessibility-action-button" data-action="line-height" data-value="decrease" aria-label="<?php esc_attr_e('Decrease line height', 'open-accessibility'); ?>">
 							<?php esc_html_e('Decrease', 'open-accessibility'); ?>
 						</button>
-						<span class="open-accessibility-indicator" data-action="line-height" data-max="3" aria-label="<?php esc_attr_e('Line height level', 'open-accessibility'); ?>"></span>
+						<span class="open-accessibility-indicator" data-action="line-height" data-max="3" role="status" aria-live="polite" aria-atomic="true" aria-label="<?php esc_attr_e('Line height level', 'open-accessibility'); ?>"></span>
 						<button class="open-accessibility-action-button" data-action="line-height" data-value="increase" aria-label="<?php esc_attr_e('Increase line height', 'open-accessibility'); ?>">
 							<?php esc_html_e('Increase', 'open-accessibility'); ?>
 						</button>
@@ -266,13 +271,13 @@ $widget_classes = array(
 				<div class="open-accessibility-widget-section">
 					<h3><?php esc_html_e('Text Align', 'open-accessibility'); ?></h3>
 					<div class="open-accessibility-actions">
-						<button class="open-accessibility-action-button" data-action="text-align" data-value="left">
+						<button class="open-accessibility-action-button" data-action="text-align" data-value="left" aria-pressed="false">
 							<?php esc_html_e('Left', 'open-accessibility'); ?>
 						</button>
-						<button class="open-accessibility-action-button" data-action="text-align" data-value="center">
+						<button class="open-accessibility-action-button" data-action="text-align" data-value="center" aria-pressed="false">
 							<?php esc_html_e('Center', 'open-accessibility'); ?>
 						</button>
-						<button class="open-accessibility-action-button" data-action="text-align" data-value="right">
+						<button class="open-accessibility-action-button" data-action="text-align" data-value="right" aria-pressed="false">
 							<?php esc_html_e('Right', 'open-accessibility'); ?>
 						</button>
 					</div>
@@ -284,7 +289,7 @@ $widget_classes = array(
 				<div class="open-accessibility-widget-section">
 					<h3><?php esc_html_e('Pause Animations', 'open-accessibility'); ?></h3>
 					<div class="open-accessibility-actions">
-						<button class="open-accessibility-action-button" data-action="pause-animations" data-value="toggle">
+						<button class="open-accessibility-action-button" data-action="pause-animations" data-value="toggle" aria-pressed="false">
 							<?php esc_html_e('Pause Animations', 'open-accessibility'); ?>
 						</button>
 					</div>
