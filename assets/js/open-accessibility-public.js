@@ -9,7 +9,7 @@
 
     // Store state in local storage - site-wide key
     const storageKey = 'open-accessibility-settings';
-    let accessibilityState = {
+    const DEFAULT_ACCESSIBILITY_STATE = {
         active: false,
         contrast: '',
         grayscale: false,
@@ -25,9 +25,13 @@
         letterSpacingLevel: 0,
         wordSpacingLevel: 0
     };
+    let accessibilityState = Object.assign({}, DEFAULT_ACCESSIBILITY_STATE);
 
     const MAX_SPACING_LEVEL = 3;
     const MAX_TEXT_SIZE = 5;
+    const VALID_CONTRAST_MODES = ['', 'high', 'negative', 'light', 'dark'];
+    const VALID_FONT_VALUES = ['default', 'atkinson', 'opendyslexic'];
+    const VALID_TEXT_ALIGN_VALUES = ['', 'left', 'center', 'right'];
 
     let isShortcodeEmbed = false;
     const DEFAULT_TARGET_CONFIG = {
@@ -127,6 +131,41 @@
 
     let targetResolver = null;
 
+    function clampLevel(value, maxLevel) {
+        const parsed = Number.parseInt(value, 10);
+
+        if (!Number.isFinite(parsed)) {
+            return 0;
+        }
+
+        return Math.min(Math.max(parsed, 0), maxLevel);
+    }
+
+    function normalizeChoice(value, validValues, fallback) {
+        return validValues.includes(value) ? value : fallback;
+    }
+
+    function normalizeAccessibilityState(state) {
+        const source = state && typeof state === 'object' ? state : {};
+
+        return {
+            active: Boolean(source.active),
+            contrast: normalizeChoice(source.contrast, VALID_CONTRAST_MODES, ''),
+            grayscale: Boolean(source.grayscale),
+            textSize: clampLevel(source.textSize, MAX_TEXT_SIZE),
+            selectedFont: normalizeChoice(source.selectedFont, VALID_FONT_VALUES, 'default'),
+            linksUnderline: Boolean(source.linksUnderline),
+            hideImages: Boolean(source.hideImages),
+            readingGuide: Boolean(source.readingGuide),
+            focusOutline: Boolean(source.focusOutline),
+            lineHeightLevel: clampLevel(source.lineHeightLevel, MAX_SPACING_LEVEL),
+            textAlign: normalizeChoice(source.textAlign, VALID_TEXT_ALIGN_VALUES, ''),
+            pauseAnimations: Boolean(source.pauseAnimations),
+            letterSpacingLevel: clampLevel(source.letterSpacingLevel, MAX_SPACING_LEVEL),
+            wordSpacingLevel: clampLevel(source.wordSpacingLevel, MAX_SPACING_LEVEL)
+        };
+    }
+
     function isDebugStorageEnabled() {
         try {
             return typeof localStorage !== 'undefined' &&
@@ -207,7 +246,7 @@
                 return;
             }
 
-            accessibilityState = $.extend({}, accessibilityState, partialState);
+            accessibilityState = normalizeAccessibilityState($.extend({}, accessibilityState, partialState));
             saveState();
             applyState();
         };
@@ -1148,7 +1187,12 @@
     }
 
     function setButtonPressed(action, value, pressed) {
-        const $button = $(`.open-accessibility-action-button[data-action="${action}"][data-value="${value}"][aria-pressed]`);
+        const $button = $('.open-accessibility-action-button[aria-pressed]').filter(function() {
+            const $actionButton = $(this);
+
+            return $actionButton.attr('data-action') === action &&
+                $actionButton.attr('data-value') === value;
+        });
         $button.toggleClass('active', pressed);
         $button.attr('aria-pressed', pressed ? 'true' : 'false');
     }
@@ -1178,6 +1222,8 @@
 
     // Handle contrast modes
     function handleContrast(mode) {
+        mode = normalizeChoice(mode, VALID_CONTRAST_MODES, '');
+
         // Remove existing contrast classes
         $('body').removeClass('open-accessibility-high-contrast open-accessibility-negative-contrast open-accessibility-light-background open-accessibility-dark-background');
         
@@ -1272,6 +1318,8 @@
 
     // Set selected font
     function setFont(fontValue) {
+        fontValue = normalizeChoice(fontValue, VALID_FONT_VALUES, 'default');
+
         // Remove previous legacy font classes
         $('body').removeClass('open-accessibility-font-atkinson open-accessibility-font-opendyslexic');
         // Remove active class from all font buttons
@@ -1284,7 +1332,7 @@
         } else {
             accessibilityState.selectedFont = fontValue;
              // Add active class to the clicked button
-            $(`.open-accessibility-action-button[data-action="set-font"][data-value="${fontValue}"]`).addClass('active');
+            setButtonPressed('set-font', fontValue, true);
         }
 
         // Ensure default button is active if state is default
@@ -1361,6 +1409,12 @@
 
     // Set text align
     function setTextAlign(align) {
+        align = normalizeChoice(align, VALID_TEXT_ALIGN_VALUES, '');
+
+        if (!align) {
+            return;
+        }
+
         // Clear active state on all text align buttons
         $('.open-accessibility-action-button[data-action="text-align"]').removeClass('active');
 
@@ -1372,7 +1426,7 @@
         }
 
         accessibilityState.textAlign = align;
-        $(`.open-accessibility-action-button[data-action="text-align"][data-value="${align}"]`).addClass('active');
+        setButtonPressed('text-align', align, true);
         applyDynamicTypographyAdjustments();
     }
 
@@ -1491,22 +1545,7 @@
         $('.open-accessibility-action-button').removeClass('active').prop('disabled', false);
 
         // Reset state
-        accessibilityState = {
-            active: true,
-            contrast: '',
-            grayscale: false,
-            textSize: 0,
-            selectedFont: 'default',
-            linksUnderline: false,
-            hideImages: false,
-            readingGuide: false,
-            focusOutline: false,
-            lineHeightLevel: 0,
-            textAlign: '',
-            pauseAnimations: false,
-            letterSpacingLevel: 0,
-            wordSpacingLevel: 0
-        };
+        accessibilityState = normalizeAccessibilityState($.extend({}, DEFAULT_ACCESSIBILITY_STATE, { active: true }));
 
         // Update all indicators
         updateIndicator('text-size', 0);
@@ -1532,6 +1571,8 @@
 
     // Save state to local storage
     function saveState() {
+        accessibilityState = normalizeAccessibilityState(accessibilityState);
+
         if (typeof localStorage !== 'undefined') {
             localStorage.setItem(storageKey, JSON.stringify(accessibilityState));
         }
@@ -1582,7 +1623,7 @@
                     if (!parsedState.hasOwnProperty('lineHeightLevel')) {
                         parsedState.lineHeightLevel = 0;
                     }
-                    accessibilityState = parsedState;
+                    accessibilityState = normalizeAccessibilityState(parsedState);
                 } catch (e) {
                     console.error('Error parsing saved accessibility state', e);
                 }
@@ -1592,6 +1633,8 @@
 
     // Apply current state to the UI
     function applyState() {
+        accessibilityState = normalizeAccessibilityState(accessibilityState);
+
         dispatchOpenAccessibilityEvent('openAccessibility:beforeApply', getLifecycleEventDetail());
 
         // Apply contrast (directly without toggle logic)
@@ -1637,7 +1680,7 @@
 
         $('.open-accessibility-action-button[data-action="text-align"]').removeClass('active');
         if (accessibilityState.textAlign) {
-            $(`.open-accessibility-action-button[data-action="text-align"][data-value="${accessibilityState.textAlign}"]`).addClass('active');
+            setButtonPressed('text-align', accessibilityState.textAlign, true);
         }
 
         syncActionButtonStates();
