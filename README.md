@@ -170,6 +170,14 @@ Frontend selector diagnostics are browser-side diagnostics. Use `window.OpenAcce
 
 ## Changelog
 
+### 1.4.01
+* Add a shared frontend targeting resolver for typography, links, media, and layout-sensitive controls
+* Add theme integration filters, HTML attributes, lifecycle events, and `window.OpenAccessibility` helpers
+* Scope readable fonts, link underlining, hide-images, and grayscale controls to resolved content targets
+* Improve widget ARIA state syncing for expanded panels, toggle buttons, and live indicators
+* Harden saved and public API state so malformed values are normalized before applying settings
+* Honor intentionally empty target config arrays while preserving built-in widget and explicit ignore exclusions
+
 ### 1.3.01
 * Make typography controls adapt to theme-defined line height, spacing, and font sizing instead of overriding whole-page styles
 * Scope text size, line height, spacing, and alignment controls to readable content areas
