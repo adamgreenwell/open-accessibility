@@ -1336,18 +1336,6 @@ body.open-accessibility-dark-background .popover {
     border-color: #fff !important;
 }
 
-body.open-accessibility-grayscale {
-    filter: grayscale(100%);
-}
-
-body.open-accessibility-grayscale *:not(.open-accessibility-widget-wrapper *) {
-    background-color: transparent !important;
-    color: #333 !important;
-    border-color: #666 !important;
-    -webkit-filter: grayscale(100%) !important;
-    filter: grayscale(100%) !important;
-}
-
 /* Grayscale effect for the widget elements */
 .open-accessibility-toggle-button.widget-grayscale,
 .open-accessibility-widget-panel.widget-grayscale {
@@ -1358,14 +1346,6 @@ body.open-accessibility-grayscale *:not(.open-accessibility-widget-wrapper *) {
    (often inherited, but can be explicit if issues persist) */
 .open-accessibility-toggle-button.widget-grayscale .open-accessibility-icon svg {
     filter: grayscale(100%); 
-}
-
-body.open-accessibility-links-underline a {
-    text-decoration: underline !important;
-}
-
-body.open-accessibility-hide-images img {
-    visibility: hidden !important;
 }
 
 body.open-accessibility-focus-outline a:focus,
@@ -2003,16 +1983,4 @@ body.open-accessibility-word-spacing-3 {
     font-weight: bold;
     font-style: italic;
     font-display: swap;
-}
-
-/* ---- Font Application Classes ---- */
-
-body.open-accessibility-font-atkinson,
-body.open-accessibility-font-atkinson * {
-    font-family: 'Atkinson Hyperlegible', sans-serif !important;
-}
-
-body.open-accessibility-font-opendyslexic,
-body.open-accessibility-font-opendyslexic * {
-    font-family: 'OpenDyslexic', sans-serif !important;
 }

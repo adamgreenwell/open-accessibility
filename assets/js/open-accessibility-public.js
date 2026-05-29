@@ -639,6 +639,29 @@
         }
     }
 
+    function captureOriginalStyle(element, datasetKey, propertyName) {
+        if (element.dataset[`${datasetKey}Captured`] === '1') {
+            return;
+        }
+
+        element.dataset[`${datasetKey}Captured`] = '1';
+        element.dataset[datasetKey] = element.style[propertyName] || '';
+    }
+
+    function restoreOriginalStyle(element, datasetKey, propertyName) {
+        if (element.dataset[datasetKey]) {
+            element.style[propertyName] = element.dataset[datasetKey];
+        } else {
+            element.style[propertyName] = '';
+        }
+    }
+
+    function clearManagedStyles(selector, restoreCallback) {
+        document.querySelectorAll(selector).forEach((element) => {
+            restoreCallback(element);
+        });
+    }
+
     function clearDynamicTypographyStyles() {
         document.querySelectorAll('[data-oa-typography-managed="1"]').forEach((element) => {
             restoreTypographyProperty(element, 'fontSize', 'oaOriginalFontSize');
@@ -732,6 +755,137 @@
         if (hasTextAffectingControls()) {
             applyLayoutRelief();
         }
+    }
+
+    function getReadableFontTargets() {
+        if (!targetResolver) {
+            return [];
+        }
+
+        return mergeUniqueElements(
+            targetResolver.getTargets('readable_text'),
+            targetResolver.getTargets('headings')
+        );
+    }
+
+    function getReadableFontFamily(fontValue) {
+        if (fontValue === 'atkinson') {
+            return "'Atkinson Hyperlegible', sans-serif";
+        }
+
+        if (fontValue === 'opendyslexic') {
+            return "'OpenDyslexic', sans-serif";
+        }
+
+        return '';
+    }
+
+    function restoreReadableFontTarget(element) {
+        restoreOriginalStyle(element, 'oaReadableFontOriginal', 'fontFamily');
+        delete element.dataset.oaReadableFontManaged;
+        delete element.dataset.oaReadableFontOriginal;
+        delete element.dataset.oaReadableFontOriginalCaptured;
+    }
+
+    function applyReadableFontTargets(fontValue) {
+        const fontFamily = getReadableFontFamily(fontValue);
+
+        clearManagedStyles('[data-oa-readable-font-managed="1"]', restoreReadableFontTarget);
+
+        if (!fontFamily) {
+            return;
+        }
+
+        getReadableFontTargets().forEach((element) => {
+            captureOriginalStyle(element, 'oaReadableFontOriginal', 'fontFamily');
+            element.dataset.oaReadableFontManaged = '1';
+            element.style.fontFamily = fontFamily;
+        });
+    }
+
+    function restoreLinksUnderlineTarget(element) {
+        restoreOriginalStyle(element, 'oaLinksUnderlineOriginal', 'textDecoration');
+        delete element.dataset.oaLinksUnderlineManaged;
+        delete element.dataset.oaLinksUnderlineOriginal;
+        delete element.dataset.oaLinksUnderlineOriginalCaptured;
+    }
+
+    function applyLinksUnderlineTargets() {
+        clearManagedStyles('[data-oa-links-underline-managed="1"]', restoreLinksUnderlineTarget);
+
+        if (!accessibilityState.linksUnderline || !targetResolver) {
+            return;
+        }
+
+        targetResolver.getTargets('links').forEach((element) => {
+            captureOriginalStyle(element, 'oaLinksUnderlineOriginal', 'textDecoration');
+            element.dataset.oaLinksUnderlineManaged = '1';
+            element.style.textDecoration = 'underline';
+        });
+    }
+
+    function restoreHideImagesTarget(element) {
+        restoreOriginalStyle(element, 'oaHideImagesOriginal', 'visibility');
+        delete element.dataset.oaHideImagesManaged;
+        delete element.dataset.oaHideImagesOriginal;
+        delete element.dataset.oaHideImagesOriginalCaptured;
+    }
+
+    function applyHideImagesTargets() {
+        clearManagedStyles('[data-oa-hide-images-managed="1"]', restoreHideImagesTarget);
+
+        if (!accessibilityState.hideImages || !targetResolver) {
+            return;
+        }
+
+        targetResolver.getTargets('media').forEach((element) => {
+            if (!['IMG', 'PICTURE', 'SVG'].includes(element.tagName)) {
+                return;
+            }
+
+            captureOriginalStyle(element, 'oaHideImagesOriginal', 'visibility');
+            element.dataset.oaHideImagesManaged = '1';
+            element.style.visibility = 'hidden';
+        });
+    }
+
+    function restoreGrayscaleTarget(element) {
+        restoreOriginalStyle(element, 'oaGrayscaleOriginal', 'filter');
+        delete element.dataset.oaGrayscaleManaged;
+        delete element.dataset.oaGrayscaleOriginal;
+        delete element.dataset.oaGrayscaleOriginalCaptured;
+    }
+
+    function getGrayscaleTargets() {
+        if (!targetResolver) {
+            return [];
+        }
+
+        return mergeUniqueElements(
+            targetResolver.getTargets('readable_text'),
+            targetResolver.getTargets('headings'),
+            targetResolver.getTargets('links'),
+            targetResolver.getTargets('media')
+        );
+    }
+
+    function applyGrayscaleTargets() {
+        const $button = $('.open-accessibility-toggle-button');
+        const $panel = $('.open-accessibility-widget-panel');
+
+        clearManagedStyles('[data-oa-grayscale-managed="1"]', restoreGrayscaleTarget);
+        $button.toggleClass('widget-grayscale', accessibilityState.grayscale);
+        $panel.toggleClass('widget-grayscale', accessibilityState.grayscale);
+
+        if (!accessibilityState.grayscale) {
+            return;
+        }
+
+        getGrayscaleTargets().forEach((element) => {
+            captureOriginalStyle(element, 'oaGrayscaleOriginal', 'filter');
+            element.dataset.oaGrayscaleManaged = '1';
+            element.style.filter = 'grayscale(100%)';
+        });
     }
 
     function removeLegacyTypographyClasses() {
@@ -1090,25 +1244,8 @@
     // Toggle grayscale
     function toggleGrayscale() {
         accessibilityState.grayscale = !accessibilityState.grayscale;
-        const $button = $('.open-accessibility-toggle-button');
-        const $panel = $('.open-accessibility-widget-panel');
-
-        if (accessibilityState.grayscale) {
-            // Apply grayscale to the main content, excluding button, panel and panel's children
-            $('body *').not($button).not($panel).not($panel.find('*')).css('filter', 'grayscale(100%)');
-            // Add a class to the widget button and panel for CSS targeting
-            $button.addClass('widget-grayscale');
-            $panel.addClass('widget-grayscale');
-        } else {
-            // Remove grayscale from the main content
-            $('body *').not($button).not($panel).not($panel.find('*')).css('filter', '');
-            // Remove the class from the widget button and panel
-            $button.removeClass('widget-grayscale');
-            $panel.removeClass('widget-grayscale');
-        }
-
-        // Toggle the button active state
-        $('.open-accessibility-action-button[data-action="grayscale"]').toggleClass('active', accessibilityState.grayscale);
+        applyGrayscaleTargets();
+        syncActionButtonStates();
     }
 
     // Adjust text size
@@ -1128,7 +1265,7 @@
 
     // Set selected font
     function setFont(fontValue) {
-        // Remove previous font classes
+        // Remove previous legacy font classes
         $('body').removeClass('open-accessibility-font-atkinson open-accessibility-font-opendyslexic');
         // Remove active class from all font buttons
         $('.open-accessibility-action-button[data-action="set-font"]').removeClass('active');
@@ -1139,11 +1276,6 @@
             $('.open-accessibility-action-button[data-action="set-font"][data-value="default"]').addClass('active'); // Activate default button
         } else {
             accessibilityState.selectedFont = fontValue;
-            if (fontValue === 'atkinson') {
-                $('body').addClass('open-accessibility-font-atkinson');
-            } else if (fontValue === 'opendyslexic') {
-                $('body').addClass('open-accessibility-font-opendyslexic');
-            }
              // Add active class to the clicked button
             $(`.open-accessibility-action-button[data-action="set-font"][data-value="${fontValue}"]`).addClass('active');
         }
@@ -1154,40 +1286,43 @@
         }
 
         applyDynamicTypographyAdjustments();
+        applyReadableFontTargets(accessibilityState.selectedFont || 'default');
     }
 
     // Apply font from saved state (without toggle logic)
     function applyFont(fontValue) {
-        // Remove previous font classes
+        // Remove previous legacy font classes
         $('body').removeClass('open-accessibility-font-atkinson open-accessibility-font-opendyslexic');
         // Remove active class from all font buttons
         $('.open-accessibility-action-button[data-action="set-font"]').removeClass('active');
 
-        // Apply the font class and activate the correct button
+        // Activate the correct button; targeted inline styles apply the font.
         if (fontValue === 'atkinson') {
-            $('body').addClass('open-accessibility-font-atkinson');
             $('.open-accessibility-action-button[data-action="set-font"][data-value="atkinson"]').addClass('active');
         } else if (fontValue === 'opendyslexic') {
-            $('body').addClass('open-accessibility-font-opendyslexic');
             $('.open-accessibility-action-button[data-action="set-font"][data-value="opendyslexic"]').addClass('active');
         } else {
             // Default font - just activate the default button
             $('.open-accessibility-action-button[data-action="set-font"][data-value="default"]').addClass('active');
         }
+
+        applyReadableFontTargets(accessibilityState.selectedFont || 'default');
     }
 
     // Toggle links underline
     function toggleLinksUnderline() {
         accessibilityState.linksUnderline = !accessibilityState.linksUnderline;
-        $('body').toggleClass('open-accessibility-links-underline', accessibilityState.linksUnderline);
-        $('.open-accessibility-action-button[data-action="links-underline"]').toggleClass('active', accessibilityState.linksUnderline);
+        $('body').removeClass('open-accessibility-links-underline');
+        applyLinksUnderlineTargets();
+        syncActionButtonStates();
     }
 
     // Toggle hide images
     function toggleHideImages() {
         accessibilityState.hideImages = !accessibilityState.hideImages;
-        $('body').toggleClass('open-accessibility-hide-images', accessibilityState.hideImages);
-        $('.open-accessibility-action-button[data-action="hide-images"]').toggleClass('active', accessibilityState.hideImages);
+        $('body').removeClass('open-accessibility-hide-images');
+        applyHideImagesTargets();
+        syncActionButtonStates();
     }
 
     // Toggle reading guide
@@ -1375,12 +1510,11 @@
         // Explicitly hide the reading guide on reset
         $('.open-accessibility-reading-guide').hide(); 
 
-        // Clear the grayscale filter from all elements
-        $('body *').css('filter', '');
-        $('.open-accessibility-toggle-button').removeClass('widget-grayscale');
-        $('.open-accessibility-widget-panel').removeClass('widget-grayscale');
-
         applyDynamicTypographyAdjustments();
+        applyReadableFontTargets('default');
+        applyGrayscaleTargets();
+        applyLinksUnderlineTargets();
+        applyHideImagesTargets();
         syncActionButtonStates();
 
         // Save reset state
@@ -1449,37 +1583,22 @@
 
     // Apply current state to the UI
     function applyState() {
-        const $toggleButton = $('.open-accessibility-toggle-button');
-        const $panel = $('.open-accessibility-widget-panel');
-
         // Apply contrast (directly without toggle logic)
         applyContrast(accessibilityState.contrast || '');
 
         // Apply grayscale
-        if (accessibilityState.grayscale) {
-            // Re-apply the styles and classes managed by toggleGrayscale
-            $('body *').not($toggleButton).not($panel).not($panel.find('*')).css('filter', 'grayscale(100%)');
-            $toggleButton.addClass('widget-grayscale');
-            $panel.addClass('widget-grayscale');
-            $('.open-accessibility-action-button[data-action="grayscale"]').addClass('active');
-        } else {
-            // Ensure styles/classes are removed if state is false
-            $('body *').not($toggleButton).not($panel).not($panel.find('*')).css('filter', '');
-            $toggleButton.removeClass('widget-grayscale');
-            $panel.removeClass('widget-grayscale');
-            $('.open-accessibility-action-button[data-action="grayscale"]').removeClass('active');
-        }
+        applyGrayscaleTargets();
 
         // Apply selected font (directly without toggle logic)
         applyFont(accessibilityState.selectedFont || 'default');
 
         // Apply links underline
-        $('body').toggleClass('open-accessibility-links-underline', accessibilityState.linksUnderline);
-        $('.open-accessibility-action-button[data-action="links-underline"]').toggleClass('active', accessibilityState.linksUnderline);
+        $('body').removeClass('open-accessibility-links-underline');
+        applyLinksUnderlineTargets();
 
         // Apply hide images
-        $('body').toggleClass('open-accessibility-hide-images', accessibilityState.hideImages);
-        $('.open-accessibility-action-button[data-action="hide-images"]').toggleClass('active', accessibilityState.hideImages);
+        $('body').removeClass('open-accessibility-hide-images');
+        applyHideImagesTargets();
 
         // Apply reading guide
         $('.open-accessibility-reading-guide').toggle(accessibilityState.readingGuide);
