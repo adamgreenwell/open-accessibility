@@ -186,6 +186,7 @@
             // ESC key closes the panel
             if (e.key === 'Escape' && $('.open-accessibility-widget-panel').hasClass('oa-panel-is-active')) {
                 closeAccessibilityPanel();
+                $('.open-accessibility-toggle-button').trigger('focus');
             }
         });
         
@@ -494,12 +495,14 @@
     // Toggle widget panel
     function toggleAccessibilityPanel() {
         const $panel = $('.open-accessibility-widget-panel');
+        const $toggle = $('.open-accessibility-toggle-button');
         const $wrapper = $('.open-accessibility-widget-wrapper');
         const isMobile = window.innerWidth < 768;
 
         $panel.toggleClass('oa-panel-is-active');
         const isActive = $panel.hasClass('oa-panel-is-active');
-        $panel.attr('aria-hidden', !isActive);
+        $panel.attr('aria-hidden', isActive ? 'false' : 'true');
+        $toggle.attr('aria-expanded', isActive ? 'true' : 'false');
 
         // Shortcode embed: simple show/hide, no positioning logic
         if (isShortcodeEmbed) {
@@ -553,11 +556,13 @@
     // Close widget panel (called by close button, ESC, click-outside)
     function closeAccessibilityPanel() {
         const $panel = $('.open-accessibility-widget-panel');
+        const $toggle = $('.open-accessibility-toggle-button');
         const $wrapper = $('.open-accessibility-widget-wrapper');
         const isMobile = window.innerWidth < 768;
 
         $panel.removeClass('oa-panel-is-active');
         $panel.attr('aria-hidden', 'true');
+        $toggle.attr('aria-expanded', 'false');
 
         // Shortcode embed: simple hide, no positioning logic
         if (isShortcodeEmbed) {
@@ -660,7 +665,37 @@
         }
 
         // Update state
+        syncActionButtonStates();
         saveState();
+    }
+
+    function setButtonPressed(action, value, pressed) {
+        const $button = $(`.open-accessibility-action-button[data-action="${action}"][data-value="${value}"][aria-pressed]`);
+        $button.toggleClass('active', pressed);
+        $button.attr('aria-pressed', pressed ? 'true' : 'false');
+    }
+
+    function syncActionButtonStates() {
+        $('.open-accessibility-action-button[aria-pressed]')
+            .removeClass('active')
+            .attr('aria-pressed', 'false');
+
+        if (accessibilityState.contrast) {
+            setButtonPressed('contrast', accessibilityState.contrast, true);
+        }
+
+        setButtonPressed('grayscale', 'toggle', accessibilityState.grayscale);
+        setButtonPressed('set-font', accessibilityState.selectedFont || 'default', true);
+        setButtonPressed('links-underline', 'toggle', accessibilityState.linksUnderline);
+        setButtonPressed('hide-images', 'toggle', accessibilityState.hideImages);
+        setButtonPressed('reading-guide', 'toggle', accessibilityState.readingGuide);
+        setButtonPressed('focus-outline', 'toggle', accessibilityState.focusOutline);
+
+        if (accessibilityState.textAlign) {
+            setButtonPressed('text-align', accessibilityState.textAlign, true);
+        }
+
+        setButtonPressed('pause-animations', 'toggle', accessibilityState.pauseAnimations);
     }
 
     // Handle contrast modes
@@ -976,6 +1011,9 @@
         
         // Update aria-label
         $indicator.attr('aria-label', `Level ${currentLevel} of ${maxLevel}`);
+        $indicator.append($('<span></span>')
+            .addClass('screen-reader-text')
+            .text(`Level ${currentLevel} of ${maxLevel}`));
     }
 
     // Reset all settings to default
@@ -1025,6 +1063,7 @@
         $('.open-accessibility-widget-panel').removeClass('widget-grayscale');
 
         applyDynamicTypographyAdjustments();
+        syncActionButtonStates();
 
         // Save reset state
         saveState();
@@ -1166,6 +1205,8 @@
         if (accessibilityState.textAlign) {
             $(`.open-accessibility-action-button[data-action="text-align"][data-value="${accessibilityState.textAlign}"]`).addClass('active');
         }
+
+        syncActionButtonStates();
     }
 
     // Helper function to set cookies
