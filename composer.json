@@ -1,0 +1,25 @@
+{
+  "name": "adamgreenwell/open-accessibility",
+  "description": "An open-source accessibility widget that helps make WordPress sites more accessible.",
+  "type": "wordpress-plugin",
+  "license": "GPL-2.0-or-later",
+  "authors": [
+    {
+      "name": "Adam Greenwell",
+      "email": "me@adamgreenwell.com"
+    }
+  ],
+  "require": {
+    "php": ">=7.4"
+  },
+  "scripts": {
+    "check": "bash bin/check-release.sh",
+    "i18n": "bash bin/generate-pot.sh",
+    "build": [
+      "@i18n",
+      "bash bin/build-release.sh"
+    ],
+    "build:zip": "@build",
+    "build:svn": "bash bin/deploy-svn.sh"
+  }
+}

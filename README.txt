@@ -3,7 +3,7 @@ Contributors: adamgreenwell
 Tags: accessibility, wcag, ada, disability, readable
 Requires at least: 5.2
 Tested up to: 7.0
-Stable tag: 1.1.76
+Stable tag: 1.3.01
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -89,6 +89,10 @@ Yes, all user preferences are saved using local storage in their browser, so set
 
 Yes, this plugin is compatible with multisite installations.
 
+= Can my theme fine-tune which content gets typography adjustments? =
+
+Yes. Open Accessibility now limits text size, line height, letter spacing, word spacing and alignment controls to readable content areas by default, and themes can refine those selectors with the `open_accessibility_typography_targets`, `open_accessibility_typography_content_roots`, and `open_accessibility_typography_excluded_selectors` filters. This makes it easy to exclude custom sidebars, cards, or promo blocks without disabling the feature entirely.
+
 = How do I enable debug logging? =
 
 To see debug messages from this plugin, you need to do two things:
@@ -96,6 +100,11 @@ To see debug messages from this plugin, you need to do two things:
 2. Ensure that WordPress's core debugging constants are enabled in your `wp-config.php` file. Specifically, `WP_DEBUG` must be set to `true`, and `WP_DEBUG_LOG` must also be set to `true`. Logs will then appear in the `/wp-content/debug.log` file.
 
 == Changelog ==
+
+= 1.3.01 =
+* Make typography controls adapt to theme-defined line height, spacing, and font sizing instead of overriding whole-page styles
+* Scope text size, line height, spacing, and alignment controls to readable content areas
+* Add theme filters and element opt-outs for typography targeting
 
 = 1.2.76 =
 * Fix analytics stats and cleanup queries when the stats table is missing or outdated
