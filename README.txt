@@ -128,7 +128,7 @@ Example PHP filters:
         return $config;
     } );
 
-Use `open_accessibility_target_group_selectors` to refine a specific target group such as `readable_text`, `headings`, `links`, `media`, or `interactive`. If a theme needs complete control, `open_accessibility_target_config` receives the final full targeting array before it is passed to the frontend. Returning an empty selector array disables that default selector set; for example, empty `roots` disables the automatic body fallback unless a template opts back in with `data-oa-root`.
+Use `open_accessibility_target_group_selectors` to refine a specific target group such as `readable_text`, `headings`, `links`, `media`, or `interactive`. If a theme needs complete control, `open_accessibility_target_config` receives the final full targeting array before it is passed to the frontend. Returning an empty selector array disables that default selector set; for example, empty `roots` disables the automatic body fallback unless a template opts back in with `data-oa-root`. Built-in widget exclusions and explicit ignore attributes still apply.
 
 Templates can use `data-oa-root`, `data-oa-target`, `data-oa-ignore`, `.open-accessibility-ignore`, `data-oa-relax-layout`, and `data-oa-preserve-layout`. Use `data-oa-root` to add content roots, `data-oa-target` to opt an element into one or more groups, `data-oa-ignore` or `.open-accessibility-ignore` to exclude a region, `data-oa-relax-layout` to opt a container into layout relief, and `data-oa-preserve-layout` to keep a region out of layout relief.
 

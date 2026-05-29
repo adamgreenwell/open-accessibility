@@ -498,7 +498,7 @@
                 return true;
             }
 
-            if (closest(element, '.open-accessibility-widget-wrapper, .open-accessibility-reading-guide, .open-accessibility-skip-to-content-link, .open-accessibility-skip-to-content-backdrop', 'built-in exclusions')) {
+            if (closest(element, '.open-accessibility-widget-wrapper, .open-accessibility-reading-guide, .open-accessibility-skip-to-content-link, .open-accessibility-skip-to-content-backdrop, .open-accessibility-ignore, [data-oa-ignore]', 'built-in exclusions')) {
                 return true;
             }
 
