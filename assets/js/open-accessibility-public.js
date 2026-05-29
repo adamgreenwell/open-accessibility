@@ -30,8 +30,8 @@
     const MAX_TEXT_SIZE = 5;
 
     let isShortcodeEmbed = false;
-    const DEFAULT_TYPOGRAPHY_TARGETS = {
-        content_roots: [
+    const DEFAULT_TARGET_CONFIG = {
+        roots: [
             'main',
             'article',
             '[role="main"]',
@@ -44,27 +44,55 @@
             '#content',
             '#primary'
         ],
-        text_elements: [
-            'p',
-            'li',
-            'blockquote',
-            'dd',
-            'dt',
-            'figcaption',
-            'caption',
-            'td',
-            'th',
-            'label'
+        groups: {
+            readable_text: [
+                'p',
+                'li',
+                'blockquote',
+                'dd',
+                'dt',
+                'figcaption',
+                'caption',
+                'td',
+                'th',
+                'label'
+            ],
+            headings: [
+                'h1',
+                'h2',
+                'h3',
+                'h4',
+                'h5',
+                'h6'
+            ],
+            links: [
+                'a[href]'
+            ],
+            media: [
+                'img',
+                'picture',
+                'video',
+                'audio',
+                'iframe',
+                'embed',
+                'object',
+                'svg',
+                'canvas'
+            ],
+            interactive: [
+                'a[href]',
+                'button',
+                'input',
+                'select',
+                'textarea',
+                'summary',
+                '[tabindex]:not([tabindex="-1"])'
+            ]
+        },
+        layout_containers: [
+            '[data-oa-relax-layout]'
         ],
-        heading_elements: [
-            'h1',
-            'h2',
-            'h3',
-            'h4',
-            'h5',
-            'h6'
-        ],
-        excluded_selectors: [
+        excluded: [
             '.open-accessibility-widget-wrapper',
             '.open-accessibility-reading-guide',
             '.open-accessibility-skip-to-content-link',
@@ -85,16 +113,6 @@
             '.pagination',
             '.breadcrumbs',
             '.breadcrumb',
-            'button',
-            'input',
-            'select',
-            'textarea',
-            'svg',
-            'img',
-            'video',
-            'audio',
-            'iframe',
-            'canvas',
             'code',
             'pre',
             'kbd',
@@ -106,33 +124,108 @@
     const LINE_HEIGHT_MULTIPLIERS = [0, 1.6, 1.8, 2.0];
     const LETTER_SPACING_STEPS = [0, 0.12, 0.18, 0.24];
     const WORD_SPACING_STEPS = [0, 0.16, 0.24, 0.32];
-    const typographyTargets = normalizeTypographyTargets(
+
+    let targetResolver = null;
+
+    function isDebugStorageEnabled() {
+        try {
+            return typeof localStorage !== 'undefined' &&
+                localStorage.getItem('openAccessibilityDebug') === '1';
+        } catch (error) {
+            return false;
+        }
+    }
+
+    const debugEnabled = Boolean(
+        typeof open_accessibility_data !== 'undefined' &&
         open_accessibility_data &&
         open_accessibility_data.options &&
-        open_accessibility_data.options.typography_targets
-            ? open_accessibility_data.options.typography_targets
-            : {}
-    );
+        open_accessibility_data.options.debug
+    ) || isDebugStorageEnabled();
 
     function normalizeSelectorList(value, fallback) {
+        const fallbackSelectors = Array.isArray(fallback) ? fallback : [];
+
         if (!Array.isArray(value)) {
-            return fallback.slice();
+            return fallbackSelectors.slice();
         }
 
         const selectors = value
             .filter((selector) => typeof selector === 'string' && selector.trim().length > 0)
             .map((selector) => selector.trim());
 
-        return selectors.length ? selectors : fallback.slice();
+        return selectors.length ? Array.from(new Set(selectors)) : fallbackSelectors.slice();
     }
 
-    function normalizeTypographyTargets(config) {
+    function normalizeTargetConfig(config) {
+        const source = config && typeof config === 'object' ? config : {};
+        const sourceGroups = source.groups && typeof source.groups === 'object' ? source.groups : {};
+        const normalizedGroups = {};
+
+        Object.keys(DEFAULT_TARGET_CONFIG.groups).forEach((groupName) => {
+            normalizedGroups[groupName] = normalizeSelectorList(
+                sourceGroups[groupName],
+                DEFAULT_TARGET_CONFIG.groups[groupName]
+            );
+        });
+
+        Object.keys(sourceGroups).forEach((groupName) => {
+            if (!Object.prototype.hasOwnProperty.call(normalizedGroups, groupName)) {
+                normalizedGroups[groupName] = normalizeSelectorList(sourceGroups[groupName], []);
+            }
+        });
+
         return {
-            contentRoots: normalizeSelectorList(config.content_roots, DEFAULT_TYPOGRAPHY_TARGETS.content_roots),
-            textElements: normalizeSelectorList(config.text_elements, DEFAULT_TYPOGRAPHY_TARGETS.text_elements),
-            headingElements: normalizeSelectorList(config.heading_elements, DEFAULT_TYPOGRAPHY_TARGETS.heading_elements),
-            excludedSelectors: normalizeSelectorList(config.excluded_selectors, DEFAULT_TYPOGRAPHY_TARGETS.excluded_selectors)
+            roots: normalizeSelectorList(source.roots, DEFAULT_TARGET_CONFIG.roots),
+            groups: normalizedGroups,
+            layoutContainers: normalizeSelectorList(source.layout_containers, DEFAULT_TARGET_CONFIG.layout_containers),
+            excluded: normalizeSelectorList(source.excluded, DEFAULT_TARGET_CONFIG.excluded)
         };
+    }
+
+    const targetConfig = normalizeTargetConfig(
+        typeof open_accessibility_data !== 'undefined' &&
+        open_accessibility_data &&
+        open_accessibility_data.options &&
+        open_accessibility_data.options.target_config
+            ? open_accessibility_data.options.target_config
+            : {}
+    );
+
+    function exposeOpenAccessibilityApi() {
+        const api = window.OpenAccessibility || {};
+
+        api.refresh = function() {
+            targetResolver.refresh();
+            applyState();
+        };
+        api.getState = function() {
+            return $.extend(true, {}, accessibilityState);
+        };
+        api.setState = function(partialState) {
+            if (!partialState || typeof partialState !== 'object') {
+                return;
+            }
+
+            accessibilityState = $.extend({}, accessibilityState, partialState);
+            saveState();
+            applyState();
+        };
+        api.getTargets = function(groupName) {
+            return targetResolver.getTargets(groupName);
+        };
+        api.debug = function() {
+            return {
+                state: $.extend(true, {}, accessibilityState),
+                targets: targetResolver.getSummary()
+            };
+        };
+
+        window.OpenAccessibility = api;
+    }
+
+    function dispatchReadyEvent() {
+        dispatchOpenAccessibilityEvent('openAccessibility:ready', window.OpenAccessibility.debug());
     }
 
     // Initialize
@@ -143,6 +236,9 @@
         // Detect if widget is embedded via shortcode (inline positioning)
         isShortcodeEmbed = $('.open-accessibility-widget-wrapper').closest('.open-accessibility-shortcode').length > 0;
 
+        targetResolver = createTargetResolver(targetConfig);
+        exposeOpenAccessibilityApi();
+
         // Create reading guide element
         if ($('.open-accessibility-reading-guide').length === 0) {
             $('body').append('<div class="open-accessibility-reading-guide"></div>');
@@ -150,6 +246,7 @@
 
         // Apply saved state
         applyState();
+        dispatchReadyEvent();
 
         // Button click handler
         $('.open-accessibility-toggle-button').on('click', toggleAccessibilityPanel);
@@ -257,96 +354,229 @@
         return merged;
     }
 
-    function getTypographyRoots() {
-        const roots = [];
-        const seen = new Set();
+    function logDebug() {
+        if (!debugEnabled || !window.console || !window.console.log) {
+            return;
+        }
 
-        typographyTargets.contentRoots.forEach((selector) => {
+        window.console.log.apply(window.console, arguments);
+    }
+
+    function dispatchOpenAccessibilityEvent(name, detail) {
+        document.dispatchEvent(new CustomEvent(name, {
+            detail: detail || {}
+        }));
+    }
+
+    function createTargetResolver(config) {
+        const invalidSelectors = [];
+        let roots = [];
+        let targets = {};
+        let layoutContainers = [];
+        let excludedCount = 0;
+
+        function queryAll(selector, root, context) {
+            if (!selector) {
+                return [];
+            }
+
             try {
-                document.querySelectorAll(selector).forEach((element) => {
-                    if (!seen.has(element)) {
-                        seen.add(element);
-                        roots.push(element);
-                    }
-                });
+                return Array.from((root || document).querySelectorAll(selector));
             } catch (error) {
-                console.warn('Open Accessibility: invalid typography root selector', selector, error);
+                invalidSelectors.push({ selector, context, message: error.message });
+                return [];
             }
-        });
-
-        if (!roots.length) {
-            roots.push(document.body);
         }
 
-        return roots;
-    }
+        function queryAllSelectors(selectors, root, context) {
+            const collected = [];
 
-    function isExcludedTypographyElement(element, excludedSelector) {
-        if (!(element instanceof Element)) {
-            return true;
+            selectors.forEach((selector) => {
+                collected.push.apply(collected, queryAll(selector, root, context));
+            });
+
+            return collected;
         }
 
-        if (
-            element.closest(
-                '.open-accessibility-widget-wrapper, .open-accessibility-reading-guide, .open-accessibility-skip-to-content-link, .open-accessibility-skip-to-content-backdrop'
-            )
-        ) {
-            return true;
+        function matches(element, selector, context) {
+            if (!selector || !(element instanceof Element)) {
+                return false;
+            }
+
+            try {
+                return element.matches(selector);
+            } catch (error) {
+                invalidSelectors.push({ selector, context, message: error.message });
+                return false;
+            }
         }
 
-        if (!excludedSelector) {
+        function matchesAny(element, selectors, context) {
+            return selectors.some((selector) => matches(element, selector, context));
+        }
+
+        function closest(element, selector, context) {
+            if (!selector || !(element instanceof Element)) {
+                return null;
+            }
+
+            try {
+                return element.closest(selector);
+            } catch (error) {
+                invalidSelectors.push({ selector, context, message: error.message });
+                return null;
+            }
+        }
+
+        function closestAny(element, selectors, context) {
+            let match = null;
+
+            selectors.some((selector) => {
+                match = closest(element, selector, context);
+                return Boolean(match);
+            });
+
+            return match;
+        }
+
+        function isExcluded(element, options) {
+            const settings = options || {};
+
+            if (!(element instanceof Element)) {
+                return true;
+            }
+
+            if (!document.body.contains(element)) {
+                return true;
+            }
+
+            if (closest(element, '.open-accessibility-widget-wrapper, .open-accessibility-reading-guide, .open-accessibility-skip-to-content-link, .open-accessibility-skip-to-content-backdrop', 'built-in exclusions')) {
+                return true;
+            }
+
+            if (matchesAny(element, config.excluded, 'excluded') || closestAny(element, config.excluded, 'excluded')) {
+                excludedCount++;
+                return true;
+            }
+
+            if (settings.preserveLayout && closest(element, '[data-oa-preserve-layout]', 'preserve layout')) {
+                excludedCount++;
+                return true;
+            }
+
             return false;
         }
 
-        try {
-            return element.matches(excludedSelector) || Boolean(element.closest(excludedSelector));
-        } catch (error) {
-            console.warn('Open Accessibility: invalid typography exclusion selector', excludedSelector, error);
-            return false;
-        }
-    }
+        function uniqueElements(elements, options) {
+            const seen = new Set();
+            const unique = [];
 
-    function collectTypographyTargets(selectors) {
-        if (!selectors.length) {
-            return [];
-        }
-
-        const selector = selectors.join(', ');
-        const excludedSelector = typographyTargets.excludedSelectors.join(', ');
-        const targets = [];
-        const seen = new Set();
-
-        getTypographyRoots().forEach((root) => {
-            let candidates = [];
-
-            if (root.matches && root.matches(selector)) {
-                candidates.push(root);
-            }
-
-            candidates = candidates.concat(Array.from(root.querySelectorAll(selector)));
-
-            candidates.forEach((element) => {
-                if (seen.has(element) || !document.body.contains(element)) {
-                    return;
-                }
-
-                if (isExcludedTypographyElement(element, excludedSelector)) {
+            elements.forEach((element) => {
+                if (seen.has(element) || isExcluded(element, options)) {
                     return;
                 }
 
                 seen.add(element);
-                targets.push(element);
+                unique.push(element);
             });
-        });
 
-        return targets;
+            return unique;
+        }
+
+        function collectRoots() {
+            const configuredRoots = queryAllSelectors(config.roots, document, 'roots')
+                .concat(queryAll('[data-oa-root]', document, 'data roots'));
+
+            roots = uniqueElements(configuredRoots);
+
+            if (!roots.length) {
+                roots = [document.body];
+            }
+        }
+
+        function collectGroup(groupName) {
+            const selectors = config.groups[groupName] || [];
+            const dataSelector = `[data-oa-target~="${groupName}"]`;
+            const collected = [];
+
+            roots.forEach((root) => {
+                if (matchesAny(root, selectors, groupName)) {
+                    collected.push(root);
+                }
+
+                collected.push.apply(collected, queryAllSelectors(selectors, root, groupName));
+                collected.push.apply(collected, queryAll(dataSelector, root, `${groupName} data target`));
+            });
+
+            targets[groupName] = uniqueElements(collected);
+        }
+
+        function collectLayoutContainers() {
+            const selectors = config.layoutContainers.concat(['[data-oa-relax-layout]']);
+            const collected = [];
+
+            roots.forEach((root) => {
+                if (matchesAny(root, selectors, 'layout containers')) {
+                    collected.push(root);
+                }
+
+                collected.push.apply(collected, queryAllSelectors(selectors, root, 'layout containers'));
+            });
+
+            layoutContainers = uniqueElements(collected, { preserveLayout: true });
+        }
+
+        function refresh() {
+            invalidSelectors.length = 0;
+            excludedCount = 0;
+            targets = {};
+
+            collectRoots();
+            Object.keys(config.groups).forEach(collectGroup);
+            collectLayoutContainers();
+
+            dispatchOpenAccessibilityEvent('openAccessibility:targetsRefreshed', getSummary());
+            logDebug('Open Accessibility targets', getSummary());
+        }
+
+        function getTargets(groupName) {
+            if (groupName === 'layout_containers') {
+                return layoutContainers.slice();
+            }
+
+            return targets[groupName] ? targets[groupName].slice() : [];
+        }
+
+        function getSummary() {
+            const groupCounts = {};
+
+            Object.keys(targets).forEach((groupName) => {
+                groupCounts[groupName] = targets[groupName].length;
+            });
+
+            return {
+                roots: roots.length,
+                groups: groupCounts,
+                layoutContainers: layoutContainers.length,
+                invalidSelectors: invalidSelectors.slice(),
+                excludedCount
+            };
+        }
+
+        refresh();
+
+        return {
+            refresh,
+            getTargets,
+            getSummary
+        };
     }
 
     function getTypographyTargets() {
-        const contentTargets = collectTypographyTargets(typographyTargets.textElements);
-        const readableTargets = collectTypographyTargets(
-            typographyTargets.textElements.concat(typographyTargets.headingElements)
-        );
+        const contentTargets = targetResolver ? targetResolver.getTargets('readable_text') : [];
+        const readableTargets = targetResolver
+            ? mergeUniqueElements(contentTargets, targetResolver.getTargets('headings'))
+            : [];
 
         return {
             contentTargets,
@@ -1131,26 +1361,23 @@
 
     // Apply current state to the UI
     function applyState() {
+        const $toggleButton = $('.open-accessibility-toggle-button');
+        const $panel = $('.open-accessibility-widget-panel');
+
         // Apply contrast (directly without toggle logic)
-        if (accessibilityState.contrast) {
-            applyContrast(accessibilityState.contrast);
-        }
+        applyContrast(accessibilityState.contrast || '');
 
         // Apply grayscale
         if (accessibilityState.grayscale) {
-            const $button = $('.open-accessibility-toggle-button');
-            const $panel = $('.open-accessibility-widget-panel');
             // Re-apply the styles and classes managed by toggleGrayscale
-            $('body *').not($button).not($panel).not($panel.find('*')).css('filter', 'grayscale(100%)');
-            $button.addClass('widget-grayscale');
+            $('body *').not($toggleButton).not($panel).not($panel.find('*')).css('filter', 'grayscale(100%)');
+            $toggleButton.addClass('widget-grayscale');
             $panel.addClass('widget-grayscale');
             $('.open-accessibility-action-button[data-action="grayscale"]').addClass('active');
         } else {
-            const $button = $('.open-accessibility-toggle-button');
-            const $panel = $('.open-accessibility-widget-panel');
             // Ensure styles/classes are removed if state is false
-            $('body *').not($button).not($panel).not($panel.find('*')).css('filter', '');
-            $button.removeClass('widget-grayscale');
+            $('body *').not($toggleButton).not($panel).not($panel.find('*')).css('filter', '');
+            $toggleButton.removeClass('widget-grayscale');
             $panel.removeClass('widget-grayscale');
             $('.open-accessibility-action-button[data-action="grayscale"]').removeClass('active');
         }
@@ -1159,35 +1386,24 @@
         applyFont(accessibilityState.selectedFont || 'default');
 
         // Apply links underline
-        if (accessibilityState.linksUnderline) {
-            $('body').addClass('open-accessibility-links-underline');
-            $('.open-accessibility-action-button[data-action="links-underline"]').addClass('active');
-        }
+        $('body').toggleClass('open-accessibility-links-underline', accessibilityState.linksUnderline);
+        $('.open-accessibility-action-button[data-action="links-underline"]').toggleClass('active', accessibilityState.linksUnderline);
 
         // Apply hide images
-        if (accessibilityState.hideImages) {
-            $('body').addClass('open-accessibility-hide-images');
-            $('.open-accessibility-action-button[data-action="hide-images"]').addClass('active');
-        }
+        $('body').toggleClass('open-accessibility-hide-images', accessibilityState.hideImages);
+        $('.open-accessibility-action-button[data-action="hide-images"]').toggleClass('active', accessibilityState.hideImages);
 
         // Apply reading guide
-        if (accessibilityState.readingGuide) {
-            const initialGuideState = accessibilityState.readingGuide;
-            accessibilityState.readingGuide = !initialGuideState;
-            toggleReadingGuide();
-        }
+        $('.open-accessibility-reading-guide').toggle(accessibilityState.readingGuide);
+        $('.open-accessibility-action-button[data-action="reading-guide"]').toggleClass('active', accessibilityState.readingGuide);
 
         // Apply focus outline
-        if (accessibilityState.focusOutline) {
-            $('body').addClass('open-accessibility-focus-outline');
-            $('.open-accessibility-action-button[data-action="focus-outline"]').addClass('active');
-        }
+        $('body').toggleClass('open-accessibility-focus-outline', accessibilityState.focusOutline);
+        $('.open-accessibility-action-button[data-action="focus-outline"]').toggleClass('active', accessibilityState.focusOutline);
 
         // Apply pause animations
-        if (accessibilityState.pauseAnimations) {
-            $('body').addClass('open-accessibility-pause-animations');
-            $('.open-accessibility-action-button[data-action="pause-animations"]').addClass('active');
-        }
+        $('body').toggleClass('open-accessibility-pause-animations', accessibilityState.pauseAnimations);
+        $('.open-accessibility-action-button[data-action="pause-animations"]').toggleClass('active', accessibilityState.pauseAnimations);
 
         applyDynamicTypographyAdjustments();
 
