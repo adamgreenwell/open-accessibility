@@ -132,6 +132,8 @@ class Open_Accessibility_Public {
 	 * @return array
 	 */
 	private function get_frontend_options() {
+		$typography_targets = $this->get_typography_targets();
+
 		return array(
 			'icon' => $this->get_option('icon', 'accessibility'),
 			'position' => $this->get_option('position', 'left'),
@@ -158,7 +160,9 @@ class Open_Accessibility_Public {
 			'hide_on_desktop' => $this->get_option('hide_on_desktop', false),
 			'enable_letter_spacing' => $this->get_option('enable_letter_spacing', false),
 			'enable_word_spacing' => $this->get_option('enable_word_spacing', false),
-			'typography_targets' => $this->get_typography_targets(),
+			'typography_targets' => $typography_targets,
+			'target_config' => $this->get_target_config( $typography_targets ),
+			'debug' => (bool) $this->is_debug_enabled,
 		);
 	}
 
@@ -255,6 +259,141 @@ class Open_Accessibility_Public {
 		$targets['excluded_selectors'] = apply_filters( 'open_accessibility_typography_excluded_selectors', $targets['excluded_selectors'] );
 
 		return apply_filters( 'open_accessibility_typography_targets', $targets );
+	}
+
+	/**
+	 * Normalize frontend selector arrays.
+	 *
+	 * @since 1.4.0
+	 * @param mixed $selectors Selector list to normalize.
+	 * @return array
+	 */
+	private function normalize_selector_list( $selectors ) {
+		if ( ! is_array( $selectors ) ) {
+			return array();
+		}
+
+		$normalized = array();
+
+		foreach ( $selectors as $selector ) {
+			if ( ! is_string( $selector ) ) {
+				continue;
+			}
+
+			$selector = trim( $selector );
+
+			if ( '' === $selector ) {
+				continue;
+			}
+
+			$normalized[] = $selector;
+		}
+
+		return array_values( array_unique( $normalized ) );
+	}
+
+	/**
+	 * Normalize the full frontend target configuration.
+	 *
+	 * @since 1.4.0
+	 * @param array $config Target configuration.
+	 * @return array
+	 */
+	private function normalize_target_config( $config ) {
+		$config = is_array( $config ) ? $config : array();
+		$groups = isset( $config['groups'] ) && is_array( $config['groups'] ) ? $config['groups'] : array();
+		$normalized_groups = array();
+
+		foreach ( $groups as $group_name => $selectors ) {
+			if ( ! is_string( $group_name ) || '' === trim( $group_name ) ) {
+				continue;
+			}
+
+			$normalized_groups[ $group_name ] = $this->normalize_selector_list( $selectors );
+		}
+
+		return array(
+			'roots' => $this->normalize_selector_list( isset( $config['roots'] ) ? $config['roots'] : array() ),
+			'groups' => $normalized_groups,
+			'layout_containers' => $this->normalize_selector_list( isset( $config['layout_containers'] ) ? $config['layout_containers'] : array() ),
+			'excluded' => $this->normalize_selector_list( isset( $config['excluded'] ) ? $config['excluded'] : array() ),
+		);
+	}
+
+	/**
+	 * Get the shared frontend target configuration.
+	 *
+	 * @since 1.4.0
+	 * @param array $typography_targets Typography target configuration.
+	 * @return array
+	 */
+	private function get_target_config( $typography_targets ) {
+		$typography_targets = is_array( $typography_targets ) ? $typography_targets : array();
+		$typography_excluded = isset( $typography_targets['excluded_selectors'] ) ? $this->normalize_selector_list( $typography_targets['excluded_selectors'] ) : array();
+		$shared_excluded = array_values(
+			array_diff(
+				$typography_excluded,
+				array(
+					'button',
+					'input',
+					'select',
+					'textarea',
+					'svg',
+					'img',
+					'video',
+					'audio',
+					'iframe',
+					'canvas',
+				)
+			)
+		);
+
+		$config = array(
+			'roots' => isset( $typography_targets['content_roots'] ) ? $typography_targets['content_roots'] : array(),
+			'groups' => array(
+				'readable_text' => isset( $typography_targets['text_elements'] ) ? $typography_targets['text_elements'] : array(),
+				'headings' => isset( $typography_targets['heading_elements'] ) ? $typography_targets['heading_elements'] : array(),
+				'links' => array( 'a[href]' ),
+				'media' => array(
+					'img',
+					'picture',
+					'video',
+					'audio',
+					'iframe',
+					'embed',
+					'object',
+					'svg',
+					'canvas',
+				),
+				'interactive' => array(
+					'a[href]',
+					'button',
+					'input',
+					'select',
+					'textarea',
+					'summary',
+					'[tabindex]:not([tabindex="-1"])',
+				),
+			),
+			'layout_containers' => array( '[data-oa-relax-layout]' ),
+			'excluded' => $shared_excluded,
+		);
+
+		$config['roots'] = apply_filters( 'open_accessibility_target_roots', $config['roots'] );
+		$config['excluded'] = apply_filters( 'open_accessibility_target_excluded_selectors', $config['excluded'] );
+		$config['layout_containers'] = apply_filters( 'open_accessibility_layout_relief_selectors', $config['layout_containers'] );
+
+		foreach ( $config['groups'] as $group_name => $selectors ) {
+			$config['groups'][ $group_name ] = apply_filters(
+				'open_accessibility_target_group_selectors',
+				$selectors,
+				$group_name
+			);
+		}
+
+		$config = apply_filters( 'open_accessibility_target_config', $config );
+
+		return $this->normalize_target_config( $config );
 	}
 
 	/**
