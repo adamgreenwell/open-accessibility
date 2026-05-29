@@ -368,6 +368,13 @@
         }));
     }
 
+    function getLifecycleEventDetail() {
+        return {
+            state: $.extend(true, {}, accessibilityState),
+            targets: targetResolver ? targetResolver.getSummary() : {}
+        };
+    }
+
     function createTargetResolver(config) {
         const invalidSelectors = [];
         let roots = [];
@@ -1519,6 +1526,8 @@
 
         // Save reset state
         saveState();
+
+        dispatchOpenAccessibilityEvent('openAccessibility:reset', getLifecycleEventDetail());
     });
 
     // Save state to local storage
@@ -1583,6 +1592,8 @@
 
     // Apply current state to the UI
     function applyState() {
+        dispatchOpenAccessibilityEvent('openAccessibility:beforeApply', getLifecycleEventDetail());
+
         // Apply contrast (directly without toggle logic)
         applyContrast(accessibilityState.contrast || '');
 
@@ -1630,6 +1641,8 @@
         }
 
         syncActionButtonStates();
+
+        dispatchOpenAccessibilityEvent('openAccessibility:afterApply', getLifecycleEventDetail());
     }
 
     // Helper function to set cookies

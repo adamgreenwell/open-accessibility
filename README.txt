@@ -89,15 +89,70 @@ Yes, all user preferences are saved using local storage in their browser, so set
 
 Yes, this plugin is compatible with multisite installations.
 
-= Can my theme fine-tune which content gets typography adjustments? =
+= Can my theme fine-tune which content gets accessibility adjustments? =
 
-Yes. Open Accessibility now limits text size, line height, letter spacing, word spacing and alignment controls to readable content areas by default, and themes can refine those selectors with the `open_accessibility_typography_targets`, `open_accessibility_typography_content_roots`, and `open_accessibility_typography_excluded_selectors` filters. This makes it easy to exclude custom sidebars, cards, or promo blocks without disabling the feature entirely.
+Yes. Open Accessibility exposes a shared targeting layer that themes can adjust with PHP filters, HTML attributes, and a small JavaScript API. Typography controls use these targets, and the same resolver also supports links, media, interactive controls, and opt-in layout relief.
+
+Example PHP filters:
+
+    add_filter( 'open_accessibility_target_roots', function( $roots ) {
+        $roots[] = '.my-theme-article-body';
+
+        return $roots;
+    } );
+
+    add_filter( 'open_accessibility_target_excluded_selectors', function( $selectors ) {
+        $selectors[] = '.my-theme-sidebar';
+        $selectors[] = '.promo-card';
+
+        return $selectors;
+    } );
+
+    add_filter( 'open_accessibility_layout_relief_selectors', function( $selectors ) {
+        $selectors[] = '.my-theme-fixed-story-card';
+
+        return $selectors;
+    } );
+
+    add_filter( 'open_accessibility_target_group_selectors', function( $selectors, $group_name ) {
+        if ( 'readable_text' === $group_name ) {
+            $selectors[] = '.my-theme-readable-copy';
+        }
+
+        return $selectors;
+    }, 10, 2 );
+
+    add_filter( 'open_accessibility_target_config', function( $config ) {
+        $config['groups']['interactive'][] = '.my-theme-action';
+
+        return $config;
+    } );
+
+Use `open_accessibility_target_group_selectors` to refine a specific target group such as `readable_text`, `headings`, `links`, `media`, or `interactive`. If a theme needs complete control, `open_accessibility_target_config` receives the final full targeting array before it is passed to the frontend.
+
+Templates can use `data-oa-root`, `data-oa-target`, `data-oa-ignore`, `.open-accessibility-ignore`, `data-oa-relax-layout`, and `data-oa-preserve-layout`. Use `data-oa-root` to add content roots, `data-oa-target` to opt an element into one or more groups, `data-oa-ignore` or `.open-accessibility-ignore` to exclude a region, `data-oa-relax-layout` to opt a container into layout relief, and `data-oa-preserve-layout` to keep a region out of layout relief.
+
+= Is there a frontend JavaScript API? =
+
+Yes. The plugin exposes `window.OpenAccessibility` after the widget initializes:
+
+    window.OpenAccessibility.refresh();
+    window.OpenAccessibility.getState();
+    window.OpenAccessibility.setState({ textSize: 2 });
+    window.OpenAccessibility.getTargets('readable_text');
+    window.OpenAccessibility.debug();
+
+`window.OpenAccessibility.debug()` returns current state and target diagnostics. Frontend selector diagnostics are available from the console and API when the plugin debug option is enabled, or when a developer enables them in the browser with `localStorage.setItem('openAccessibilityDebug', '1')`.
+
+It also dispatches lifecycle events on `document`: `openAccessibility:ready`, `openAccessibility:targetsRefreshed`, `openAccessibility:beforeApply`, `openAccessibility:afterApply`, and `openAccessibility:reset`.
 
 = How do I enable debug logging? =
 
 To see debug messages from this plugin, you need to do two things:
 1. Enable the "Enable Debugging" option in the plugin's settings page (under the 'Accessibility' menu).
 2. Ensure that WordPress's core debugging constants are enabled in your `wp-config.php` file. Specifically, `WP_DEBUG` must be set to `true`, and `WP_DEBUG_LOG` must also be set to `true`. Logs will then appear in the `/wp-content/debug.log` file.
+
+Frontend selector diagnostics are browser-side diagnostics. Use `window.OpenAccessibility.debug()` or the browser console for those; they are not written to WordPress `debug.log`.
 
 == Changelog ==
 
