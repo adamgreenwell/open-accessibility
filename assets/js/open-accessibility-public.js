@@ -574,9 +574,8 @@
 
     function getTypographyTargets() {
         const contentTargets = targetResolver ? targetResolver.getTargets('readable_text') : [];
-        const readableTargets = targetResolver
-            ? mergeUniqueElements(contentTargets, targetResolver.getTargets('headings'))
-            : [];
+        const headingTargets = targetResolver ? targetResolver.getTargets('headings') : [];
+        const readableTargets = mergeUniqueElements(contentTargets, headingTargets);
 
         return {
             contentTargets,
@@ -650,6 +649,91 @@
         });
     }
 
+    function hasTextAffectingControls() {
+        const selectedFont = accessibilityState.selectedFont || 'default';
+
+        return accessibilityState.textSize > 0 ||
+            accessibilityState.lineHeightLevel > 0 ||
+            accessibilityState.letterSpacingLevel > 0 ||
+            accessibilityState.wordSpacingLevel > 0 ||
+            selectedFont !== 'default';
+    }
+
+    function captureOriginalLayoutStyles(element) {
+        if (element.dataset.oaLayoutReliefCaptured === '1') {
+            return;
+        }
+
+        element.dataset.oaLayoutReliefCaptured = '1';
+        element.dataset.oaOriginalHeight = element.style.height || '';
+        element.dataset.oaOriginalMaxHeight = element.style.maxHeight || '';
+        element.dataset.oaOriginalOverflow = element.style.overflow || '';
+        element.dataset.oaOriginalOverflowX = element.style.overflowX || '';
+        element.dataset.oaOriginalOverflowY = element.style.overflowY || '';
+        element.dataset.oaOriginalDisplay = element.style.display || '';
+        element.dataset.oaOriginalWebkitLineClamp = element.style.webkitLineClamp || '';
+        element.dataset.oaOriginalLineClamp = element.style.lineClamp || '';
+    }
+
+    function restoreLayoutProperty(element, propertyName, originalValueKey) {
+        if (element.dataset[originalValueKey]) {
+            element.style[propertyName] = element.dataset[originalValueKey];
+        } else {
+            element.style[propertyName] = '';
+        }
+    }
+
+    function restoreLayoutRelief() {
+        document.querySelectorAll('[data-oa-layout-relief-managed="1"]').forEach((element) => {
+            restoreLayoutProperty(element, 'height', 'oaOriginalHeight');
+            restoreLayoutProperty(element, 'maxHeight', 'oaOriginalMaxHeight');
+            restoreLayoutProperty(element, 'overflow', 'oaOriginalOverflow');
+            restoreLayoutProperty(element, 'overflowX', 'oaOriginalOverflowX');
+            restoreLayoutProperty(element, 'overflowY', 'oaOriginalOverflowY');
+            restoreLayoutProperty(element, 'display', 'oaOriginalDisplay');
+            restoreLayoutProperty(element, 'webkitLineClamp', 'oaOriginalWebkitLineClamp');
+            restoreLayoutProperty(element, 'lineClamp', 'oaOriginalLineClamp');
+            delete element.dataset.oaLayoutReliefManaged;
+            delete element.dataset.oaLayoutReliefCaptured;
+            delete element.dataset.oaOriginalHeight;
+            delete element.dataset.oaOriginalMaxHeight;
+            delete element.dataset.oaOriginalOverflow;
+            delete element.dataset.oaOriginalOverflowX;
+            delete element.dataset.oaOriginalOverflowY;
+            delete element.dataset.oaOriginalDisplay;
+            delete element.dataset.oaOriginalWebkitLineClamp;
+            delete element.dataset.oaOriginalLineClamp;
+        });
+    }
+
+    function applyLayoutRelief() {
+        targetResolver.getTargets('layout_containers').forEach((element) => {
+            const computedStyle = window.getComputedStyle(element);
+
+            captureOriginalLayoutStyles(element);
+            element.dataset.oaLayoutReliefManaged = '1';
+            element.style.height = 'auto';
+            element.style.maxHeight = 'none';
+            element.style.overflow = 'visible';
+            element.style.overflowX = 'visible';
+            element.style.overflowY = 'visible';
+            element.style.webkitLineClamp = 'unset';
+            element.style.lineClamp = 'unset';
+
+            if (computedStyle.display === '-webkit-box') {
+                element.style.display = 'block';
+            }
+        });
+    }
+
+    function syncLayoutRelief() {
+        restoreLayoutRelief();
+
+        if (hasTextAffectingControls()) {
+            applyLayoutRelief();
+        }
+    }
+
     function removeLegacyTypographyClasses() {
         $('body').removeClass('open-accessibility-text-align-left open-accessibility-text-align-center open-accessibility-text-align-right');
 
@@ -670,6 +754,7 @@
 
         const typographyElements = getTypographyTargets();
         if (!typographyElements.allTargets.length) {
+            syncLayoutRelief();
             return;
         }
 
@@ -720,6 +805,8 @@
                 element.style.textAlign = accessibilityState.textAlign;
             });
         }
+
+        syncLayoutRelief();
     }
 
     // Toggle widget panel
@@ -1256,6 +1343,7 @@
         $('body').removeClass('open-accessibility-font-atkinson open-accessibility-font-opendyslexic');
         removeLegacyTypographyClasses();
         clearDynamicTypographyStyles();
+        restoreLayoutRelief();
 
         // Reset all buttons active/disabled state
         $('.open-accessibility-action-button').removeClass('active').prop('disabled', false);
