@@ -9,7 +9,7 @@
 
     // Store state in local storage - site-wide key
     const storageKey = 'open-accessibility-settings';
-    let accessibilityState = {
+    const DEFAULT_ACCESSIBILITY_STATE = {
         active: false,
         contrast: '',
         grayscale: false,
@@ -25,13 +25,17 @@
         letterSpacingLevel: 0,
         wordSpacingLevel: 0
     };
+    let accessibilityState = Object.assign({}, DEFAULT_ACCESSIBILITY_STATE);
 
     const MAX_SPACING_LEVEL = 3;
     const MAX_TEXT_SIZE = 5;
+    const VALID_CONTRAST_MODES = ['', 'high', 'negative', 'light', 'dark'];
+    const VALID_FONT_VALUES = ['default', 'atkinson', 'opendyslexic'];
+    const VALID_TEXT_ALIGN_VALUES = ['', 'left', 'center', 'right'];
 
     let isShortcodeEmbed = false;
-    const DEFAULT_TYPOGRAPHY_TARGETS = {
-        content_roots: [
+    const DEFAULT_TARGET_CONFIG = {
+        roots: [
             'main',
             'article',
             '[role="main"]',
@@ -44,27 +48,55 @@
             '#content',
             '#primary'
         ],
-        text_elements: [
-            'p',
-            'li',
-            'blockquote',
-            'dd',
-            'dt',
-            'figcaption',
-            'caption',
-            'td',
-            'th',
-            'label'
+        groups: {
+            readable_text: [
+                'p',
+                'li',
+                'blockquote',
+                'dd',
+                'dt',
+                'figcaption',
+                'caption',
+                'td',
+                'th',
+                'label'
+            ],
+            headings: [
+                'h1',
+                'h2',
+                'h3',
+                'h4',
+                'h5',
+                'h6'
+            ],
+            links: [
+                'a[href]'
+            ],
+            media: [
+                'img',
+                'picture',
+                'video',
+                'audio',
+                'iframe',
+                'embed',
+                'object',
+                'svg',
+                'canvas'
+            ],
+            interactive: [
+                'a[href]',
+                'button',
+                'input',
+                'select',
+                'textarea',
+                'summary',
+                '[tabindex]:not([tabindex="-1"])'
+            ]
+        },
+        layout_containers: [
+            '[data-oa-relax-layout]'
         ],
-        heading_elements: [
-            'h1',
-            'h2',
-            'h3',
-            'h4',
-            'h5',
-            'h6'
-        ],
-        excluded_selectors: [
+        excluded: [
             '.open-accessibility-widget-wrapper',
             '.open-accessibility-reading-guide',
             '.open-accessibility-skip-to-content-link',
@@ -85,16 +117,6 @@
             '.pagination',
             '.breadcrumbs',
             '.breadcrumb',
-            'button',
-            'input',
-            'select',
-            'textarea',
-            'svg',
-            'img',
-            'video',
-            'audio',
-            'iframe',
-            'canvas',
             'code',
             'pre',
             'kbd',
@@ -106,33 +128,145 @@
     const LINE_HEIGHT_MULTIPLIERS = [0, 1.6, 1.8, 2.0];
     const LETTER_SPACING_STEPS = [0, 0.12, 0.18, 0.24];
     const WORD_SPACING_STEPS = [0, 0.16, 0.24, 0.32];
-    const typographyTargets = normalizeTypographyTargets(
+
+    let targetResolver = null;
+
+    function clampLevel(value, maxLevel) {
+        const parsed = Number.parseInt(value, 10);
+
+        if (!Number.isFinite(parsed)) {
+            return 0;
+        }
+
+        return Math.min(Math.max(parsed, 0), maxLevel);
+    }
+
+    function normalizeChoice(value, validValues, fallback) {
+        return validValues.includes(value) ? value : fallback;
+    }
+
+    function normalizeAccessibilityState(state) {
+        const source = state && typeof state === 'object' ? state : {};
+
+        return {
+            active: Boolean(source.active),
+            contrast: normalizeChoice(source.contrast, VALID_CONTRAST_MODES, ''),
+            grayscale: Boolean(source.grayscale),
+            textSize: clampLevel(source.textSize, MAX_TEXT_SIZE),
+            selectedFont: normalizeChoice(source.selectedFont, VALID_FONT_VALUES, 'default'),
+            linksUnderline: Boolean(source.linksUnderline),
+            hideImages: Boolean(source.hideImages),
+            readingGuide: Boolean(source.readingGuide),
+            focusOutline: Boolean(source.focusOutline),
+            lineHeightLevel: clampLevel(source.lineHeightLevel, MAX_SPACING_LEVEL),
+            textAlign: normalizeChoice(source.textAlign, VALID_TEXT_ALIGN_VALUES, ''),
+            pauseAnimations: Boolean(source.pauseAnimations),
+            letterSpacingLevel: clampLevel(source.letterSpacingLevel, MAX_SPACING_LEVEL),
+            wordSpacingLevel: clampLevel(source.wordSpacingLevel, MAX_SPACING_LEVEL)
+        };
+    }
+
+    function isDebugStorageEnabled() {
+        try {
+            return typeof localStorage !== 'undefined' &&
+                localStorage.getItem('openAccessibilityDebug') === '1';
+        } catch (error) {
+            return false;
+        }
+    }
+
+    const debugEnabled = Boolean(
+        typeof open_accessibility_data !== 'undefined' &&
         open_accessibility_data &&
         open_accessibility_data.options &&
-        open_accessibility_data.options.typography_targets
-            ? open_accessibility_data.options.typography_targets
-            : {}
-    );
+        open_accessibility_data.options.debug
+    ) || isDebugStorageEnabled();
 
     function normalizeSelectorList(value, fallback) {
+        const fallbackSelectors = Array.isArray(fallback) ? fallback : [];
+
         if (!Array.isArray(value)) {
-            return fallback.slice();
+            return fallbackSelectors.slice();
         }
 
         const selectors = value
             .filter((selector) => typeof selector === 'string' && selector.trim().length > 0)
             .map((selector) => selector.trim());
 
-        return selectors.length ? selectors : fallback.slice();
+        return Array.from(new Set(selectors));
     }
 
-    function normalizeTypographyTargets(config) {
+    function normalizeTargetConfig(config) {
+        const source = config && typeof config === 'object' ? config : {};
+        const hasOwn = Object.prototype.hasOwnProperty;
+        const hasGroups = hasOwn.call(source, 'groups') && source.groups && typeof source.groups === 'object';
+        const sourceGroups = hasGroups ? source.groups : DEFAULT_TARGET_CONFIG.groups;
+        const normalizedGroups = {};
+
+        Object.keys(sourceGroups).forEach((groupName) => {
+            normalizedGroups[groupName] = normalizeSelectorList(
+                sourceGroups[groupName],
+                hasGroups ? [] : DEFAULT_TARGET_CONFIG.groups[groupName]
+            );
+        });
+
+        const roots = normalizeSelectorList(source.roots, DEFAULT_TARGET_CONFIG.roots);
+        const hasExplicitEmptyRoots = hasOwn.call(source, 'roots') &&
+            Array.isArray(source.roots) &&
+            roots.length === 0;
+
         return {
-            contentRoots: normalizeSelectorList(config.content_roots, DEFAULT_TYPOGRAPHY_TARGETS.content_roots),
-            textElements: normalizeSelectorList(config.text_elements, DEFAULT_TYPOGRAPHY_TARGETS.text_elements),
-            headingElements: normalizeSelectorList(config.heading_elements, DEFAULT_TYPOGRAPHY_TARGETS.heading_elements),
-            excludedSelectors: normalizeSelectorList(config.excluded_selectors, DEFAULT_TYPOGRAPHY_TARGETS.excluded_selectors)
+            roots,
+            groups: normalizedGroups,
+            layoutContainers: normalizeSelectorList(source.layout_containers, DEFAULT_TARGET_CONFIG.layout_containers),
+            excluded: normalizeSelectorList(source.excluded, DEFAULT_TARGET_CONFIG.excluded),
+            useBodyFallback: !hasExplicitEmptyRoots
         };
+    }
+
+    const targetConfig = normalizeTargetConfig(
+        typeof open_accessibility_data !== 'undefined' &&
+        open_accessibility_data &&
+        open_accessibility_data.options &&
+        open_accessibility_data.options.target_config
+            ? open_accessibility_data.options.target_config
+            : {}
+    );
+
+    function exposeOpenAccessibilityApi() {
+        const api = window.OpenAccessibility || {};
+
+        api.refresh = function() {
+            targetResolver.refresh();
+            applyState();
+        };
+        api.getState = function() {
+            return $.extend(true, {}, accessibilityState);
+        };
+        api.setState = function(partialState) {
+            if (!partialState || typeof partialState !== 'object') {
+                return;
+            }
+
+            accessibilityState = normalizeAccessibilityState($.extend({}, accessibilityState, partialState));
+            saveState();
+            applyState();
+        };
+        api.getTargets = function(groupName) {
+            return targetResolver.getTargets(groupName);
+        };
+        api.debug = function() {
+            return {
+                state: $.extend(true, {}, accessibilityState),
+                targets: targetResolver.getSummary()
+            };
+        };
+
+        window.OpenAccessibility = api;
+    }
+
+    function dispatchReadyEvent() {
+        dispatchOpenAccessibilityEvent('openAccessibility:ready', window.OpenAccessibility.debug());
     }
 
     // Initialize
@@ -143,6 +277,9 @@
         // Detect if widget is embedded via shortcode (inline positioning)
         isShortcodeEmbed = $('.open-accessibility-widget-wrapper').closest('.open-accessibility-shortcode').length > 0;
 
+        targetResolver = createTargetResolver(targetConfig);
+        exposeOpenAccessibilityApi();
+
         // Create reading guide element
         if ($('.open-accessibility-reading-guide').length === 0) {
             $('body').append('<div class="open-accessibility-reading-guide"></div>');
@@ -150,6 +287,7 @@
 
         // Apply saved state
         applyState();
+        dispatchReadyEvent();
 
         // Button click handler
         $('.open-accessibility-toggle-button').on('click', toggleAccessibilityPanel);
@@ -257,96 +395,235 @@
         return merged;
     }
 
-    function getTypographyRoots() {
-        const roots = [];
-        const seen = new Set();
+    function logDebug() {
+        if (!debugEnabled || !window.console || !window.console.log) {
+            return;
+        }
 
-        typographyTargets.contentRoots.forEach((selector) => {
+        window.console.log.apply(window.console, arguments);
+    }
+
+    function dispatchOpenAccessibilityEvent(name, detail) {
+        document.dispatchEvent(new CustomEvent(name, {
+            detail: detail || {}
+        }));
+    }
+
+    function getLifecycleEventDetail() {
+        return {
+            state: $.extend(true, {}, accessibilityState),
+            targets: targetResolver ? targetResolver.getSummary() : {}
+        };
+    }
+
+    function createTargetResolver(config) {
+        const invalidSelectors = [];
+        let roots = [];
+        let targets = {};
+        let layoutContainers = [];
+        let excludedCount = 0;
+
+        function queryAll(selector, root, context) {
+            if (!selector) {
+                return [];
+            }
+
             try {
-                document.querySelectorAll(selector).forEach((element) => {
-                    if (!seen.has(element)) {
-                        seen.add(element);
-                        roots.push(element);
-                    }
-                });
+                return Array.from((root || document).querySelectorAll(selector));
             } catch (error) {
-                console.warn('Open Accessibility: invalid typography root selector', selector, error);
+                invalidSelectors.push({ selector, context, message: error.message });
+                return [];
             }
-        });
-
-        if (!roots.length) {
-            roots.push(document.body);
         }
 
-        return roots;
-    }
+        function queryAllSelectors(selectors, root, context) {
+            const collected = [];
 
-    function isExcludedTypographyElement(element, excludedSelector) {
-        if (!(element instanceof Element)) {
-            return true;
+            selectors.forEach((selector) => {
+                collected.push.apply(collected, queryAll(selector, root, context));
+            });
+
+            return collected;
         }
 
-        if (
-            element.closest(
-                '.open-accessibility-widget-wrapper, .open-accessibility-reading-guide, .open-accessibility-skip-to-content-link, .open-accessibility-skip-to-content-backdrop'
-            )
-        ) {
-            return true;
+        function matches(element, selector, context) {
+            if (!selector || !(element instanceof Element)) {
+                return false;
+            }
+
+            try {
+                return element.matches(selector);
+            } catch (error) {
+                invalidSelectors.push({ selector, context, message: error.message });
+                return false;
+            }
         }
 
-        if (!excludedSelector) {
+        function matchesAny(element, selectors, context) {
+            return selectors.some((selector) => matches(element, selector, context));
+        }
+
+        function closest(element, selector, context) {
+            if (!selector || !(element instanceof Element)) {
+                return null;
+            }
+
+            try {
+                return element.closest(selector);
+            } catch (error) {
+                invalidSelectors.push({ selector, context, message: error.message });
+                return null;
+            }
+        }
+
+        function closestAny(element, selectors, context) {
+            let match = null;
+
+            selectors.some((selector) => {
+                match = closest(element, selector, context);
+                return Boolean(match);
+            });
+
+            return match;
+        }
+
+        function isExcluded(element, options) {
+            const settings = options || {};
+
+            if (!(element instanceof Element)) {
+                return true;
+            }
+
+            if (!document.body.contains(element)) {
+                return true;
+            }
+
+            if (closest(element, '.open-accessibility-widget-wrapper, .open-accessibility-reading-guide, .open-accessibility-skip-to-content-link, .open-accessibility-skip-to-content-backdrop, .open-accessibility-ignore, [data-oa-ignore]', 'built-in exclusions')) {
+                return true;
+            }
+
+            if (matchesAny(element, config.excluded, 'excluded') || closestAny(element, config.excluded, 'excluded')) {
+                excludedCount++;
+                return true;
+            }
+
+            if (settings.preserveLayout && closest(element, '[data-oa-preserve-layout]', 'preserve layout')) {
+                excludedCount++;
+                return true;
+            }
+
             return false;
         }
 
-        try {
-            return element.matches(excludedSelector) || Boolean(element.closest(excludedSelector));
-        } catch (error) {
-            console.warn('Open Accessibility: invalid typography exclusion selector', excludedSelector, error);
-            return false;
-        }
-    }
+        function uniqueElements(elements, options) {
+            const seen = new Set();
+            const unique = [];
 
-    function collectTypographyTargets(selectors) {
-        if (!selectors.length) {
-            return [];
-        }
-
-        const selector = selectors.join(', ');
-        const excludedSelector = typographyTargets.excludedSelectors.join(', ');
-        const targets = [];
-        const seen = new Set();
-
-        getTypographyRoots().forEach((root) => {
-            let candidates = [];
-
-            if (root.matches && root.matches(selector)) {
-                candidates.push(root);
-            }
-
-            candidates = candidates.concat(Array.from(root.querySelectorAll(selector)));
-
-            candidates.forEach((element) => {
-                if (seen.has(element) || !document.body.contains(element)) {
-                    return;
-                }
-
-                if (isExcludedTypographyElement(element, excludedSelector)) {
+            elements.forEach((element) => {
+                if (seen.has(element) || isExcluded(element, options)) {
                     return;
                 }
 
                 seen.add(element);
-                targets.push(element);
+                unique.push(element);
             });
-        });
 
-        return targets;
+            return unique;
+        }
+
+        function collectRoots() {
+            const configuredRoots = queryAllSelectors(config.roots, document, 'roots')
+                .concat(queryAll('[data-oa-root]', document, 'data roots'));
+
+            roots = uniqueElements(configuredRoots);
+
+            if (!roots.length && config.useBodyFallback) {
+                roots = [document.body];
+            }
+        }
+
+        function collectGroup(groupName) {
+            const selectors = config.groups[groupName] || [];
+            const dataSelector = `[data-oa-target~="${groupName}"]`;
+            const collected = [];
+
+            roots.forEach((root) => {
+                if (matchesAny(root, selectors, groupName)) {
+                    collected.push(root);
+                }
+
+                collected.push.apply(collected, queryAllSelectors(selectors, root, groupName));
+                collected.push.apply(collected, queryAll(dataSelector, root, `${groupName} data target`));
+            });
+
+            targets[groupName] = uniqueElements(collected);
+        }
+
+        function collectLayoutContainers() {
+            const selectors = config.layoutContainers.concat(['[data-oa-relax-layout]']);
+            const collected = [];
+
+            roots.forEach((root) => {
+                if (matchesAny(root, selectors, 'layout containers')) {
+                    collected.push(root);
+                }
+
+                collected.push.apply(collected, queryAllSelectors(selectors, root, 'layout containers'));
+            });
+
+            layoutContainers = uniqueElements(collected, { preserveLayout: true });
+        }
+
+        function refresh() {
+            invalidSelectors.length = 0;
+            excludedCount = 0;
+            targets = {};
+
+            collectRoots();
+            Object.keys(config.groups).forEach(collectGroup);
+            collectLayoutContainers();
+
+            dispatchOpenAccessibilityEvent('openAccessibility:targetsRefreshed', getSummary());
+            logDebug('Open Accessibility targets', getSummary());
+        }
+
+        function getTargets(groupName) {
+            if (groupName === 'layout_containers') {
+                return layoutContainers.slice();
+            }
+
+            return targets[groupName] ? targets[groupName].slice() : [];
+        }
+
+        function getSummary() {
+            const groupCounts = {};
+
+            Object.keys(targets).forEach((groupName) => {
+                groupCounts[groupName] = targets[groupName].length;
+            });
+
+            return {
+                roots: roots.length,
+                groups: groupCounts,
+                layoutContainers: layoutContainers.length,
+                invalidSelectors: invalidSelectors.slice(),
+                excludedCount
+            };
+        }
+
+        refresh();
+
+        return {
+            refresh,
+            getTargets,
+            getSummary
+        };
     }
 
     function getTypographyTargets() {
-        const contentTargets = collectTypographyTargets(typographyTargets.textElements);
-        const readableTargets = collectTypographyTargets(
-            typographyTargets.textElements.concat(typographyTargets.headingElements)
-        );
+        const contentTargets = targetResolver ? targetResolver.getTargets('readable_text') : [];
+        const headingTargets = targetResolver ? targetResolver.getTargets('headings') : [];
+        const readableTargets = mergeUniqueElements(contentTargets, headingTargets);
 
         return {
             contentTargets,
@@ -410,6 +687,29 @@
         }
     }
 
+    function captureOriginalStyle(element, datasetKey, propertyName) {
+        if (element.dataset[`${datasetKey}Captured`] === '1') {
+            return;
+        }
+
+        element.dataset[`${datasetKey}Captured`] = '1';
+        element.dataset[datasetKey] = element.style[propertyName] || '';
+    }
+
+    function restoreOriginalStyle(element, datasetKey, propertyName) {
+        if (element.dataset[datasetKey]) {
+            element.style[propertyName] = element.dataset[datasetKey];
+        } else {
+            element.style[propertyName] = '';
+        }
+    }
+
+    function clearManagedStyles(selector, restoreCallback) {
+        document.querySelectorAll(selector).forEach((element) => {
+            restoreCallback(element);
+        });
+    }
+
     function clearDynamicTypographyStyles() {
         document.querySelectorAll('[data-oa-typography-managed="1"]').forEach((element) => {
             restoreTypographyProperty(element, 'fontSize', 'oaOriginalFontSize');
@@ -417,6 +717,222 @@
             restoreTypographyProperty(element, 'letterSpacing', 'oaOriginalLetterSpacing');
             restoreTypographyProperty(element, 'wordSpacing', 'oaOriginalWordSpacing');
             restoreTypographyProperty(element, 'textAlign', 'oaOriginalTextAlign');
+        });
+    }
+
+    function hasTextAffectingControls() {
+        const selectedFont = accessibilityState.selectedFont || 'default';
+
+        return accessibilityState.textSize > 0 ||
+            accessibilityState.lineHeightLevel > 0 ||
+            accessibilityState.letterSpacingLevel > 0 ||
+            accessibilityState.wordSpacingLevel > 0 ||
+            selectedFont !== 'default';
+    }
+
+    function captureOriginalLayoutStyles(element) {
+        if (element.dataset.oaLayoutReliefCaptured === '1') {
+            return;
+        }
+
+        element.dataset.oaLayoutReliefCaptured = '1';
+        element.dataset.oaOriginalHeight = element.style.height || '';
+        element.dataset.oaOriginalMaxHeight = element.style.maxHeight || '';
+        element.dataset.oaOriginalOverflow = element.style.overflow || '';
+        element.dataset.oaOriginalOverflowX = element.style.overflowX || '';
+        element.dataset.oaOriginalOverflowY = element.style.overflowY || '';
+        element.dataset.oaOriginalDisplay = element.style.display || '';
+        element.dataset.oaOriginalWebkitLineClamp = element.style.webkitLineClamp || '';
+        element.dataset.oaOriginalLineClamp = element.style.lineClamp || '';
+    }
+
+    function restoreLayoutProperty(element, propertyName, originalValueKey) {
+        if (element.dataset[originalValueKey]) {
+            element.style[propertyName] = element.dataset[originalValueKey];
+        } else {
+            element.style[propertyName] = '';
+        }
+    }
+
+    function restoreLayoutRelief() {
+        document.querySelectorAll('[data-oa-layout-relief-managed="1"]').forEach((element) => {
+            restoreLayoutProperty(element, 'height', 'oaOriginalHeight');
+            restoreLayoutProperty(element, 'maxHeight', 'oaOriginalMaxHeight');
+            restoreLayoutProperty(element, 'overflow', 'oaOriginalOverflow');
+            restoreLayoutProperty(element, 'overflowX', 'oaOriginalOverflowX');
+            restoreLayoutProperty(element, 'overflowY', 'oaOriginalOverflowY');
+            restoreLayoutProperty(element, 'display', 'oaOriginalDisplay');
+            restoreLayoutProperty(element, 'webkitLineClamp', 'oaOriginalWebkitLineClamp');
+            restoreLayoutProperty(element, 'lineClamp', 'oaOriginalLineClamp');
+            delete element.dataset.oaLayoutReliefManaged;
+            delete element.dataset.oaLayoutReliefCaptured;
+            delete element.dataset.oaOriginalHeight;
+            delete element.dataset.oaOriginalMaxHeight;
+            delete element.dataset.oaOriginalOverflow;
+            delete element.dataset.oaOriginalOverflowX;
+            delete element.dataset.oaOriginalOverflowY;
+            delete element.dataset.oaOriginalDisplay;
+            delete element.dataset.oaOriginalWebkitLineClamp;
+            delete element.dataset.oaOriginalLineClamp;
+        });
+    }
+
+    function applyLayoutRelief() {
+        targetResolver.getTargets('layout_containers').forEach((element) => {
+            const computedStyle = window.getComputedStyle(element);
+
+            captureOriginalLayoutStyles(element);
+            element.dataset.oaLayoutReliefManaged = '1';
+            element.style.height = 'auto';
+            element.style.maxHeight = 'none';
+            element.style.overflow = 'visible';
+            element.style.overflowX = 'visible';
+            element.style.overflowY = 'visible';
+            element.style.webkitLineClamp = 'unset';
+            element.style.lineClamp = 'unset';
+
+            if (computedStyle.display === '-webkit-box') {
+                element.style.display = 'block';
+            }
+        });
+    }
+
+    function syncLayoutRelief() {
+        restoreLayoutRelief();
+
+        if (hasTextAffectingControls()) {
+            applyLayoutRelief();
+        }
+    }
+
+    function getReadableFontTargets() {
+        if (!targetResolver) {
+            return [];
+        }
+
+        return mergeUniqueElements(
+            targetResolver.getTargets('readable_text'),
+            targetResolver.getTargets('headings')
+        );
+    }
+
+    function getReadableFontFamily(fontValue) {
+        if (fontValue === 'atkinson') {
+            return "'Atkinson Hyperlegible', sans-serif";
+        }
+
+        if (fontValue === 'opendyslexic') {
+            return "'OpenDyslexic', sans-serif";
+        }
+
+        return '';
+    }
+
+    function restoreReadableFontTarget(element) {
+        restoreOriginalStyle(element, 'oaReadableFontOriginal', 'fontFamily');
+        delete element.dataset.oaReadableFontManaged;
+        delete element.dataset.oaReadableFontOriginal;
+        delete element.dataset.oaReadableFontOriginalCaptured;
+    }
+
+    function applyReadableFontTargets(fontValue) {
+        const fontFamily = getReadableFontFamily(fontValue);
+
+        clearManagedStyles('[data-oa-readable-font-managed="1"]', restoreReadableFontTarget);
+
+        if (!fontFamily) {
+            return;
+        }
+
+        getReadableFontTargets().forEach((element) => {
+            captureOriginalStyle(element, 'oaReadableFontOriginal', 'fontFamily');
+            element.dataset.oaReadableFontManaged = '1';
+            element.style.fontFamily = fontFamily;
+        });
+    }
+
+    function restoreLinksUnderlineTarget(element) {
+        restoreOriginalStyle(element, 'oaLinksUnderlineOriginal', 'textDecoration');
+        delete element.dataset.oaLinksUnderlineManaged;
+        delete element.dataset.oaLinksUnderlineOriginal;
+        delete element.dataset.oaLinksUnderlineOriginalCaptured;
+    }
+
+    function applyLinksUnderlineTargets() {
+        clearManagedStyles('[data-oa-links-underline-managed="1"]', restoreLinksUnderlineTarget);
+
+        if (!accessibilityState.linksUnderline || !targetResolver) {
+            return;
+        }
+
+        targetResolver.getTargets('links').forEach((element) => {
+            captureOriginalStyle(element, 'oaLinksUnderlineOriginal', 'textDecoration');
+            element.dataset.oaLinksUnderlineManaged = '1';
+            element.style.textDecoration = 'underline';
+        });
+    }
+
+    function restoreHideImagesTarget(element) {
+        restoreOriginalStyle(element, 'oaHideImagesOriginal', 'visibility');
+        delete element.dataset.oaHideImagesManaged;
+        delete element.dataset.oaHideImagesOriginal;
+        delete element.dataset.oaHideImagesOriginalCaptured;
+    }
+
+    function applyHideImagesTargets() {
+        clearManagedStyles('[data-oa-hide-images-managed="1"]', restoreHideImagesTarget);
+
+        if (!accessibilityState.hideImages || !targetResolver) {
+            return;
+        }
+
+        targetResolver.getTargets('media').forEach((element) => {
+            if (!['IMG', 'PICTURE', 'SVG'].includes(element.tagName)) {
+                return;
+            }
+
+            captureOriginalStyle(element, 'oaHideImagesOriginal', 'visibility');
+            element.dataset.oaHideImagesManaged = '1';
+            element.style.visibility = 'hidden';
+        });
+    }
+
+    function restoreGrayscaleTarget(element) {
+        restoreOriginalStyle(element, 'oaGrayscaleOriginal', 'filter');
+        delete element.dataset.oaGrayscaleManaged;
+        delete element.dataset.oaGrayscaleOriginal;
+        delete element.dataset.oaGrayscaleOriginalCaptured;
+    }
+
+    function getGrayscaleTargets() {
+        if (!targetResolver) {
+            return [];
+        }
+
+        return mergeUniqueElements(
+            targetResolver.getTargets('readable_text'),
+            targetResolver.getTargets('headings'),
+            targetResolver.getTargets('links'),
+            targetResolver.getTargets('media')
+        );
+    }
+
+    function applyGrayscaleTargets() {
+        const $button = $('.open-accessibility-toggle-button');
+        const $panel = $('.open-accessibility-widget-panel');
+
+        clearManagedStyles('[data-oa-grayscale-managed="1"]', restoreGrayscaleTarget);
+        $button.toggleClass('widget-grayscale', accessibilityState.grayscale);
+        $panel.toggleClass('widget-grayscale', accessibilityState.grayscale);
+
+        if (!accessibilityState.grayscale) {
+            return;
+        }
+
+        getGrayscaleTargets().forEach((element) => {
+            captureOriginalStyle(element, 'oaGrayscaleOriginal', 'filter');
+            element.dataset.oaGrayscaleManaged = '1';
+            element.style.filter = 'grayscale(100%)';
         });
     }
 
@@ -440,6 +956,7 @@
 
         const typographyElements = getTypographyTargets();
         if (!typographyElements.allTargets.length) {
+            syncLayoutRelief();
             return;
         }
 
@@ -490,6 +1007,8 @@
                 element.style.textAlign = accessibilityState.textAlign;
             });
         }
+
+        syncLayoutRelief();
     }
 
     // Toggle widget panel
@@ -670,7 +1189,12 @@
     }
 
     function setButtonPressed(action, value, pressed) {
-        const $button = $(`.open-accessibility-action-button[data-action="${action}"][data-value="${value}"][aria-pressed]`);
+        const $button = $('.open-accessibility-action-button[aria-pressed]').filter(function() {
+            const $actionButton = $(this);
+
+            return $actionButton.attr('data-action') === action &&
+                $actionButton.attr('data-value') === value;
+        });
         $button.toggleClass('active', pressed);
         $button.attr('aria-pressed', pressed ? 'true' : 'false');
     }
@@ -700,6 +1224,8 @@
 
     // Handle contrast modes
     function handleContrast(mode) {
+        mode = normalizeChoice(mode, VALID_CONTRAST_MODES, '');
+
         // Remove existing contrast classes
         $('body').removeClass('open-accessibility-high-contrast open-accessibility-negative-contrast open-accessibility-light-background open-accessibility-dark-background');
         
@@ -773,25 +1299,8 @@
     // Toggle grayscale
     function toggleGrayscale() {
         accessibilityState.grayscale = !accessibilityState.grayscale;
-        const $button = $('.open-accessibility-toggle-button');
-        const $panel = $('.open-accessibility-widget-panel');
-
-        if (accessibilityState.grayscale) {
-            // Apply grayscale to the main content, excluding button, panel and panel's children
-            $('body *').not($button).not($panel).not($panel.find('*')).css('filter', 'grayscale(100%)');
-            // Add a class to the widget button and panel for CSS targeting
-            $button.addClass('widget-grayscale');
-            $panel.addClass('widget-grayscale');
-        } else {
-            // Remove grayscale from the main content
-            $('body *').not($button).not($panel).not($panel.find('*')).css('filter', '');
-            // Remove the class from the widget button and panel
-            $button.removeClass('widget-grayscale');
-            $panel.removeClass('widget-grayscale');
-        }
-
-        // Toggle the button active state
-        $('.open-accessibility-action-button[data-action="grayscale"]').toggleClass('active', accessibilityState.grayscale);
+        applyGrayscaleTargets();
+        syncActionButtonStates();
     }
 
     // Adjust text size
@@ -811,7 +1320,9 @@
 
     // Set selected font
     function setFont(fontValue) {
-        // Remove previous font classes
+        fontValue = normalizeChoice(fontValue, VALID_FONT_VALUES, 'default');
+
+        // Remove previous legacy font classes
         $('body').removeClass('open-accessibility-font-atkinson open-accessibility-font-opendyslexic');
         // Remove active class from all font buttons
         $('.open-accessibility-action-button[data-action="set-font"]').removeClass('active');
@@ -822,13 +1333,8 @@
             $('.open-accessibility-action-button[data-action="set-font"][data-value="default"]').addClass('active'); // Activate default button
         } else {
             accessibilityState.selectedFont = fontValue;
-            if (fontValue === 'atkinson') {
-                $('body').addClass('open-accessibility-font-atkinson');
-            } else if (fontValue === 'opendyslexic') {
-                $('body').addClass('open-accessibility-font-opendyslexic');
-            }
              // Add active class to the clicked button
-            $(`.open-accessibility-action-button[data-action="set-font"][data-value="${fontValue}"]`).addClass('active');
+            setButtonPressed('set-font', fontValue, true);
         }
 
         // Ensure default button is active if state is default
@@ -837,40 +1343,43 @@
         }
 
         applyDynamicTypographyAdjustments();
+        applyReadableFontTargets(accessibilityState.selectedFont || 'default');
     }
 
     // Apply font from saved state (without toggle logic)
     function applyFont(fontValue) {
-        // Remove previous font classes
+        // Remove previous legacy font classes
         $('body').removeClass('open-accessibility-font-atkinson open-accessibility-font-opendyslexic');
         // Remove active class from all font buttons
         $('.open-accessibility-action-button[data-action="set-font"]').removeClass('active');
 
-        // Apply the font class and activate the correct button
+        // Activate the correct button; targeted inline styles apply the font.
         if (fontValue === 'atkinson') {
-            $('body').addClass('open-accessibility-font-atkinson');
             $('.open-accessibility-action-button[data-action="set-font"][data-value="atkinson"]').addClass('active');
         } else if (fontValue === 'opendyslexic') {
-            $('body').addClass('open-accessibility-font-opendyslexic');
             $('.open-accessibility-action-button[data-action="set-font"][data-value="opendyslexic"]').addClass('active');
         } else {
             // Default font - just activate the default button
             $('.open-accessibility-action-button[data-action="set-font"][data-value="default"]').addClass('active');
         }
+
+        applyReadableFontTargets(accessibilityState.selectedFont || 'default');
     }
 
     // Toggle links underline
     function toggleLinksUnderline() {
         accessibilityState.linksUnderline = !accessibilityState.linksUnderline;
-        $('body').toggleClass('open-accessibility-links-underline', accessibilityState.linksUnderline);
-        $('.open-accessibility-action-button[data-action="links-underline"]').toggleClass('active', accessibilityState.linksUnderline);
+        $('body').removeClass('open-accessibility-links-underline');
+        applyLinksUnderlineTargets();
+        syncActionButtonStates();
     }
 
     // Toggle hide images
     function toggleHideImages() {
         accessibilityState.hideImages = !accessibilityState.hideImages;
-        $('body').toggleClass('open-accessibility-hide-images', accessibilityState.hideImages);
-        $('.open-accessibility-action-button[data-action="hide-images"]').toggleClass('active', accessibilityState.hideImages);
+        $('body').removeClass('open-accessibility-hide-images');
+        applyHideImagesTargets();
+        syncActionButtonStates();
     }
 
     // Toggle reading guide
@@ -902,6 +1411,12 @@
 
     // Set text align
     function setTextAlign(align) {
+        align = normalizeChoice(align, VALID_TEXT_ALIGN_VALUES, '');
+
+        if (!align) {
+            return;
+        }
+
         // Clear active state on all text align buttons
         $('.open-accessibility-action-button[data-action="text-align"]').removeClass('active');
 
@@ -913,7 +1428,7 @@
         }
 
         accessibilityState.textAlign = align;
-        $(`.open-accessibility-action-button[data-action="text-align"][data-value="${align}"]`).addClass('active');
+        setButtonPressed('text-align', align, true);
         applyDynamicTypographyAdjustments();
     }
 
@@ -1026,27 +1541,13 @@
         $('body').removeClass('open-accessibility-font-atkinson open-accessibility-font-opendyslexic');
         removeLegacyTypographyClasses();
         clearDynamicTypographyStyles();
+        restoreLayoutRelief();
 
         // Reset all buttons active/disabled state
         $('.open-accessibility-action-button').removeClass('active').prop('disabled', false);
 
         // Reset state
-        accessibilityState = {
-            active: true,
-            contrast: '',
-            grayscale: false,
-            textSize: 0,
-            selectedFont: 'default',
-            linksUnderline: false,
-            hideImages: false,
-            readingGuide: false,
-            focusOutline: false,
-            lineHeightLevel: 0,
-            textAlign: '',
-            pauseAnimations: false,
-            letterSpacingLevel: 0,
-            wordSpacingLevel: 0
-        };
+        accessibilityState = normalizeAccessibilityState($.extend({}, DEFAULT_ACCESSIBILITY_STATE, { active: true }));
 
         // Update all indicators
         updateIndicator('text-size', 0);
@@ -1057,20 +1558,23 @@
         // Explicitly hide the reading guide on reset
         $('.open-accessibility-reading-guide').hide(); 
 
-        // Clear the grayscale filter from all elements
-        $('body *').css('filter', '');
-        $('.open-accessibility-toggle-button').removeClass('widget-grayscale');
-        $('.open-accessibility-widget-panel').removeClass('widget-grayscale');
-
         applyDynamicTypographyAdjustments();
+        applyReadableFontTargets('default');
+        applyGrayscaleTargets();
+        applyLinksUnderlineTargets();
+        applyHideImagesTargets();
         syncActionButtonStates();
 
         // Save reset state
         saveState();
+
+        dispatchOpenAccessibilityEvent('openAccessibility:reset', getLifecycleEventDetail());
     });
 
     // Save state to local storage
     function saveState() {
+        accessibilityState = normalizeAccessibilityState(accessibilityState);
+
         if (typeof localStorage !== 'undefined') {
             localStorage.setItem(storageKey, JSON.stringify(accessibilityState));
         }
@@ -1121,7 +1625,7 @@
                     if (!parsedState.hasOwnProperty('lineHeightLevel')) {
                         parsedState.lineHeightLevel = 0;
                     }
-                    accessibilityState = parsedState;
+                    accessibilityState = normalizeAccessibilityState(parsedState);
                 } catch (e) {
                     console.error('Error parsing saved accessibility state', e);
                 }
@@ -1131,63 +1635,38 @@
 
     // Apply current state to the UI
     function applyState() {
+        accessibilityState = normalizeAccessibilityState(accessibilityState);
+
+        dispatchOpenAccessibilityEvent('openAccessibility:beforeApply', getLifecycleEventDetail());
+
         // Apply contrast (directly without toggle logic)
-        if (accessibilityState.contrast) {
-            applyContrast(accessibilityState.contrast);
-        }
+        applyContrast(accessibilityState.contrast || '');
 
         // Apply grayscale
-        if (accessibilityState.grayscale) {
-            const $button = $('.open-accessibility-toggle-button');
-            const $panel = $('.open-accessibility-widget-panel');
-            // Re-apply the styles and classes managed by toggleGrayscale
-            $('body *').not($button).not($panel).not($panel.find('*')).css('filter', 'grayscale(100%)');
-            $button.addClass('widget-grayscale');
-            $panel.addClass('widget-grayscale');
-            $('.open-accessibility-action-button[data-action="grayscale"]').addClass('active');
-        } else {
-            const $button = $('.open-accessibility-toggle-button');
-            const $panel = $('.open-accessibility-widget-panel');
-            // Ensure styles/classes are removed if state is false
-            $('body *').not($button).not($panel).not($panel.find('*')).css('filter', '');
-            $button.removeClass('widget-grayscale');
-            $panel.removeClass('widget-grayscale');
-            $('.open-accessibility-action-button[data-action="grayscale"]').removeClass('active');
-        }
+        applyGrayscaleTargets();
 
         // Apply selected font (directly without toggle logic)
         applyFont(accessibilityState.selectedFont || 'default');
 
         // Apply links underline
-        if (accessibilityState.linksUnderline) {
-            $('body').addClass('open-accessibility-links-underline');
-            $('.open-accessibility-action-button[data-action="links-underline"]').addClass('active');
-        }
+        $('body').removeClass('open-accessibility-links-underline');
+        applyLinksUnderlineTargets();
 
         // Apply hide images
-        if (accessibilityState.hideImages) {
-            $('body').addClass('open-accessibility-hide-images');
-            $('.open-accessibility-action-button[data-action="hide-images"]').addClass('active');
-        }
+        $('body').removeClass('open-accessibility-hide-images');
+        applyHideImagesTargets();
 
         // Apply reading guide
-        if (accessibilityState.readingGuide) {
-            const initialGuideState = accessibilityState.readingGuide;
-            accessibilityState.readingGuide = !initialGuideState;
-            toggleReadingGuide();
-        }
+        $('.open-accessibility-reading-guide').toggle(accessibilityState.readingGuide);
+        $('.open-accessibility-action-button[data-action="reading-guide"]').toggleClass('active', accessibilityState.readingGuide);
 
         // Apply focus outline
-        if (accessibilityState.focusOutline) {
-            $('body').addClass('open-accessibility-focus-outline');
-            $('.open-accessibility-action-button[data-action="focus-outline"]').addClass('active');
-        }
+        $('body').toggleClass('open-accessibility-focus-outline', accessibilityState.focusOutline);
+        $('.open-accessibility-action-button[data-action="focus-outline"]').toggleClass('active', accessibilityState.focusOutline);
 
         // Apply pause animations
-        if (accessibilityState.pauseAnimations) {
-            $('body').addClass('open-accessibility-pause-animations');
-            $('.open-accessibility-action-button[data-action="pause-animations"]').addClass('active');
-        }
+        $('body').toggleClass('open-accessibility-pause-animations', accessibilityState.pauseAnimations);
+        $('.open-accessibility-action-button[data-action="pause-animations"]').toggleClass('active', accessibilityState.pauseAnimations);
 
         applyDynamicTypographyAdjustments();
 
@@ -1203,10 +1682,12 @@
 
         $('.open-accessibility-action-button[data-action="text-align"]').removeClass('active');
         if (accessibilityState.textAlign) {
-            $(`.open-accessibility-action-button[data-action="text-align"][data-value="${accessibilityState.textAlign}"]`).addClass('active');
+            setButtonPressed('text-align', accessibilityState.textAlign, true);
         }
 
         syncActionButtonStates();
+
+        dispatchOpenAccessibilityEvent('openAccessibility:afterApply', getLifecycleEventDetail());
     }
 
     // Helper function to set cookies
