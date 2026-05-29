@@ -30,6 +30,110 @@
     const MAX_TEXT_SIZE = 5;
 
     let isShortcodeEmbed = false;
+    const DEFAULT_TYPOGRAPHY_TARGETS = {
+        content_roots: [
+            'main',
+            'article',
+            '[role="main"]',
+            '.entry-content',
+            '.post-content',
+            '.page-content',
+            '.wp-block-post-content',
+            '.site-content',
+            '.site-main',
+            '#content',
+            '#primary'
+        ],
+        text_elements: [
+            'p',
+            'li',
+            'blockquote',
+            'dd',
+            'dt',
+            'figcaption',
+            'caption',
+            'td',
+            'th',
+            'label'
+        ],
+        heading_elements: [
+            'h1',
+            'h2',
+            'h3',
+            'h4',
+            'h5',
+            'h6'
+        ],
+        excluded_selectors: [
+            '.open-accessibility-widget-wrapper',
+            '.open-accessibility-reading-guide',
+            '.open-accessibility-skip-to-content-link',
+            '.open-accessibility-skip-to-content-backdrop',
+            '.open-accessibility-ignore',
+            '[data-oa-ignore]',
+            'aside',
+            '[role="complementary"]',
+            '.sidebar',
+            '.sidebar-primary',
+            '.sidebar-secondary',
+            '.widget',
+            '.widget-area',
+            'nav',
+            '.nav',
+            '.menu',
+            '.navigation',
+            '.pagination',
+            '.breadcrumbs',
+            '.breadcrumb',
+            'button',
+            'input',
+            'select',
+            'textarea',
+            'svg',
+            'img',
+            'video',
+            'audio',
+            'iframe',
+            'canvas',
+            'code',
+            'pre',
+            'kbd',
+            'samp',
+            '.screen-reader-text'
+        ]
+    };
+    const TEXT_SIZE_MULTIPLIERS = [1, 1.1, 1.2, 1.3, 1.4, 1.5];
+    const LINE_HEIGHT_MULTIPLIERS = [0, 1.6, 1.8, 2.0];
+    const LETTER_SPACING_STEPS = [0, 0.12, 0.18, 0.24];
+    const WORD_SPACING_STEPS = [0, 0.16, 0.24, 0.32];
+    const typographyTargets = normalizeTypographyTargets(
+        open_accessibility_data &&
+        open_accessibility_data.options &&
+        open_accessibility_data.options.typography_targets
+            ? open_accessibility_data.options.typography_targets
+            : {}
+    );
+
+    function normalizeSelectorList(value, fallback) {
+        if (!Array.isArray(value)) {
+            return fallback.slice();
+        }
+
+        const selectors = value
+            .filter((selector) => typeof selector === 'string' && selector.trim().length > 0)
+            .map((selector) => selector.trim());
+
+        return selectors.length ? selectors : fallback.slice();
+    }
+
+    function normalizeTypographyTargets(config) {
+        return {
+            contentRoots: normalizeSelectorList(config.content_roots, DEFAULT_TYPOGRAPHY_TARGETS.content_roots),
+            textElements: normalizeSelectorList(config.text_elements, DEFAULT_TYPOGRAPHY_TARGETS.text_elements),
+            headingElements: normalizeSelectorList(config.heading_elements, DEFAULT_TYPOGRAPHY_TARGETS.heading_elements),
+            excludedSelectors: normalizeSelectorList(config.excluded_selectors, DEFAULT_TYPOGRAPHY_TARGETS.excluded_selectors)
+        };
+    }
 
     // Initialize
     function initAccessibility() {
@@ -82,6 +186,7 @@
             // ESC key closes the panel
             if (e.key === 'Escape' && $('.open-accessibility-widget-panel').hasClass('oa-panel-is-active')) {
                 closeAccessibilityPanel();
+                $('.open-accessibility-toggle-button').trigger('focus');
             }
         });
         
@@ -136,15 +241,268 @@
         });
     }
 
+    function mergeUniqueElements() {
+        const seen = new Set();
+        const merged = [];
+
+        Array.from(arguments).forEach((elements) => {
+            elements.forEach((element) => {
+                if (!seen.has(element)) {
+                    seen.add(element);
+                    merged.push(element);
+                }
+            });
+        });
+
+        return merged;
+    }
+
+    function getTypographyRoots() {
+        const roots = [];
+        const seen = new Set();
+
+        typographyTargets.contentRoots.forEach((selector) => {
+            try {
+                document.querySelectorAll(selector).forEach((element) => {
+                    if (!seen.has(element)) {
+                        seen.add(element);
+                        roots.push(element);
+                    }
+                });
+            } catch (error) {
+                console.warn('Open Accessibility: invalid typography root selector', selector, error);
+            }
+        });
+
+        if (!roots.length) {
+            roots.push(document.body);
+        }
+
+        return roots;
+    }
+
+    function isExcludedTypographyElement(element, excludedSelector) {
+        if (!(element instanceof Element)) {
+            return true;
+        }
+
+        if (
+            element.closest(
+                '.open-accessibility-widget-wrapper, .open-accessibility-reading-guide, .open-accessibility-skip-to-content-link, .open-accessibility-skip-to-content-backdrop'
+            )
+        ) {
+            return true;
+        }
+
+        if (!excludedSelector) {
+            return false;
+        }
+
+        try {
+            return element.matches(excludedSelector) || Boolean(element.closest(excludedSelector));
+        } catch (error) {
+            console.warn('Open Accessibility: invalid typography exclusion selector', excludedSelector, error);
+            return false;
+        }
+    }
+
+    function collectTypographyTargets(selectors) {
+        if (!selectors.length) {
+            return [];
+        }
+
+        const selector = selectors.join(', ');
+        const excludedSelector = typographyTargets.excludedSelectors.join(', ');
+        const targets = [];
+        const seen = new Set();
+
+        getTypographyRoots().forEach((root) => {
+            let candidates = [];
+
+            if (root.matches && root.matches(selector)) {
+                candidates.push(root);
+            }
+
+            candidates = candidates.concat(Array.from(root.querySelectorAll(selector)));
+
+            candidates.forEach((element) => {
+                if (seen.has(element) || !document.body.contains(element)) {
+                    return;
+                }
+
+                if (isExcludedTypographyElement(element, excludedSelector)) {
+                    return;
+                }
+
+                seen.add(element);
+                targets.push(element);
+            });
+        });
+
+        return targets;
+    }
+
+    function getTypographyTargets() {
+        const contentTargets = collectTypographyTargets(typographyTargets.textElements);
+        const readableTargets = collectTypographyTargets(
+            typographyTargets.textElements.concat(typographyTargets.headingElements)
+        );
+
+        return {
+            contentTargets,
+            readableTargets,
+            allTargets: mergeUniqueElements(contentTargets, readableTargets)
+        };
+    }
+
+    function parsePixelValue(value, fallback) {
+        if (typeof value !== 'string' || value === '' || value === 'normal') {
+            return fallback;
+        }
+
+        const parsed = Number.parseFloat(value);
+        return Number.isFinite(parsed) ? parsed : fallback;
+    }
+
+    function getComputedLineHeightPx(style, fontSizePx) {
+        return parsePixelValue(style.lineHeight, fontSizePx * 1.2);
+    }
+
+    function getComputedSpacingPx(value) {
+        return parsePixelValue(value, 0);
+    }
+
+    function roundPx(value) {
+        return Math.round(value * 1000) / 1000;
+    }
+
+    function captureOriginalInlineStyles(element) {
+        if (element.dataset.oaTypographyInlineCaptured === '1') {
+            return;
+        }
+
+        element.dataset.oaTypographyInlineCaptured = '1';
+        element.dataset.oaOriginalFontSize = element.style.fontSize || '';
+        element.dataset.oaOriginalLineHeight = element.style.lineHeight || '';
+        element.dataset.oaOriginalLetterSpacing = element.style.letterSpacing || '';
+        element.dataset.oaOriginalWordSpacing = element.style.wordSpacing || '';
+        element.dataset.oaOriginalTextAlign = element.style.textAlign || '';
+    }
+
+    function refreshTypographyBaseline(element) {
+        captureOriginalInlineStyles(element);
+
+        const style = window.getComputedStyle(element);
+        const fontSizePx = parsePixelValue(style.fontSize, 16);
+
+        element.dataset.oaTypographyManaged = '1';
+        element.dataset.oaBaseFontSize = String(fontSizePx);
+        element.dataset.oaBaseLineHeight = String(getComputedLineHeightPx(style, fontSizePx));
+        element.dataset.oaBaseLetterSpacing = String(getComputedSpacingPx(style.letterSpacing));
+        element.dataset.oaBaseWordSpacing = String(getComputedSpacingPx(style.wordSpacing));
+    }
+
+    function restoreTypographyProperty(element, propertyName, originalValueKey) {
+        if (element.dataset[originalValueKey]) {
+            element.style[propertyName] = element.dataset[originalValueKey];
+        } else {
+            element.style[propertyName] = '';
+        }
+    }
+
+    function clearDynamicTypographyStyles() {
+        document.querySelectorAll('[data-oa-typography-managed="1"]').forEach((element) => {
+            restoreTypographyProperty(element, 'fontSize', 'oaOriginalFontSize');
+            restoreTypographyProperty(element, 'lineHeight', 'oaOriginalLineHeight');
+            restoreTypographyProperty(element, 'letterSpacing', 'oaOriginalLetterSpacing');
+            restoreTypographyProperty(element, 'wordSpacing', 'oaOriginalWordSpacing');
+            restoreTypographyProperty(element, 'textAlign', 'oaOriginalTextAlign');
+        });
+    }
+
+    function removeLegacyTypographyClasses() {
+        $('body').removeClass('open-accessibility-text-align-left open-accessibility-text-align-center open-accessibility-text-align-right');
+
+        for (let i = 1; i <= MAX_TEXT_SIZE; i++) {
+            $('body').removeClass(`open-accessibility-text-size-${i}`);
+        }
+
+        for (let i = 1; i <= MAX_SPACING_LEVEL; i++) {
+            $('body').removeClass(`open-accessibility-letter-spacing-${i}`);
+            $('body').removeClass(`open-accessibility-word-spacing-${i}`);
+            $('body').removeClass(`open-accessibility-line-height-${i}`);
+        }
+    }
+
+    function applyDynamicTypographyAdjustments() {
+        removeLegacyTypographyClasses();
+        clearDynamicTypographyStyles();
+
+        const typographyElements = getTypographyTargets();
+        if (!typographyElements.allTargets.length) {
+            return;
+        }
+
+        typographyElements.allTargets.forEach((element) => {
+            refreshTypographyBaseline(element);
+        });
+
+        const textSizeMultiplier = TEXT_SIZE_MULTIPLIERS[accessibilityState.textSize] || 1;
+        const lineHeightMultiplier = LINE_HEIGHT_MULTIPLIERS[accessibilityState.lineHeightLevel] || 0;
+        const letterSpacingStep = LETTER_SPACING_STEPS[accessibilityState.letterSpacingLevel] || 0;
+        const wordSpacingStep = WORD_SPACING_STEPS[accessibilityState.wordSpacingLevel] || 0;
+        const resizedTargets = new Set(typographyElements.readableTargets);
+
+        typographyElements.readableTargets.forEach((element) => {
+            if (accessibilityState.textSize <= 0) {
+                return;
+            }
+
+            const baseFontSize = parsePixelValue(element.dataset.oaBaseFontSize, 16);
+            element.style.fontSize = `${roundPx(baseFontSize * textSizeMultiplier)}px`;
+        });
+
+        typographyElements.contentTargets.forEach((element) => {
+            const baseFontSize = parsePixelValue(element.dataset.oaBaseFontSize, 16);
+            const effectiveFontSize =
+                resizedTargets.has(element) && accessibilityState.textSize > 0
+                    ? baseFontSize * textSizeMultiplier
+                    : baseFontSize;
+
+            if (accessibilityState.lineHeightLevel > 0) {
+                const baseLineHeight = parsePixelValue(element.dataset.oaBaseLineHeight, effectiveFontSize * 1.2);
+                element.style.lineHeight = `${roundPx(Math.max(baseLineHeight, effectiveFontSize * lineHeightMultiplier))}px`;
+            }
+
+            if (accessibilityState.letterSpacingLevel > 0) {
+                const baseLetterSpacing = parsePixelValue(element.dataset.oaBaseLetterSpacing, 0);
+                element.style.letterSpacing = `${roundPx(baseLetterSpacing + effectiveFontSize * letterSpacingStep)}px`;
+            }
+
+            if (accessibilityState.wordSpacingLevel > 0) {
+                const baseWordSpacing = parsePixelValue(element.dataset.oaBaseWordSpacing, 0);
+                element.style.wordSpacing = `${roundPx(baseWordSpacing + effectiveFontSize * wordSpacingStep)}px`;
+            }
+        });
+
+        if (accessibilityState.textAlign) {
+            typographyElements.readableTargets.forEach((element) => {
+                element.style.textAlign = accessibilityState.textAlign;
+            });
+        }
+    }
+
     // Toggle widget panel
     function toggleAccessibilityPanel() {
         const $panel = $('.open-accessibility-widget-panel');
+        const $toggle = $('.open-accessibility-toggle-button');
         const $wrapper = $('.open-accessibility-widget-wrapper');
         const isMobile = window.innerWidth < 768;
 
         $panel.toggleClass('oa-panel-is-active');
         const isActive = $panel.hasClass('oa-panel-is-active');
-        $panel.attr('aria-hidden', !isActive);
+        $panel.attr('aria-hidden', isActive ? 'false' : 'true');
+        $toggle.attr('aria-expanded', isActive ? 'true' : 'false');
 
         // Shortcode embed: simple show/hide, no positioning logic
         if (isShortcodeEmbed) {
@@ -198,11 +556,13 @@
     // Close widget panel (called by close button, ESC, click-outside)
     function closeAccessibilityPanel() {
         const $panel = $('.open-accessibility-widget-panel');
+        const $toggle = $('.open-accessibility-toggle-button');
         const $wrapper = $('.open-accessibility-widget-wrapper');
         const isMobile = window.innerWidth < 768;
 
         $panel.removeClass('oa-panel-is-active');
         $panel.attr('aria-hidden', 'true');
+        $toggle.attr('aria-expanded', 'false');
 
         // Shortcode embed: simple hide, no positioning logic
         if (isShortcodeEmbed) {
@@ -305,7 +665,37 @@
         }
 
         // Update state
+        syncActionButtonStates();
         saveState();
+    }
+
+    function setButtonPressed(action, value, pressed) {
+        const $button = $(`.open-accessibility-action-button[data-action="${action}"][data-value="${value}"][aria-pressed]`);
+        $button.toggleClass('active', pressed);
+        $button.attr('aria-pressed', pressed ? 'true' : 'false');
+    }
+
+    function syncActionButtonStates() {
+        $('.open-accessibility-action-button[aria-pressed]')
+            .removeClass('active')
+            .attr('aria-pressed', 'false');
+
+        if (accessibilityState.contrast) {
+            setButtonPressed('contrast', accessibilityState.contrast, true);
+        }
+
+        setButtonPressed('grayscale', 'toggle', accessibilityState.grayscale);
+        setButtonPressed('set-font', accessibilityState.selectedFont || 'default', true);
+        setButtonPressed('links-underline', 'toggle', accessibilityState.linksUnderline);
+        setButtonPressed('hide-images', 'toggle', accessibilityState.hideImages);
+        setButtonPressed('reading-guide', 'toggle', accessibilityState.readingGuide);
+        setButtonPressed('focus-outline', 'toggle', accessibilityState.focusOutline);
+
+        if (accessibilityState.textAlign) {
+            setButtonPressed('text-align', accessibilityState.textAlign, true);
+        }
+
+        setButtonPressed('pause-animations', 'toggle', accessibilityState.pauseAnimations);
     }
 
     // Handle contrast modes
@@ -406,21 +796,14 @@
 
     // Adjust text size
     function adjustTextSize(direction) {
-        // Remove existing text size classes
-        for (let i = 1; i <= MAX_TEXT_SIZE; i++) {
-            $('body').removeClass(`open-accessibility-text-size-${i}`);
-        }
-
         if (direction === 'increase') {
             accessibilityState.textSize = Math.min(accessibilityState.textSize + 1, MAX_TEXT_SIZE);
         } else if (direction === 'decrease') {
             accessibilityState.textSize = Math.max(accessibilityState.textSize - 1, 0);
         }
 
-        if (accessibilityState.textSize > 0) {
-            $('body').addClass(`open-accessibility-text-size-${accessibilityState.textSize}`);
-        }
-        
+        applyDynamicTypographyAdjustments();
+
         // Update button states and indicator
         updateSpacingButtonStates('text-size', accessibilityState.textSize);
         updateIndicator('text-size', accessibilityState.textSize);
@@ -452,6 +835,8 @@
         if (accessibilityState.selectedFont === 'default') {
              $('.open-accessibility-action-button[data-action="set-font"][data-value="default"]').addClass('active');
         }
+
+        applyDynamicTypographyAdjustments();
     }
 
     // Apply font from saved state (without toggle logic)
@@ -517,23 +902,19 @@
 
     // Set text align
     function setTextAlign(align) {
-        // Remove existing text align classes
-        $('body').removeClass('open-accessibility-text-align-left open-accessibility-text-align-center open-accessibility-text-align-right');
-
         // Clear active state on all text align buttons
         $('.open-accessibility-action-button[data-action="text-align"]').removeClass('active');
 
         // If the same alignment is clicked again, deactivate it
         if (accessibilityState.textAlign === align) {
             accessibilityState.textAlign = '';
+            applyDynamicTypographyAdjustments();
             return;
         }
 
-        // Apply new text alignment
-        $('body').addClass(`open-accessibility-text-align-${align}`);
-        $(`.open-accessibility-action-button[data-action="text-align"][data-value="${align}"]`).addClass('active');
-
         accessibilityState.textAlign = align;
+        $(`.open-accessibility-action-button[data-action="text-align"][data-value="${align}"]`).addClass('active');
+        applyDynamicTypographyAdjustments();
     }
 
     // Toggle pause animations
@@ -556,14 +937,7 @@
 
         if (newLevel !== currentLevel) {
             accessibilityState.letterSpacingLevel = newLevel;
-            // Remove previous level class
-            for (let i = 1; i <= MAX_SPACING_LEVEL; i++) {
-                $('body').removeClass(`open-accessibility-letter-spacing-${i}`);
-            }
-            // Add new level class if > 0
-            if (newLevel > 0) {
-                $('body').addClass(`open-accessibility-letter-spacing-${newLevel}`);
-            }
+            applyDynamicTypographyAdjustments();
             updateSpacingButtonStates('letter-spacing', newLevel);
             updateIndicator('letter-spacing', newLevel);
         }
@@ -582,14 +956,7 @@
 
         if (newLevel !== currentLevel) {
             accessibilityState.wordSpacingLevel = newLevel;
-            // Remove previous level class
-            for (let i = 1; i <= MAX_SPACING_LEVEL; i++) {
-                $('body').removeClass(`open-accessibility-word-spacing-${i}`);
-            }
-            // Add new level class if > 0
-            if (newLevel > 0) {
-                $('body').addClass(`open-accessibility-word-spacing-${newLevel}`);
-            }
+            applyDynamicTypographyAdjustments();
             updateSpacingButtonStates('word-spacing', newLevel);
             updateIndicator('word-spacing', newLevel);
         }
@@ -608,14 +975,7 @@
 
         if (newLevel !== currentLevel) {
             accessibilityState.lineHeightLevel = newLevel;
-            // Remove previous level class
-            for (let i = 1; i <= MAX_SPACING_LEVEL; i++) {
-                $('body').removeClass(`open-accessibility-line-height-${i}`);
-            }
-            // Add new level class if > 0
-            if (newLevel > 0) {
-                $('body').addClass(`open-accessibility-line-height-${newLevel}`);
-            }
+            applyDynamicTypographyAdjustments();
             updateSpacingButtonStates('line-height', newLevel);
             updateIndicator('line-height', newLevel);
         }
@@ -651,6 +1011,9 @@
         
         // Update aria-label
         $indicator.attr('aria-label', `Level ${currentLevel} of ${maxLevel}`);
+        $indicator.append($('<span></span>')
+            .addClass('screen-reader-text')
+            .text(`Level ${currentLevel} of ${maxLevel}`));
     }
 
     // Reset all settings to default
@@ -660,18 +1023,9 @@
         $('body').removeClass('open-accessibility-grayscale open-accessibility-links-underline');
         $('body').removeClass('open-accessibility-hide-images open-accessibility-reading-guide-active open-accessibility-focus-outline');
         $('body').removeClass('open-accessibility-pause-animations');
-        $('body').removeClass('open-accessibility-text-align-left open-accessibility-text-align-center open-accessibility-text-align-right');
         $('body').removeClass('open-accessibility-font-atkinson open-accessibility-font-opendyslexic');
-
-        // Remove text size and spacing classes
-        for (let i = 1; i <= MAX_TEXT_SIZE; i++) {
-            $('body').removeClass(`open-accessibility-text-size-${i}`);
-        }
-        for (let i = 1; i <= MAX_SPACING_LEVEL; i++) {
-            $('body').removeClass(`open-accessibility-letter-spacing-${i}`);
-            $('body').removeClass(`open-accessibility-word-spacing-${i}`);
-            $('body').removeClass(`open-accessibility-line-height-${i}`);
-        }
+        removeLegacyTypographyClasses();
+        clearDynamicTypographyStyles();
 
         // Reset all buttons active/disabled state
         $('.open-accessibility-action-button').removeClass('active').prop('disabled', false);
@@ -707,6 +1061,9 @@
         $('body *').css('filter', '');
         $('.open-accessibility-toggle-button').removeClass('widget-grayscale');
         $('.open-accessibility-widget-panel').removeClass('widget-grayscale');
+
+        applyDynamicTypographyAdjustments();
+        syncActionButtonStates();
 
         // Save reset state
         saveState();
@@ -798,14 +1155,6 @@
             $('.open-accessibility-action-button[data-action="grayscale"]').removeClass('active');
         }
 
-        // Apply text size
-        if (accessibilityState.textSize > 0) {
-            $('body').addClass(`open-accessibility-text-size-${accessibilityState.textSize}`);
-        }
-        // Update button states and indicator
-        updateSpacingButtonStates('text-size', accessibilityState.textSize);
-        updateIndicator('text-size', accessibilityState.textSize);
-
         // Apply selected font (directly without toggle logic)
         applyFont(accessibilityState.selectedFont || 'default');
 
@@ -834,38 +1183,30 @@
             $('.open-accessibility-action-button[data-action="focus-outline"]').addClass('active');
         }
 
-        // Apply line height
-        if (accessibilityState.lineHeightLevel > 0) {
-            $('body').addClass(`open-accessibility-line-height-${accessibilityState.lineHeightLevel}`);
-        }
-        updateSpacingButtonStates('line-height', accessibilityState.lineHeightLevel);
-        updateIndicator('line-height', accessibilityState.lineHeightLevel);
-
-        // Apply text align
-        if (accessibilityState.textAlign) {
-            $('body').addClass(`open-accessibility-text-align-${accessibilityState.textAlign}`);
-            $(`.open-accessibility-action-button[data-action="text-align"][data-value="${accessibilityState.textAlign}"]`).addClass('active');
-        }
-
         // Apply pause animations
         if (accessibilityState.pauseAnimations) {
             $('body').addClass('open-accessibility-pause-animations');
             $('.open-accessibility-action-button[data-action="pause-animations"]').addClass('active');
         }
 
-        // Apply letter spacing level
-        if (accessibilityState.letterSpacingLevel > 0) {
-            $('body').addClass(`open-accessibility-letter-spacing-${accessibilityState.letterSpacingLevel}`);
-        }
+        applyDynamicTypographyAdjustments();
+
+        // Update button states and indicators for adaptive typography controls
+        updateSpacingButtonStates('text-size', accessibilityState.textSize);
+        updateIndicator('text-size', accessibilityState.textSize);
+        updateSpacingButtonStates('line-height', accessibilityState.lineHeightLevel);
+        updateIndicator('line-height', accessibilityState.lineHeightLevel);
         updateSpacingButtonStates('letter-spacing', accessibilityState.letterSpacingLevel);
         updateIndicator('letter-spacing', accessibilityState.letterSpacingLevel);
-
-        // Apply word spacing level
-        if (accessibilityState.wordSpacingLevel > 0) {
-            $('body').addClass(`open-accessibility-word-spacing-${accessibilityState.wordSpacingLevel}`);
-        }
         updateSpacingButtonStates('word-spacing', accessibilityState.wordSpacingLevel);
         updateIndicator('word-spacing', accessibilityState.wordSpacingLevel);
+
+        $('.open-accessibility-action-button[data-action="text-align"]').removeClass('active');
+        if (accessibilityState.textAlign) {
+            $(`.open-accessibility-action-button[data-action="text-align"][data-value="${accessibilityState.textAlign}"]`).addClass('active');
+        }
+
+        syncActionButtonStates();
     }
 
     // Helper function to set cookies

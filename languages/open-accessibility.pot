@@ -2,14 +2,14 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Open Accessibility 1.2.75\n"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/open-accessibility\n"
+"Project-Id-Version: Open Accessibility 1.3.01\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/open-accessibility/\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-02-15T18:21:42+00:00"
+"POT-Creation-Date: 2026-05-29T14:32:47+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: open-accessibility\n"
@@ -77,7 +77,7 @@ msgid "An error occurred. Please try again."
 msgstr ""
 
 #: admin/class-open-accessibility-admin.php:125
-#: public/class-open-accessibility-public.php:184
+#: public/class-open-accessibility-public.php:280
 #: public/partials/widget-template.php:78
 msgid "Accessibility Options"
 msgstr ""
@@ -123,8 +123,8 @@ msgstr ""
 #: admin/partials/admin-display.php:101
 #: includes/class-open-accessibility-statement-generator.php:60
 #: includes/class-open-accessibility-statement-generator.php:157
-#: public/class-open-accessibility-public.php:225
-#: public/class-open-accessibility-public.php:226
+#: public/class-open-accessibility-public.php:321
+#: public/class-open-accessibility-public.php:322
 #: public/partials/widget-template.php:304
 msgid "Accessibility Statement"
 msgstr ""
@@ -198,8 +198,8 @@ msgstr ""
 
 #: admin/class-open-accessibility-admin.php:318
 #: includes/class-open-accessibility-utils.php:75
-#: public/class-open-accessibility-public.php:196
-#: public/class-open-accessibility-public.php:197
+#: public/class-open-accessibility-public.php:292
+#: public/class-open-accessibility-public.php:293
 #: public/partials/widget-template.php:117
 #: public/partials/widget-template.php:120
 msgid "Grayscale"
@@ -211,15 +211,15 @@ msgid "Text Size Adjustment"
 msgstr ""
 
 #: admin/class-open-accessibility-admin.php:320
-#: public/class-open-accessibility-public.php:221
-#: public/class-open-accessibility-public.php:222
+#: public/class-open-accessibility-public.php:317
+#: public/class-open-accessibility-public.php:318
 #: public/partials/widget-template.php:171
 msgid "Letter Spacing"
 msgstr ""
 
 #: admin/class-open-accessibility-admin.php:321
-#: public/class-open-accessibility-public.php:223
-#: public/class-open-accessibility-public.php:224
+#: public/class-open-accessibility-public.php:319
+#: public/class-open-accessibility-public.php:320
 #: public/partials/widget-template.php:187
 msgid "Word Spacing"
 msgstr ""
@@ -234,8 +234,8 @@ msgstr ""
 
 #: admin/class-open-accessibility-admin.php:324
 #: includes/class-open-accessibility-utils.php:78
-#: public/class-open-accessibility-public.php:205
-#: public/class-open-accessibility-public.php:206
+#: public/class-open-accessibility-public.php:301
+#: public/class-open-accessibility-public.php:302
 #: public/partials/widget-template.php:203
 #: public/partials/widget-template.php:206
 msgid "Links Underline"
@@ -243,8 +243,8 @@ msgstr ""
 
 #: admin/class-open-accessibility-admin.php:325
 #: includes/class-open-accessibility-utils.php:79
-#: public/class-open-accessibility-public.php:207
-#: public/class-open-accessibility-public.php:208
+#: public/class-open-accessibility-public.php:303
+#: public/class-open-accessibility-public.php:304
 #: public/partials/widget-template.php:215
 #: public/partials/widget-template.php:218
 msgid "Hide Images"
@@ -252,8 +252,8 @@ msgstr ""
 
 #: admin/class-open-accessibility-admin.php:326
 #: includes/class-open-accessibility-utils.php:80
-#: public/class-open-accessibility-public.php:209
-#: public/class-open-accessibility-public.php:210
+#: public/class-open-accessibility-public.php:305
+#: public/class-open-accessibility-public.php:306
 #: public/partials/widget-template.php:227
 #: public/partials/widget-template.php:230
 msgid "Reading Guide"
@@ -261,8 +261,8 @@ msgstr ""
 
 #: admin/class-open-accessibility-admin.php:327
 #: includes/class-open-accessibility-utils.php:81
-#: public/class-open-accessibility-public.php:211
-#: public/class-open-accessibility-public.php:212
+#: public/class-open-accessibility-public.php:307
+#: public/class-open-accessibility-public.php:308
 #: public/partials/widget-template.php:239
 #: public/partials/widget-template.php:242
 msgid "Focus Outline"
@@ -280,8 +280,8 @@ msgstr ""
 
 #: admin/class-open-accessibility-admin.php:330
 #: includes/class-open-accessibility-utils.php:85
-#: public/class-open-accessibility-public.php:219
-#: public/class-open-accessibility-public.php:220
+#: public/class-open-accessibility-public.php:315
+#: public/class-open-accessibility-public.php:316
 #: public/partials/widget-template.php:285
 #: public/partials/widget-template.php:288
 msgid "Pause Animations"
@@ -384,13 +384,13 @@ msgid "International Symbol"
 msgstr ""
 
 #: admin/class-open-accessibility-admin.php:666
-#: public/class-open-accessibility-public.php:217
+#: public/class-open-accessibility-public.php:313
 #: public/partials/widget-template.php:270
 msgid "Left"
 msgstr ""
 
 #: admin/class-open-accessibility-admin.php:667
-#: public/class-open-accessibility-public.php:218
+#: public/class-open-accessibility-public.php:314
 #: public/partials/widget-template.php:276
 msgid "Right"
 msgstr ""
@@ -653,7 +653,7 @@ msgid "This statement was created on %s."
 msgstr ""
 
 #: includes/class-open-accessibility-utils.php:77
-#: public/class-open-accessibility-public.php:201
+#: public/class-open-accessibility-public.php:297
 #: public/partials/widget-template.php:149
 msgid "Readable Font"
 msgstr ""
@@ -663,98 +663,98 @@ msgstr ""
 msgid "Sitemap"
 msgstr ""
 
-#: public/class-open-accessibility-public.php:185
+#: public/class-open-accessibility-public.php:281
 #: public/partials/widget-template.php:87
 msgid "Reset Settings"
 msgstr ""
 
-#: public/class-open-accessibility-public.php:186
+#: public/class-open-accessibility-public.php:282
 msgid "Reset"
 msgstr ""
 
-#: public/class-open-accessibility-public.php:187
+#: public/class-open-accessibility-public.php:283
 msgid "Keyboard Navigation"
 msgstr ""
 
-#: public/class-open-accessibility-public.php:188
+#: public/class-open-accessibility-public.php:284
 msgid "Use Alt+"
 msgstr ""
 
-#: public/class-open-accessibility-public.php:189
+#: public/class-open-accessibility-public.php:285
 #: public/partials/widget-template.php:96
 msgid "Contrast"
 msgstr ""
 
-#: public/class-open-accessibility-public.php:191
+#: public/class-open-accessibility-public.php:287
 #: public/partials/widget-template.php:99
 msgid "High Contrast"
 msgstr ""
 
-#: public/class-open-accessibility-public.php:192
+#: public/class-open-accessibility-public.php:288
 #: public/partials/widget-template.php:102
 msgid "Negative Contrast"
 msgstr ""
 
-#: public/class-open-accessibility-public.php:193
+#: public/class-open-accessibility-public.php:289
 #: public/partials/widget-template.php:105
 msgid "Light Background"
 msgstr ""
 
-#: public/class-open-accessibility-public.php:194
+#: public/class-open-accessibility-public.php:290
 #: public/partials/widget-template.php:108
 msgid "Dark Background"
 msgstr ""
 
-#: public/class-open-accessibility-public.php:198
+#: public/class-open-accessibility-public.php:294
 #: public/partials/widget-template.php:129
 msgid "Text Size"
 msgstr ""
 
-#: public/class-open-accessibility-public.php:199
+#: public/class-open-accessibility-public.php:295
 msgid "Increase Text"
 msgstr ""
 
-#: public/class-open-accessibility-public.php:200
+#: public/class-open-accessibility-public.php:296
 msgid "Decrease Text"
 msgstr ""
 
-#: public/class-open-accessibility-public.php:202
+#: public/class-open-accessibility-public.php:298
 #: public/partials/widget-template.php:152
 msgid "Default Font"
 msgstr ""
 
-#: public/class-open-accessibility-public.php:203
+#: public/class-open-accessibility-public.php:299
 #: public/partials/widget-template.php:156
 msgid "Atkinson Hyperlegible"
 msgstr ""
 
-#: public/class-open-accessibility-public.php:204
+#: public/class-open-accessibility-public.php:300
 #: public/partials/widget-template.php:161
 msgid "OpenDyslexic"
 msgstr ""
 
-#: public/class-open-accessibility-public.php:213
-#: public/class-open-accessibility-public.php:214
+#: public/class-open-accessibility-public.php:309
+#: public/class-open-accessibility-public.php:310
 #: public/partials/widget-template.php:251
 msgid "Line Height"
 msgstr ""
 
-#: public/class-open-accessibility-public.php:215
+#: public/class-open-accessibility-public.php:311
 #: public/partials/widget-template.php:267
 msgid "Text Align"
 msgstr ""
 
-#: public/class-open-accessibility-public.php:216
+#: public/class-open-accessibility-public.php:312
 #: public/partials/widget-template.php:273
 msgid "Center"
 msgstr ""
 
-#: public/class-open-accessibility-public.php:227
+#: public/class-open-accessibility-public.php:323
 msgid "Dismiss"
 msgstr ""
 
-#: public/class-open-accessibility-public.php:228
-#: public/class-open-accessibility-public.php:246
+#: public/class-open-accessibility-public.php:324
+#: public/class-open-accessibility-public.php:342
 msgid "Skip to content"
 msgstr ""
 
@@ -770,10 +770,6 @@ msgstr ""
 msgid "Reset All"
 msgstr ""
 
-#: public/partials/widget-template.php:173
-msgid "Decrease letter spacing"
-msgstr ""
-
 #: public/partials/widget-template.php:132
 #: public/partials/widget-template.php:174
 #: public/partials/widget-template.php:190
@@ -781,8 +777,8 @@ msgstr ""
 msgid "Decrease"
 msgstr ""
 
-#: public/partials/widget-template.php:177
-msgid "Increase letter spacing"
+#: public/partials/widget-template.php:134
+msgid "Text size level"
 msgstr ""
 
 #: public/partials/widget-template.php:136
@@ -792,31 +788,28 @@ msgstr ""
 msgid "Increase"
 msgstr ""
 
-#: public/partials/widget-template.php:189
-msgid "Decrease word spacing"
-msgstr ""
-
-#: public/partials/widget-template.php:193
-msgid "Increase word spacing"
-msgstr ""
-
-msgid "Increase Line Height"
-msgstr ""
-
-#: public/partials/widget-template.php:312
-msgid "Hide Accessibility Panel"
-msgstr ""
-
-#: public/partials/widget-template.php:134
-msgid "Text size level"
+#: public/partials/widget-template.php:173
+msgid "Decrease letter spacing"
 msgstr ""
 
 #: public/partials/widget-template.php:176
 msgid "Letter spacing level"
 msgstr ""
 
+#: public/partials/widget-template.php:177
+msgid "Increase letter spacing"
+msgstr ""
+
+#: public/partials/widget-template.php:189
+msgid "Decrease word spacing"
+msgstr ""
+
 #: public/partials/widget-template.php:192
 msgid "Word spacing level"
+msgstr ""
+
+#: public/partials/widget-template.php:193
+msgid "Increase word spacing"
 msgstr ""
 
 #: public/partials/widget-template.php:253
@@ -829,4 +822,8 @@ msgstr ""
 
 #: public/partials/widget-template.php:257
 msgid "Increase line height"
+msgstr ""
+
+#: public/partials/widget-template.php:312
+msgid "Hide Accessibility Panel"
 msgstr ""

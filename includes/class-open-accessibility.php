@@ -32,6 +32,7 @@ class Open_Accessibility {
 	 */
 	public function __construct() {
 		$this->load_dependencies();
+		Open_Accessibility_DB::init();
 		$this->set_locale();
 		$this->define_admin_hooks();
 		$this->define_public_hooks();
