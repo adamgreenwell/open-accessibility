@@ -88,7 +88,7 @@ class Open_Accessibility_Statement_Generator {
 		$statement .= '<li>' . sprintf(
 				/* translators: %s: contact email */
 				esc_html__('Email: %s', 'open-accessibility'),
-				'<a href="mailto:' . esc_attr($contact_email) . '">' . esc_html($contact_email) . '</a>'
+				'<!--email_off--><a href="mailto:' . esc_attr($contact_email) . '">' . esc_html($contact_email) . '</a><!--/email_off-->'
 			) . '</li>';
 		$statement .= '</ul>';
 

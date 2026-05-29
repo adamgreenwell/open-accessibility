@@ -158,7 +158,103 @@ class Open_Accessibility_Public {
 			'hide_on_desktop' => $this->get_option('hide_on_desktop', false),
 			'enable_letter_spacing' => $this->get_option('enable_letter_spacing', false),
 			'enable_word_spacing' => $this->get_option('enable_word_spacing', false),
+			'typography_targets' => $this->get_typography_targets(),
 		);
+	}
+
+	/**
+	 * Get the typography selectors used by adaptive content controls.
+	 *
+	 * Themes can refine these selectors with:
+	 * - open_accessibility_typography_content_roots
+	 * - open_accessibility_typography_text_elements
+	 * - open_accessibility_typography_heading_elements
+	 * - open_accessibility_typography_excluded_selectors
+	 * - open_accessibility_typography_targets
+	 *
+	 * @since 1.3.01
+	 * @return array
+	 */
+	private function get_typography_targets() {
+		$targets = array(
+			'content_roots' => array(
+				'main',
+				'article',
+				'[role="main"]',
+				'.entry-content',
+				'.post-content',
+				'.page-content',
+				'.wp-block-post-content',
+				'.site-content',
+				'.site-main',
+				'#content',
+				'#primary',
+			),
+			'text_elements' => array(
+				'p',
+				'li',
+				'blockquote',
+				'dd',
+				'dt',
+				'figcaption',
+				'caption',
+				'td',
+				'th',
+				'label',
+			),
+			'heading_elements' => array(
+				'h1',
+				'h2',
+				'h3',
+				'h4',
+				'h5',
+				'h6',
+			),
+			'excluded_selectors' => array(
+				'.open-accessibility-widget-wrapper',
+				'.open-accessibility-reading-guide',
+				'.open-accessibility-skip-to-content-link',
+				'.open-accessibility-skip-to-content-backdrop',
+				'.open-accessibility-ignore',
+				'[data-oa-ignore]',
+				'aside',
+				'[role="complementary"]',
+				'.sidebar',
+				'.sidebar-primary',
+				'.sidebar-secondary',
+				'.widget',
+				'.widget-area',
+				'nav',
+				'.nav',
+				'.menu',
+				'.navigation',
+				'.pagination',
+				'.breadcrumbs',
+				'.breadcrumb',
+				'button',
+				'input',
+				'select',
+				'textarea',
+				'svg',
+				'img',
+				'video',
+				'audio',
+				'iframe',
+				'canvas',
+				'code',
+				'pre',
+				'kbd',
+				'samp',
+				'.screen-reader-text',
+			),
+		);
+
+		$targets['content_roots'] = apply_filters( 'open_accessibility_typography_content_roots', $targets['content_roots'] );
+		$targets['text_elements'] = apply_filters( 'open_accessibility_typography_text_elements', $targets['text_elements'] );
+		$targets['heading_elements'] = apply_filters( 'open_accessibility_typography_heading_elements', $targets['heading_elements'] );
+		$targets['excluded_selectors'] = apply_filters( 'open_accessibility_typography_excluded_selectors', $targets['excluded_selectors'] );
+
+		return apply_filters( 'open_accessibility_typography_targets', $targets );
 	}
 
 	/**

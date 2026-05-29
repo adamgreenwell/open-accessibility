@@ -1,0 +1,53 @@
+# Files excluded from WordPress.org/runtime release packages.
+
+# Repository and CI files.
+/.git
+/.github
+.distignore
+.gitattributes
+.gitignore
+.gitmodules
+
+# Build and deployment output.
+/bin
+/build
+/dist
+/open-accessibility-svn
+*.zip
+
+# Development dependencies and tests.
+/node_modules
+/vendor
+/coverage
+/tests
+phpunit.xml
+phpunit.xml.dist
+.phpunit.result.cache
+
+# Development configs.
+.editorconfig
+Makefile
+composer.json
+composer.lock
+package.json
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+phpcs.xml
+phpcs.xml.dist
+
+# Project-only documentation.
+TRANSLATION_MAINTENANCE.md
+/docs
+
+# Local environment, editor, and OS files.
+.DS_Store
+Thumbs.db
+.env
+.env.*
+*.log
+*.sql
+*.sqlite
+*.swp
+*.swo
+*~

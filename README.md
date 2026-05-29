@@ -81,6 +81,27 @@ Yes, all user preferences are saved using local storage in their browser, so set
 
 Yes, this plugin is compatible with multisite installations.
 
+### Can my theme fine-tune which content gets typography adjustments?
+
+Yes. Open Accessibility now scopes text size, line height, letter spacing, word spacing, and alignment controls to readable content areas by default, and themes can refine those selectors with filters such as `open_accessibility_typography_targets`, `open_accessibility_typography_content_roots`, and `open_accessibility_typography_excluded_selectors`.
+
+For example, a custom theme can keep sidebars and promo cards out of the typography controls while adding a custom article wrapper:
+
+```php
+add_filter( 'open_accessibility_typography_content_roots', function( $roots ) {
+	$roots[] = '.my-theme-article-body';
+
+	return $roots;
+} );
+
+add_filter( 'open_accessibility_typography_excluded_selectors', function( $selectors ) {
+	$selectors[] = '.my-theme-sidebar';
+	$selectors[] = '.promo-card';
+
+	return $selectors;
+} );
+```
+
 ### How do I enable debug logging?
 
 To see debug messages from this plugin, you need to do two things:
@@ -88,6 +109,11 @@ To see debug messages from this plugin, you need to do two things:
 2. Ensure that WordPress's core debugging constants are enabled in your `wp-config.php` file. Specifically, `WP_DEBUG` must be set to `true`, and `WP_DEBUG_LOG` must also be set to `true`. Logs will then appear in the `/wp-content/debug.log` file.
 
 ## Changelog
+
+### 1.3.01
+* Make typography controls adapt to theme-defined line height, spacing, and font sizing instead of overriding whole-page styles
+* Scope text size, line height, spacing, and alignment controls to readable content areas
+* Add theme filters and element opt-outs for typography targeting
 
 ### 1.2.76
 * Fix analytics stats and cleanup queries when the stats table is missing or outdated

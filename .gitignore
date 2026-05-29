@@ -34,3 +34,11 @@ node_modules/
 vendor/
 build/
 dist/
+*.zip
+composer.lock
+
+# Release tooling is part of the source tree even if a local/global ignore
+# pattern hides generic bin directories.
+!/bin/
+!/bin/*.sh
+!/Makefile
