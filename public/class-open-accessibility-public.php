@@ -264,7 +264,7 @@ class Open_Accessibility_Public {
 	/**
 	 * Normalize frontend selector arrays.
 	 *
-	 * @since 1.4.0
+	 * @since 1.3.02
 	 * @param mixed $selectors Selector list to normalize.
 	 * @return array
 	 */
@@ -295,7 +295,7 @@ class Open_Accessibility_Public {
 	/**
 	 * Normalize the full frontend target configuration.
 	 *
-	 * @since 1.4.0
+	 * @since 1.3.02
 	 * @param array $config Target configuration.
 	 * @return array
 	 */
@@ -323,7 +323,7 @@ class Open_Accessibility_Public {
 	/**
 	 * Get the shared frontend target configuration.
 	 *
-	 * @since 1.4.0
+	 * @since 1.3.02
 	 * @param array $typography_targets Typography target configuration.
 	 * @return array
 	 */

@@ -169,8 +169,6 @@ Frontend selector diagnostics are browser-side diagnostics. Use `window.OpenAcce
 * Panel placement for shortcode embeds now adapts to available viewport space, and its height is capped so it scrolls instead of overflowing
 * Add `direction` (auto/up/down) and `align` (auto/left/right) shortcode attributes to control which way the panel opens
 * Fix shortcode-embedded widget panel being invisible on small screens; it now uses the same full-screen panel as the standard widget
-
-= 1.4.01 =
 * Add a shared frontend targeting resolver for typography, links, media, and layout-sensitive controls
 * Add theme integration filters, HTML attributes, lifecycle events, and `window.OpenAccessibility` helpers
 * Scope readable fonts, link underlining, hide-images, and grayscale controls to resolved content targets
