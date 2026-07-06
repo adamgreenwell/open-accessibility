@@ -34,10 +34,20 @@ class Open_Accessibility_Shortcode {
 	/**
 	 * Render the shortcode output.
 	 *
+	 * Supported attributes:
+	 * - direction: which way the panel opens relative to the toggle button.
+	 *   Accepts 'auto' (default), 'up', or 'down'. With 'auto' the frontend
+	 *   script picks the direction with the most viewport space.
+	 * - align: which edge of the toggle button the panel aligns to.
+	 *   Accepts 'auto' (default), 'left' (panel extends right), or 'right'
+	 *   (panel extends left).
+	 *
 	 * @since    1.2.75
+	 * @since    1.3.02    Added `direction` and `align` attributes.
+	 * @param    array|string    $atts    Shortcode attributes.
 	 * @return   string    The shortcode HTML or empty string if widget is disabled.
 	 */
-	public static function render() {
+	public static function render( $atts = array() ) {
 		// Prevent multiple widget instances on the same page
 		if ( self::$shortcode_rendered ) {
 			return '';
@@ -49,13 +59,48 @@ class Open_Accessibility_Shortcode {
 			return '';
 		}
 
+		$atts = shortcode_atts(
+			array(
+				'direction' => 'auto',
+				'align'     => 'auto',
+			),
+			$atts,
+			'open_accessibility'
+		);
+
+		$direction = strtolower( trim( (string) $atts['direction'] ) );
+		$align     = strtolower( trim( (string) $atts['align'] ) );
+
+		if ( ! in_array( $direction, array( 'auto', 'up', 'down' ), true ) ) {
+			$direction = 'auto';
+		}
+
+		if ( ! in_array( $align, array( 'auto', 'left', 'right' ), true ) ) {
+			$align = 'auto';
+		}
+
 		self::$shortcode_rendered = true;
 
 		ob_start();
 		include OPEN_ACCESSIBILITY_PLUGIN_DIR . 'public/partials/widget-template.php';
 		$html = ob_get_clean();
 
-		return '<div class="open-accessibility-shortcode">' . $html . '</div>';
+		// Explicit values also get a class so the placement works without JS;
+		// 'auto' is resolved by the frontend script when the panel opens.
+		$classes = array( 'open-accessibility-shortcode' );
+
+		if ( 'auto' !== $direction ) {
+			$classes[] = 'oa-direction-' . $direction;
+		}
+
+		if ( 'auto' !== $align ) {
+			$classes[] = 'oa-align-' . $align;
+		}
+
+		return '<div class="' . esc_attr( implode( ' ', $classes ) ) . '"'
+			. ' data-oa-direction="' . esc_attr( $direction ) . '"'
+			. ' data-oa-align="' . esc_attr( $align ) . '">'
+			. $html . '</div>';
 	}
 
 	/**

@@ -61,6 +61,16 @@ This plugin helps improve accessibility and addresses many WCAG criteria, but co
 
 You can choose from four positions: left side, right side, bottom left, or bottom right of the screen. You can also customize the size and appearance of the widget.
 
+### Can I place the widget somewhere specific, like my site header?
+
+Yes. Use the `[open_accessibility]` shortcode in your content, a block, or a template file (e.g. `<?php echo do_shortcode('[open_accessibility]'); ?>`). By default the panel automatically opens toward the side of the screen with the most room, so a toggle placed in your header opens downward and a toggle near the footer opens upward. You can also force a placement with the `direction` and `align` attributes:
+
+```
+[open_accessibility direction="down" align="right"]
+```
+
+`direction` accepts `auto` (default), `up`, or `down`. `align` accepts `auto` (default), `left` (panel extends to the right of the button), or `right` (panel extends to the left of the button).
+
 ### Can users hide the widget if they don't need it?
 
 Yes, there's a "Hide Accessibility Panel" option in the widget that allows users to hide it. It will remain hidden for 24 hours.
@@ -169,6 +179,12 @@ To see debug messages from this plugin, you need to do two things:
 Frontend selector diagnostics are browser-side diagnostics. Use `window.OpenAccessibility.debug()` or the browser console for those; they are not written to WordPress `debug.log`.
 
 ## Changelog
+
+### 1.3.02
+* Fix shortcode-embedded widget panel opening offscreen when the toggle is placed near the top or right edge of the page (e.g. in a site header)
+* Panel placement for shortcode embeds now adapts to available viewport space, and its height is capped so it scrolls instead of overflowing
+* Add `direction` (auto/up/down) and `align` (auto/left/right) shortcode attributes to control which way the panel opens
+* Fix shortcode-embedded widget panel being invisible on small screens; it now uses the same full-screen panel as the standard widget
 
 ### 1.4.01
 * Add a shared frontend targeting resolver for typography, links, media, and layout-sensitive controls

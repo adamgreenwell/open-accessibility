@@ -1479,6 +1479,30 @@ body.open-accessibility-pause-animations *::after {
     transform: none;
 }
 
+/* Panel open direction and alignment. Set explicitly by the shortcode
+   `direction`/`align` attributes, or resolved by JS from the available
+   viewport space when the embed uses the default `auto` values. These must
+   come after the position-* rules above to win at equal specificity. */
+.open-accessibility-shortcode.oa-direction-up .open-accessibility-widget-wrapper .open-accessibility-widget-panel {
+    top: auto;
+    bottom: calc(100% + 15px);
+}
+
+.open-accessibility-shortcode.oa-direction-down .open-accessibility-widget-wrapper .open-accessibility-widget-panel {
+    top: calc(100% + 15px);
+    bottom: auto;
+}
+
+.open-accessibility-shortcode.oa-align-left .open-accessibility-widget-wrapper .open-accessibility-widget-panel {
+    left: 0;
+    right: auto;
+}
+
+.open-accessibility-shortcode.oa-align-right .open-accessibility-widget-wrapper .open-accessibility-widget-panel {
+    right: 0;
+    left: auto;
+}
+
 /* Responsive adjustments */
 @media screen and (max-width: 600px) {
     .open-accessibility-widget-panel {
@@ -1509,11 +1533,20 @@ body.open-accessibility-pause-animations *::after {
         transform: none;
     }
 
+    /* Shortcode embeds share the full-screen panel treatment on small
+       screens. !important is required so the viewport anchoring beats the
+       higher-specificity desktop anchor rules (top/bottom/left/right) and
+       any inline max-height applied by the placement script. */
     .open-accessibility-shortcode .open-accessibility-widget-panel {
-        position: absolute;
-        width: 300px;
-        max-height: 80vh;
-        height: auto;
+        position: fixed !important;
+        top: 0 !important;
+        right: auto !important;
+        bottom: auto !important;
+        left: 0 !important;
+        width: 100vw;
+        height: 100vh;
+        max-height: 100vh !important;
+        transform: none;
     }
 }
 

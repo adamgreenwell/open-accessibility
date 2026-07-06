@@ -330,7 +330,14 @@
         
         // Ensure widget wrapper stays in viewport on scroll
         $(window).on('scroll', function() {
-            if (isShortcodeEmbed) return;
+            if (isShortcodeEmbed) {
+                // Re-resolve placement so an open panel stays in view while
+                // the embedded toggle moves with the page
+                if ($('.open-accessibility-widget-panel').hasClass('oa-panel-is-active')) {
+                    positionShortcodePanel();
+                }
+                return;
+            }
 
             const $widgetWrapper = $('.open-accessibility-widget-wrapper');
             const $panel = $('.open-accessibility-widget-panel');
@@ -350,7 +357,12 @@
 
         // Handle window resize
         $(window).on('resize', function() {
-            if (isShortcodeEmbed) return;
+            if (isShortcodeEmbed) {
+                if ($('.open-accessibility-widget-panel').hasClass('oa-panel-is-active')) {
+                    positionShortcodePanel();
+                }
+                return;
+            }
 
             const $panel = $('.open-accessibility-widget-panel');
             if ($panel.hasClass('oa-panel-is-active')) {
@@ -1011,6 +1023,60 @@
         syncLayoutRelief();
     }
 
+    // Resolve which way a shortcode-embedded panel opens so it stays inside
+    // the viewport. Explicit direction/align shortcode attributes are
+    // honored; 'auto' picks the side with the most available space.
+    function positionShortcodePanel() {
+        if (!isShortcodeEmbed) {
+            return;
+        }
+
+        const $root = $('.open-accessibility-widget-wrapper').closest('.open-accessibility-shortcode');
+        const $panel = $root.find('.open-accessibility-widget-panel');
+        const $button = $root.find('.open-accessibility-toggle-button');
+
+        if (!$root.length || !$panel.length || !$button.length) {
+            return;
+        }
+
+        // Small screens get the full-screen panel from CSS
+        if (window.matchMedia('(max-width: 600px)').matches) {
+            $panel.css('max-height', '');
+            return;
+        }
+
+        const preferredDirection = $root.attr('data-oa-direction') || 'auto';
+        const preferredAlign = $root.attr('data-oa-align') || 'auto';
+        const rect = $button[0].getBoundingClientRect();
+        const panelGap = 15;        // matches the CSS panel offset
+        const viewportMargin = 10;  // breathing room from the viewport edge
+        const spaceAbove = rect.top - panelGap - viewportMargin;
+        const spaceBelow = window.innerHeight - rect.bottom - panelGap - viewportMargin;
+        const panelHeight = Math.min($panel.prop('scrollHeight') || 0, window.innerHeight * 0.8);
+
+        let direction = preferredDirection;
+        if (direction !== 'up' && direction !== 'down') {
+            direction = (spaceBelow >= panelHeight || spaceBelow >= spaceAbove) ? 'down' : 'up';
+        }
+
+        let align = preferredAlign;
+        if (align !== 'left' && align !== 'right') {
+            const panelWidth = $panel.outerWidth() || 350;
+            const spaceRight = window.innerWidth - rect.left - viewportMargin;
+            const spaceLeft = rect.right - viewportMargin;
+            align = (spaceRight >= panelWidth || spaceRight >= spaceLeft) ? 'left' : 'right';
+        }
+
+        $root.toggleClass('oa-direction-up', direction === 'up')
+            .toggleClass('oa-direction-down', direction === 'down')
+            .toggleClass('oa-align-left', align === 'left')
+            .toggleClass('oa-align-right', align === 'right');
+
+        // Cap the panel to the space on its open side; content scrolls
+        const availableSpace = direction === 'down' ? spaceBelow : spaceAbove;
+        $panel.css('max-height', Math.max(Math.round(availableSpace), 200) + 'px');
+    }
+
     // Toggle widget panel
     function toggleAccessibilityPanel() {
         const $panel = $('.open-accessibility-widget-panel');
@@ -1023,8 +1089,11 @@
         $panel.attr('aria-hidden', isActive ? 'false' : 'true');
         $toggle.attr('aria-expanded', isActive ? 'true' : 'false');
 
-        // Shortcode embed: simple show/hide, no positioning logic
+        // Shortcode embed: resolve placement against the viewport on open
         if (isShortcodeEmbed) {
+            if (isActive) {
+                positionShortcodePanel();
+            }
             return;
         }
 
