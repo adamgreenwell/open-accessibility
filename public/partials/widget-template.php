@@ -29,6 +29,13 @@ $widget_classes = array(
 $panel_id = 'open-accessibility-widget-panel';
 $panel_title_id = 'open-accessibility-widget-title';
 
+// Panel heading: the saved override wins, otherwise the translated default.
+// Filterable so themes can adjust it without touching settings.
+$panel_title = ! empty( $options['widget_title'] )
+	? $options['widget_title']
+	: __( 'Accessibility Options', 'open-accessibility' );
+$panel_title = apply_filters( 'open_accessibility_panel_title', $panel_title );
+
 ?>
 
 <div class="<?php echo esc_attr(implode(' ', $widget_classes)); ?>" data-oa-ignore="true">
@@ -80,7 +87,7 @@ $panel_title_id = 'open-accessibility-widget-title';
 	<!-- Accessibility Widget Panel -->
 	<div id="<?php echo esc_attr( $panel_id ); ?>" class="open-accessibility-widget-panel" role="region" aria-labelledby="<?php echo esc_attr( $panel_title_id ); ?>" aria-hidden="true">
 		<div class="open-accessibility-widget-header">
-			<h2 id="<?php echo esc_attr( $panel_title_id ); ?>"><?php esc_html_e('Accessibility Options', 'open-accessibility'); ?></h2>
+			<h2 id="<?php echo esc_attr( $panel_title_id ); ?>"><?php echo esc_html( $panel_title ); ?></h2>
 			<button class="open-accessibility-close" aria-label="<?php esc_attr_e('Close accessibility tools', 'open-accessibility'); ?>">
 				<span aria-hidden="true">&times;</span>
 			</button>
@@ -297,19 +304,45 @@ $panel_title_id = 'open-accessibility-widget-title';
 			<?php endif; ?>
 
 			<!-- Additional Links Section -->
-			<div class="open-accessibility-widget-section open-accessibility-links-section">
-				<?php if (isset($options['enable_sitemap']) && $options['enable_sitemap'] && !empty($options['sitemap_url'])): ?>
-					<a href="<?php echo esc_url($options['sitemap_url']); ?>" class="open-accessibility-link">
-						<?php esc_html_e('Sitemap', 'open-accessibility'); ?>
-					</a>
-				<?php endif; ?>
+			<?php
+			// A link renders only when its URL is set, so an empty setting hides it.
+			$panel_links = array(
+				'statement' => array(
+					'url'   => isset( $options['statement_url'] ) ? $options['statement_url'] : '',
+					'label' => __( 'Accessibility Statement', 'open-accessibility' ),
+				),
+				'sitemap' => array(
+					'url'   => isset( $options['sitemap_url'] ) ? $options['sitemap_url'] : '',
+					'label' => __( 'Sitemap', 'open-accessibility' ),
+				),
+				'help' => array(
+					'url'   => isset( $options['help_url'] ) ? $options['help_url'] : '',
+					'label' => __( 'Help', 'open-accessibility' ),
+				),
+				'feedback' => array(
+					'url'   => isset( $options['feedback_url'] ) ? $options['feedback_url'] : '',
+					'label' => __( 'Accessibility Feedback', 'open-accessibility' ),
+				),
+			);
 
-				<?php if (!empty($options['statement_url'])): ?>
-					<a href="<?php echo esc_url($options['statement_url']); ?>" class="open-accessibility-link">
-						<?php esc_html_e('Accessibility Statement', 'open-accessibility'); ?>
-					</a>
-				<?php endif; ?>
-			</div>
+			$panel_links = apply_filters( 'open_accessibility_panel_links', $panel_links );
+			$panel_links = array_filter(
+				is_array( $panel_links ) ? $panel_links : array(),
+				function ( $link ) {
+					return is_array( $link ) && ! empty( $link['url'] ) && ! empty( $link['label'] );
+				}
+			);
+			?>
+			<?php if ( ! empty( $panel_links ) ) : ?>
+				<div class="open-accessibility-widget-section open-accessibility-links-section">
+					<?php foreach ( $panel_links as $link_key => $link ) : ?>
+						<a href="<?php echo esc_url( $link['url'] ); ?>"
+						   class="open-accessibility-link open-accessibility-link-<?php echo esc_attr( $link_key ); ?>">
+							<?php echo esc_html( $link['label'] ); ?>
+						</a>
+					<?php endforeach; ?>
+				</div>
+			<?php endif; ?>
 		</div>
 
 		<div class="open-accessibility-widget-footer">

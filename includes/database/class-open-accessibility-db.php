@@ -68,41 +68,49 @@ class Open_Accessibility_DB {
 		global $wpdb;
 
 		$db_version = get_option( 'open_accessibility_db_version', '0' );
+
+		// Fast path: the recorded schema version is current, so the table was
+		// created by a previous request. The version option is autoloaded, so
+		// this costs no query at all. Callers that touch the table still guard
+		// with table_exists(), so a manually dropped table degrades gracefully
+		// instead of fataling.
+		if ( version_compare( $db_version, self::$db_version, '>=' ) ) {
+			return;
+		}
+
 		$table_name = self::get_table_name();
 		$table_exists = self::table_exists();
 
 		// Backfill the version option for older installs that already have the table.
-		if ( $table_exists && version_compare( $db_version, self::$db_version, '<' ) ) {
+		if ( $table_exists ) {
 			update_option( 'open_accessibility_db_version', self::$db_version );
 			return;
 		}
 
-		// Only run if the schema is outdated or the table is missing.
-		if ( version_compare( $db_version, self::$db_version, '<' ) || ! $table_exists ) {
-			require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+		// Reached only when the schema is outdated and the table is missing.
+		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
-			$charset_collate = $wpdb->get_charset_collate();
+		$charset_collate = $wpdb->get_charset_collate();
 
-			$sql = "CREATE TABLE $table_name (
-				id bigint(20) NOT NULL AUTO_INCREMENT,
-				session_id varchar(64) NOT NULL,
-				feature varchar(64) NOT NULL,
-				action varchar(32) NOT NULL,
-				value varchar(64) NOT NULL,
-				ip varchar(45) NOT NULL,
-				user_agent text NOT NULL,
-				created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-				PRIMARY KEY  (id),
-				KEY session_id (session_id),
-				KEY feature (feature),
-				KEY created_at (created_at)
-			) $charset_collate;";
+		$sql = "CREATE TABLE $table_name (
+			id bigint(20) NOT NULL AUTO_INCREMENT,
+			session_id varchar(64) NOT NULL,
+			feature varchar(64) NOT NULL,
+			action varchar(32) NOT NULL,
+			value varchar(64) NOT NULL,
+			ip varchar(45) NOT NULL,
+			user_agent text NOT NULL,
+			created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			PRIMARY KEY  (id),
+			KEY session_id (session_id),
+			KEY feature (feature),
+			KEY created_at (created_at)
+		) $charset_collate;";
 
-			dbDelta( $sql );
+		dbDelta( $sql );
 
-			// Update database version option.
-			update_option( 'open_accessibility_db_version', self::$db_version );
-		}
+		// Update database version option.
+		update_option( 'open_accessibility_db_version', self::$db_version );
 	}
 
 	/**
@@ -129,8 +137,13 @@ class Open_Accessibility_DB {
 		}
 
 		$table_name = self::get_table_name();
-		$ip = Open_Accessibility_Utils::get_client_ip();
-		$user_agent = isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '';
+
+		// Usage rows are stored anonymously. Which accessibility features a
+		// visitor turns on can reveal a disability, so pairing that with an IP
+		// or user agent would create special-category personal data. The
+		// columns are retained for schema compatibility with older installs.
+		$ip = '';
+		$user_agent = '';
 
 		// Clear any related caches.
 		self::clear_stats_cache();

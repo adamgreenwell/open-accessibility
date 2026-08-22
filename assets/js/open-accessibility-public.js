@@ -287,6 +287,7 @@
 
         // Apply saved state
         applyState();
+        applyLinkTargetPolicy();
         dispatchReadyEvent();
 
         // Button click handler
@@ -1255,6 +1256,9 @@
         // Update state
         syncActionButtonStates();
         saveState();
+
+        // Logged after the sync so toggles report the state they landed in.
+        logFeatureUsage($btn, action, value);
     }
 
     function setButtonPressed(action, value, pressed) {
@@ -1760,6 +1764,99 @@
     }
 
     // Helper function to set cookies
+    // Read a frontend option pushed through wp_localize_script.
+    function getFrontendOption(key, fallback) {
+        if (typeof open_accessibility_data === 'undefined' ||
+            !open_accessibility_data ||
+            !open_accessibility_data.options ||
+            typeof open_accessibility_data.options[key] === 'undefined') {
+            return fallback;
+        }
+
+        return open_accessibility_data.options[key];
+    }
+
+    // Open links in the same tab.
+    //
+    // An unannounced new tab breaks the back button and disorients screen
+    // reader and magnifier users (WCAG 2.1 SC 3.2.5). Opt-in, because it
+    // changes the behaviour of every link on the site. The widget's own links
+    // and anything explicitly excluded are left alone.
+    function applyLinkTargetPolicy() {
+        if (!getFrontendOption('strip_link_targets', false)) {
+            return;
+        }
+
+        $('a[target="_blank"]').each(function() {
+            const $link = $(this);
+
+            if ($link.closest('.open-accessibility-widget-wrapper, .open-accessibility-ignore, [data-oa-ignore]').length) {
+                return;
+            }
+
+            $link.removeAttr('target');
+        });
+    }
+
+    // Per-tab identifier so repeated toggles in one visit group together.
+    // Deliberately sessionStorage, not localStorage: it dies with the tab and
+    // never becomes a cross-visit identifier.
+    function getSessionId() {
+        const key = 'open-accessibility-session';
+
+        try {
+            let id = sessionStorage.getItem(key);
+
+            if (!id) {
+                id = 'oa-' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+                sessionStorage.setItem(key, id);
+            }
+
+            return id;
+        } catch (e) {
+            // Private browsing or storage disabled: skip logging rather than throw.
+            return '';
+        }
+    }
+
+    // Report a control interaction, when the site owner has opted in.
+    //
+    // Sends `feature_action` rather than `action`: admin-ajax reserves `action`
+    // to route the request, so a field of that name never reaches the handler.
+    function logFeatureUsage($button, feature, value) {
+        if (!getFrontendOption('enable_analytics', false)) {
+            return;
+        }
+
+        if (typeof open_accessibility_data === 'undefined' ||
+            !open_accessibility_data ||
+            !open_accessibility_data.ajaxurl) {
+            return;
+        }
+
+        const sessionId = getSessionId();
+
+        if (!sessionId || !feature) {
+            return;
+        }
+
+        // Toggles report the state they landed in; value controls report the
+        // value that was chosen.
+        const isToggle = value === 'toggle';
+        const pressed = $button && $button.attr('aria-pressed') === 'true';
+
+        $.post(open_accessibility_data.ajaxurl, {
+            action: 'open_accessibility_log_usage',
+            nonce: open_accessibility_data.nonce,
+            session_id: sessionId,
+            feature: feature,
+            feature_action: isToggle ? 'toggle' : 'set',
+            value: isToggle ? (pressed ? 'on' : 'off') : String(value == null ? '' : value)
+        }).fail(function() {
+            logDebug('Open Accessibility: usage logging request failed');
+        });
+    }
+
     function setCookie(name, value, days) {
         let expires = '';
         if (days) {

@@ -221,6 +221,16 @@ class Open_Accessibility_Utils {
 			'skip_to_element_id' => 'content',
 			'sitemap_url' => '',
 			'statement_url' => '',
+			'help_url' => '',
+			'feedback_url' => '',
+			'widget_title' => '',
+
+			// Site-wide link behaviour. Off by default: it changes how every
+			// link on the site opens.
+			'strip_link_targets' => 0,
+
+			// Usage logging. Off by default; see the Advanced settings tab.
+			'enable_analytics' => 0,
 
 			// Debug settings
 			'enable_debug' => 0,
@@ -279,7 +289,9 @@ class Open_Accessibility_Utils {
 		// Sanitize URLs
 		$url_fields = array(
 			'sitemap_url',
-			'statement_url'
+			'statement_url',
+			'help_url',
+			'feedback_url'
 		);
 
 		foreach ( $url_fields as $key ) {

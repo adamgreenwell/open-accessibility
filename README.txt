@@ -2,7 +2,7 @@
 Contributors: adamgreenwell
 Tags: accessibility, wcag, ada, disability, readable
 Requires at least: 5.2
-Tested up to: 7.0
+Tested up to: 7.1
 Stable tag: 1.3.02
 Requires PHP: 7.4
 License: GPLv2 or later
@@ -175,6 +175,17 @@ Frontend selector diagnostics are browser-side diagnostics. Use `window.OpenAcce
 * Improve widget ARIA state syncing for expanded panels, toggle buttons, and live indicators
 * Harden saved and public API state so malformed values are normalized before applying settings
 * Honor intentionally empty target config arrays while preserving built-in widget and explicit ignore exclusions
+* Verified compatibility with WordPress 7.1 on PHP 8.4 and PHP 8.5
+* Add a Links settings tab with optional Help and Feedback links in the widget panel
+* Expose the Sitemap link in the settings UI; it had no field and could not be set
+* Add a Panel Title setting to rename the widget heading
+* Add an `open_accessibility_strings` filter so any widget label can be overridden
+* Add an `open_accessibility_panel_title` filter and an `open_accessibility_panel_links` filter
+* Add an opt-in "Open Links in Same Tab" setting that strips `target="_blank"` (WCAG 2.1 SC 3.2.5)
+* Add an opt-in, off-by-default Usage Logging setting; feature usage is now recorded only when enabled
+* Fix usage logging recording the admin-ajax action name instead of the interaction; the field is now `feature_action`
+* Stop storing IP addresses and user agents with usage data, which could imply a visitor's disability
+* Remove a `SHOW TABLES` query that ran on every single page load
 
 = 1.3.01 =
 * Make typography controls adapt to theme-defined line height, spacing, and font sizing instead of overriding whole-page styles

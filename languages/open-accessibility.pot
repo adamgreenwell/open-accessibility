@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-05-29T19:15:31+00:00\n"
+"POT-Creation-Date: 2026-08-22T14:55:21+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: open-accessibility\n"
@@ -48,7 +48,7 @@ msgid "Generating..."
 msgstr ""
 
 #: admin/class-open-accessibility-admin.php:118
-#: admin/class-open-accessibility-admin.php:725
+#: admin/class-open-accessibility-admin.php:812
 msgid "Create Statement"
 msgstr ""
 
@@ -77,8 +77,8 @@ msgid "An error occurred. Please try again."
 msgstr ""
 
 #: admin/class-open-accessibility-admin.php:125
-#: public/class-open-accessibility-public.php:419
-#: public/partials/widget-template.php:83
+#: public/class-open-accessibility-public.php:427
+#: public/partials/widget-template.php:36
 msgid "Accessibility Options"
 msgstr ""
 
@@ -99,344 +99,410 @@ msgid "Accessibility"
 msgstr ""
 
 #: admin/class-open-accessibility-admin.php:174
-#: admin/partials/admin-display.php:64
+#: admin/partials/admin-display.php:65
 msgid "General Settings"
 msgstr ""
 
 #: admin/class-open-accessibility-admin.php:182
-#: admin/partials/admin-display.php:72
+#: admin/partials/admin-display.php:73
 msgid "Widget Design"
 msgstr ""
 
 #: admin/class-open-accessibility-admin.php:190
-#: admin/class-open-accessibility-admin.php:308
-#: admin/partials/admin-display.php:85
+#: admin/class-open-accessibility-admin.php:329
+#: admin/partials/admin-display.php:86
 msgid "Widget Position"
 msgstr ""
 
 #: admin/class-open-accessibility-admin.php:198
-#: admin/partials/admin-display.php:93
+#: admin/partials/admin-display.php:94
 msgid "Widget Features"
 msgstr ""
 
 #: admin/class-open-accessibility-admin.php:206
-#: admin/partials/admin-display.php:101
+#: admin/partials/admin-display.php:102
 #: includes/class-open-accessibility-statement-generator.php:60
 #: includes/class-open-accessibility-statement-generator.php:157
-#: public/class-open-accessibility-public.php:460
-#: public/class-open-accessibility-public.php:461
-#: public/partials/widget-template.php:309
+#: public/class-open-accessibility-public.php:468
+#: public/class-open-accessibility-public.php:469
+#: public/partials/widget-template.php:312
 msgid "Accessibility Statement"
 msgstr ""
 
 #: admin/class-open-accessibility-admin.php:214
-#: admin/partials/admin-display.php:132
-msgid "Advanced Settings"
+#: admin/partials/admin-display.php:110
+msgid "Helpful Links"
 msgstr ""
 
 #: admin/class-open-accessibility-admin.php:222
+#: admin/partials/admin-display.php:144
+msgid "Advanced Settings"
+msgstr ""
+
+#: admin/class-open-accessibility-admin.php:230
 msgid "Disable Widget"
 msgstr ""
 
-#: admin/class-open-accessibility-admin.php:228
+#: admin/class-open-accessibility-admin.php:236
 msgid "Disable the accessibility widget completely"
 msgstr ""
 
-#: admin/class-open-accessibility-admin.php:234
+#: admin/class-open-accessibility-admin.php:242
 msgid "Hide on Mobile"
 msgstr ""
 
-#: admin/class-open-accessibility-admin.php:240
+#: admin/class-open-accessibility-admin.php:248
 msgid "Hide the accessibility widget on mobile devices"
 msgstr ""
 
-#: admin/class-open-accessibility-admin.php:246
+#: admin/class-open-accessibility-admin.php:254
 msgid "Hide on Desktop"
 msgstr ""
 
-#: admin/class-open-accessibility-admin.php:252
+#: admin/class-open-accessibility-admin.php:260
 msgid "Hide the accessibility widget on desktop devices"
 msgstr ""
 
-#: admin/class-open-accessibility-admin.php:259
+#: admin/class-open-accessibility-admin.php:267
 msgid "Widget Icon"
 msgstr ""
 
-#: admin/class-open-accessibility-admin.php:267
+#: admin/class-open-accessibility-admin.php:275
 msgid "Icon Size"
 msgstr ""
 
-#: admin/class-open-accessibility-admin.php:274
+#: admin/class-open-accessibility-admin.php:282
 msgid "Small"
 msgstr ""
 
-#: admin/class-open-accessibility-admin.php:275
+#: admin/class-open-accessibility-admin.php:283
 msgid "Medium"
 msgstr ""
 
-#: admin/class-open-accessibility-admin.php:276
+#: admin/class-open-accessibility-admin.php:284
 msgid "Large"
 msgstr ""
 
-#: admin/class-open-accessibility-admin.php:283
+#: admin/class-open-accessibility-admin.php:291
 msgid "Icon Color"
 msgstr ""
 
-#: admin/class-open-accessibility-admin.php:295
+#: admin/class-open-accessibility-admin.php:303
 msgid "Widget Background Color"
 msgstr ""
 
-#: admin/class-open-accessibility-admin.php:316
+#: admin/class-open-accessibility-admin.php:315
+msgid "Panel Title"
+msgstr ""
+
+#: admin/class-open-accessibility-admin.php:322
+msgid "Heading shown at the top of the widget panel. Leave empty to use the default, \"Accessibility Options\"."
+msgstr ""
+
+#: admin/class-open-accessibility-admin.php:337
 #: includes/class-open-accessibility-utils.php:73
 msgid "Skip to Content Link"
 msgstr ""
 
-#: admin/class-open-accessibility-admin.php:317
+#: admin/class-open-accessibility-admin.php:338
 #: includes/class-open-accessibility-utils.php:74
 msgid "Contrast Modes"
 msgstr ""
 
-#: admin/class-open-accessibility-admin.php:318
+#: admin/class-open-accessibility-admin.php:339
 #: includes/class-open-accessibility-utils.php:75
-#: public/class-open-accessibility-public.php:431
-#: public/class-open-accessibility-public.php:432
-#: public/partials/widget-template.php:122
-#: public/partials/widget-template.php:125
+#: public/class-open-accessibility-public.php:439
+#: public/class-open-accessibility-public.php:440
+#: public/partials/widget-template.php:129
+#: public/partials/widget-template.php:132
 msgid "Grayscale"
 msgstr ""
 
-#: admin/class-open-accessibility-admin.php:319
+#: admin/class-open-accessibility-admin.php:340
 #: includes/class-open-accessibility-utils.php:76
 msgid "Text Size Adjustment"
 msgstr ""
 
-#: admin/class-open-accessibility-admin.php:320
-#: public/class-open-accessibility-public.php:456
-#: public/class-open-accessibility-public.php:457
-#: public/partials/widget-template.php:176
+#: admin/class-open-accessibility-admin.php:341
+#: public/class-open-accessibility-public.php:464
+#: public/class-open-accessibility-public.php:465
+#: public/partials/widget-template.php:183
 msgid "Letter Spacing"
 msgstr ""
 
-#: admin/class-open-accessibility-admin.php:321
-#: public/class-open-accessibility-public.php:458
-#: public/class-open-accessibility-public.php:459
-#: public/partials/widget-template.php:192
+#: admin/class-open-accessibility-admin.php:342
+#: public/class-open-accessibility-public.php:466
+#: public/class-open-accessibility-public.php:467
+#: public/partials/widget-template.php:199
 msgid "Word Spacing"
 msgstr ""
 
-#: admin/class-open-accessibility-admin.php:322
+#: admin/class-open-accessibility-admin.php:343
 msgid "Font: Atkinson Hyperlegible"
 msgstr ""
 
-#: admin/class-open-accessibility-admin.php:323
+#: admin/class-open-accessibility-admin.php:344
 msgid "Font: OpenDyslexic"
 msgstr ""
 
-#: admin/class-open-accessibility-admin.php:324
+#: admin/class-open-accessibility-admin.php:345
 #: includes/class-open-accessibility-utils.php:78
-#: public/class-open-accessibility-public.php:440
-#: public/class-open-accessibility-public.php:441
-#: public/partials/widget-template.php:208
-#: public/partials/widget-template.php:211
+#: public/class-open-accessibility-public.php:448
+#: public/class-open-accessibility-public.php:449
+#: public/partials/widget-template.php:215
+#: public/partials/widget-template.php:218
 msgid "Links Underline"
 msgstr ""
 
-#: admin/class-open-accessibility-admin.php:325
+#: admin/class-open-accessibility-admin.php:346
 #: includes/class-open-accessibility-utils.php:79
-#: public/class-open-accessibility-public.php:442
-#: public/class-open-accessibility-public.php:443
-#: public/partials/widget-template.php:220
-#: public/partials/widget-template.php:223
+#: public/class-open-accessibility-public.php:450
+#: public/class-open-accessibility-public.php:451
+#: public/partials/widget-template.php:227
+#: public/partials/widget-template.php:230
 msgid "Hide Images"
 msgstr ""
 
-#: admin/class-open-accessibility-admin.php:326
+#: admin/class-open-accessibility-admin.php:347
 #: includes/class-open-accessibility-utils.php:80
-#: public/class-open-accessibility-public.php:444
-#: public/class-open-accessibility-public.php:445
-#: public/partials/widget-template.php:232
-#: public/partials/widget-template.php:235
+#: public/class-open-accessibility-public.php:452
+#: public/class-open-accessibility-public.php:453
+#: public/partials/widget-template.php:239
+#: public/partials/widget-template.php:242
 msgid "Reading Guide"
 msgstr ""
 
-#: admin/class-open-accessibility-admin.php:327
+#: admin/class-open-accessibility-admin.php:348
 #: includes/class-open-accessibility-utils.php:81
-#: public/class-open-accessibility-public.php:446
-#: public/class-open-accessibility-public.php:447
-#: public/partials/widget-template.php:244
-#: public/partials/widget-template.php:247
+#: public/class-open-accessibility-public.php:454
+#: public/class-open-accessibility-public.php:455
+#: public/partials/widget-template.php:251
+#: public/partials/widget-template.php:254
 msgid "Focus Outline"
 msgstr ""
 
-#: admin/class-open-accessibility-admin.php:328
+#: admin/class-open-accessibility-admin.php:349
 #: includes/class-open-accessibility-utils.php:82
 msgid "Line Height Adjustment"
 msgstr ""
 
-#: admin/class-open-accessibility-admin.php:329
+#: admin/class-open-accessibility-admin.php:350
 #: includes/class-open-accessibility-utils.php:83
 msgid "Text Alignment Options"
 msgstr ""
 
-#: admin/class-open-accessibility-admin.php:330
+#: admin/class-open-accessibility-admin.php:351
 #: includes/class-open-accessibility-utils.php:85
-#: public/class-open-accessibility-public.php:454
-#: public/class-open-accessibility-public.php:455
-#: public/partials/widget-template.php:290
-#: public/partials/widget-template.php:293
+#: public/class-open-accessibility-public.php:462
+#: public/class-open-accessibility-public.php:463
+#: public/partials/widget-template.php:297
+#: public/partials/widget-template.php:300
 msgid "Pause Animations"
 msgstr ""
 
 #. translators: %s: feature name
-#: admin/class-open-accessibility-admin.php:343
+#: admin/class-open-accessibility-admin.php:364
 #, php-format
 msgid "Enable %s feature"
 msgstr ""
 
-#: admin/class-open-accessibility-admin.php:351
+#: admin/class-open-accessibility-admin.php:372
 msgid "Skip to Content Element ID"
 msgstr ""
 
-#: admin/class-open-accessibility-admin.php:358
+#: admin/class-open-accessibility-admin.php:379
 msgid "HTML ID of the main content element (without the # symbol)"
 msgstr ""
 
-#: admin/class-open-accessibility-admin.php:365
+#: admin/class-open-accessibility-admin.php:386
 msgid "Accessibility Statement URL"
 msgstr ""
 
-#: admin/class-open-accessibility-admin.php:371
+#: admin/class-open-accessibility-admin.php:392
 msgid "URL to your accessibility statement page"
 msgstr ""
 
-#: admin/class-open-accessibility-admin.php:377
-#: admin/class-open-accessibility-admin.php:688
+#: admin/class-open-accessibility-admin.php:398
+#: admin/class-open-accessibility-admin.php:775
 msgid "Generate Statement"
 msgstr ""
 
-#: admin/class-open-accessibility-admin.php:386
+#: admin/class-open-accessibility-admin.php:408
+msgid "Sitemap URL"
+msgstr ""
+
+#: admin/class-open-accessibility-admin.php:409
+msgid "Link to your sitemap. Leave empty to hide this link."
+msgstr ""
+
+#: admin/class-open-accessibility-admin.php:412
+msgid "Help URL"
+msgstr ""
+
+#: admin/class-open-accessibility-admin.php:413
+msgid "Link to a help or support page. Leave empty to hide this link."
+msgstr ""
+
+#: admin/class-open-accessibility-admin.php:416
+msgid "Feedback URL"
+msgstr ""
+
+#: admin/class-open-accessibility-admin.php:417
+msgid "Link to an accessibility feedback form. Leave empty to hide this link."
+msgstr ""
+
+#: admin/class-open-accessibility-admin.php:438
 msgid "Enable Debug Mode"
 msgstr ""
 
-#: admin/class-open-accessibility-admin.php:392
+#: admin/class-open-accessibility-admin.php:444
 msgid "Enable debug logging for troubleshooting"
 msgstr ""
 
-#: admin/class-open-accessibility-admin.php:393
+#: admin/class-open-accessibility-admin.php:445
 msgid "When enabled, debug information will be logged to the WordPress debug.log file. Please make sure that your WordPress install also has debugging and debug logging enabled."
 msgstr ""
 
-#: admin/class-open-accessibility-admin.php:400
+#: admin/class-open-accessibility-admin.php:451
+msgid "Open Links in Same Tab"
+msgstr ""
+
+#: admin/class-open-accessibility-admin.php:457
+msgid "Remove target=\"_blank\" so links open in the same tab"
+msgstr ""
+
+#: admin/class-open-accessibility-admin.php:458
+msgid "Unexpected new tabs can disorient screen reader and magnifier users (WCAG 2.1 SC 3.2.5, AAA). Off by default because it changes how every link on the site behaves."
+msgstr ""
+
+#: admin/class-open-accessibility-admin.php:464
+msgid "Enable Usage Logging"
+msgstr ""
+
+#: admin/class-open-accessibility-admin.php:470
+msgid "Record which widget features visitors use"
+msgstr ""
+
+#: admin/class-open-accessibility-admin.php:471
+msgid "Off by default. Records only the feature name, the interaction, and its value — no IP address, no user agent, no visitor identifier. Even so, feature choices can imply a disability, so disclose this in your privacy policy before enabling it."
+msgstr ""
+
+#: admin/class-open-accessibility-admin.php:478
 msgid "Shortcode Embed"
 msgstr ""
 
-#: admin/class-open-accessibility-admin.php:411
+#: admin/class-open-accessibility-admin.php:489
 msgid "Configure the general settings for the accessibility widget."
 msgstr ""
 
-#: admin/class-open-accessibility-admin.php:418
+#: admin/class-open-accessibility-admin.php:496
 msgid "Customize the appearance of the accessibility widget."
 msgstr ""
 
-#: admin/class-open-accessibility-admin.php:425
+#: admin/class-open-accessibility-admin.php:503
 msgid "Set the position of the accessibility widget on your website."
 msgstr ""
 
-#: admin/class-open-accessibility-admin.php:432
+#: admin/class-open-accessibility-admin.php:510
 msgid "Enable or disable specific accessibility features."
 msgstr ""
 
-#: admin/class-open-accessibility-admin.php:439
+#: admin/class-open-accessibility-admin.php:517
 msgid "Configure your accessibility statement."
 msgstr ""
 
-#: admin/class-open-accessibility-admin.php:446
+#: admin/class-open-accessibility-admin.php:526
+#: admin/partials/admin-display.php:112
+msgid "Optional links shown at the bottom of the widget panel. Each one appears only when its URL is filled in."
+msgstr ""
+
+#: admin/class-open-accessibility-admin.php:533
 msgid "Advanced settings for the accessibility widget."
 msgstr ""
 
-#: admin/class-open-accessibility-admin.php:459
+#: admin/class-open-accessibility-admin.php:546
 msgid "Use this shortcode to embed the accessibility widget in any page or post. When the shortcode is present on a page, the default fixed-position widget is automatically hidden on that page."
 msgstr ""
 
-#: admin/class-open-accessibility-admin.php:558
+#: admin/class-open-accessibility-admin.php:645
 #: admin/partials/admin-display.php:18
 msgid "Open Accessibility Logo"
 msgstr ""
 
-#: admin/class-open-accessibility-admin.php:559
+#: admin/class-open-accessibility-admin.php:646
 msgid "Universal Access"
 msgstr ""
 
-#: admin/class-open-accessibility-admin.php:560
+#: admin/class-open-accessibility-admin.php:647
 msgid "Accessible Icon Project"
 msgstr ""
 
-#: admin/class-open-accessibility-admin.php:561
+#: admin/class-open-accessibility-admin.php:648
 msgid "Visually Impaired"
 msgstr ""
 
-#: admin/class-open-accessibility-admin.php:562
+#: admin/class-open-accessibility-admin.php:649
 msgid "Service Dog"
 msgstr ""
 
-#: admin/class-open-accessibility-admin.php:563
+#: admin/class-open-accessibility-admin.php:650
 msgid "International Symbol"
 msgstr ""
 
-#: admin/class-open-accessibility-admin.php:666
-#: public/class-open-accessibility-public.php:452
-#: public/partials/widget-template.php:275
+#: admin/class-open-accessibility-admin.php:753
+#: public/class-open-accessibility-public.php:460
+#: public/partials/widget-template.php:282
 msgid "Left"
 msgstr ""
 
-#: admin/class-open-accessibility-admin.php:667
-#: public/class-open-accessibility-public.php:453
-#: public/partials/widget-template.php:281
+#: admin/class-open-accessibility-admin.php:754
+#: public/class-open-accessibility-public.php:461
+#: public/partials/widget-template.php:288
 msgid "Right"
 msgstr ""
 
-#: admin/class-open-accessibility-admin.php:668
+#: admin/class-open-accessibility-admin.php:755
 msgid "Bottom Left"
 msgstr ""
 
-#: admin/class-open-accessibility-admin.php:669
+#: admin/class-open-accessibility-admin.php:756
 msgid "Bottom Right"
 msgstr ""
 
-#: admin/class-open-accessibility-admin.php:687
+#: admin/class-open-accessibility-admin.php:774
 msgid "Generate an accessibility statement for your website."
 msgstr ""
 
-#: admin/class-open-accessibility-admin.php:695
+#: admin/class-open-accessibility-admin.php:782
 msgid "Organization/Website Name"
 msgstr ""
 
-#: admin/class-open-accessibility-admin.php:701
+#: admin/class-open-accessibility-admin.php:788
 msgid "Contact Email"
 msgstr ""
 
-#: admin/class-open-accessibility-admin.php:707
+#: admin/class-open-accessibility-admin.php:794
 #: includes/class-open-accessibility-statement-generator.php:70
 msgid "Conformance Status"
 msgstr ""
 
-#: admin/class-open-accessibility-admin.php:709
+#: admin/class-open-accessibility-admin.php:796
 msgid "WCAG 2.1 Level A"
 msgstr ""
 
-#: admin/class-open-accessibility-admin.php:710
+#: admin/class-open-accessibility-admin.php:797
 msgid "WCAG 2.1 Level AA"
 msgstr ""
 
-#: admin/class-open-accessibility-admin.php:711
+#: admin/class-open-accessibility-admin.php:798
 msgid "WCAG 2.1 Level AAA"
 msgstr ""
 
-#: admin/class-open-accessibility-admin.php:719
+#: admin/class-open-accessibility-admin.php:806
 msgid "Create a new page for the statement"
 msgstr ""
 
-#: admin/class-open-accessibility-admin.php:726
+#: admin/class-open-accessibility-admin.php:813
 msgid "Cancel"
 msgstr ""
 
@@ -475,46 +541,50 @@ msgid "Statement"
 msgstr ""
 
 #: admin/partials/admin-display.php:39
+msgid "Links"
+msgstr ""
+
+#: admin/partials/admin-display.php:40
 msgid "Advanced"
 msgstr ""
 
-#: admin/partials/admin-display.php:46
+#: admin/partials/admin-display.php:47
 msgid "JavaScript is required for the tabbed interface to work properly. Please enable JavaScript in your browser."
 msgstr ""
 
-#: admin/partials/admin-display.php:78
+#: admin/partials/admin-display.php:79
 msgid "Preview Widget"
 msgstr ""
 
-#: admin/partials/admin-display.php:117
+#: admin/partials/admin-display.php:129
 msgid "Debug mode is enabled"
 msgstr ""
 
-#: admin/partials/admin-display.php:119
+#: admin/partials/admin-display.php:131
 msgid "Debug mode is disabled"
 msgstr ""
 
-#: admin/partials/admin-display.php:144
+#: admin/partials/admin-display.php:156
 msgid "Resources"
 msgstr ""
 
-#: admin/partials/admin-display.php:146
+#: admin/partials/admin-display.php:158
 msgid "WCAG Guidelines"
 msgstr ""
 
-#: admin/partials/admin-display.php:147
+#: admin/partials/admin-display.php:159
 msgid "Introduction to Web Accessibility"
 msgstr ""
 
-#: admin/partials/admin-display.php:148
+#: admin/partials/admin-display.php:160
 msgid "Americans with Disabilities Act (ADA)"
 msgstr ""
 
-#: admin/partials/admin-display.php:153
+#: admin/partials/admin-display.php:165
 msgid "Disclaimer:"
 msgstr ""
 
-#: admin/partials/admin-display.php:153
+#: admin/partials/admin-display.php:165
 msgid "While this plugin helps improve your website's accessibility, it does not guarantee full compliance with all accessibility standards and regulations. Regular accessibility audits and testing with real users are recommended."
 msgstr ""
 
@@ -522,8 +592,8 @@ msgstr ""
 #: includes/ajax/class-open-accessibility-ajax.php:96
 #: includes/ajax/class-open-accessibility-ajax.php:132
 #: includes/ajax/class-open-accessibility-ajax.php:169
-#: includes/ajax/class-open-accessibility-ajax.php:210
-#: includes/ajax/class-open-accessibility-ajax.php:237
+#: includes/ajax/class-open-accessibility-ajax.php:220
+#: includes/ajax/class-open-accessibility-ajax.php:247
 #: includes/class-open-accessibility-statement-generator.php:36
 msgid "Security check failed."
 msgstr ""
@@ -531,8 +601,8 @@ msgstr ""
 #: includes/ajax/class-open-accessibility-ajax.php:47
 #: includes/ajax/class-open-accessibility-ajax.php:101
 #: includes/ajax/class-open-accessibility-ajax.php:137
-#: includes/ajax/class-open-accessibility-ajax.php:215
-#: includes/ajax/class-open-accessibility-ajax.php:242
+#: includes/ajax/class-open-accessibility-ajax.php:225
+#: includes/ajax/class-open-accessibility-ajax.php:252
 msgid "You do not have permission to do this."
 msgstr ""
 
@@ -546,21 +616,25 @@ msgstr ""
 msgid "%d records deleted successfully."
 msgstr ""
 
-#: includes/ajax/class-open-accessibility-ajax.php:180
+#: includes/ajax/class-open-accessibility-ajax.php:175
+msgid "Usage logging is disabled."
+msgstr ""
+
+#: includes/ajax/class-open-accessibility-ajax.php:190
 msgid "Missing required fields."
 msgstr ""
 
-#: includes/ajax/class-open-accessibility-ajax.php:198
+#: includes/ajax/class-open-accessibility-ajax.php:208
 msgid "Failed to log usage."
 msgstr ""
 
 #. translators: %d: number of log files
-#: includes/ajax/class-open-accessibility-ajax.php:259
+#: includes/ajax/class-open-accessibility-ajax.php:269
 #, php-format
 msgid "%d log files cleared successfully."
 msgstr ""
 
-#: includes/ajax/class-open-accessibility-ajax.php:262
+#: includes/ajax/class-open-accessibility-ajax.php:272
 msgid "No log files found."
 msgstr ""
 
@@ -653,177 +727,188 @@ msgid "This statement was created on %s."
 msgstr ""
 
 #: includes/class-open-accessibility-utils.php:77
-#: public/class-open-accessibility-public.php:436
-#: public/partials/widget-template.php:154
+#: public/class-open-accessibility-public.php:444
+#: public/partials/widget-template.php:161
 msgid "Readable Font"
 msgstr ""
 
 #: includes/class-open-accessibility-utils.php:84
-#: public/partials/widget-template.php:303
+#: public/class-open-accessibility-public.php:474
+#: public/partials/widget-template.php:316
 msgid "Sitemap"
 msgstr ""
 
-#: public/class-open-accessibility-public.php:420
-#: public/partials/widget-template.php:92
+#: public/class-open-accessibility-public.php:428
+#: public/partials/widget-template.php:99
 msgid "Reset Settings"
 msgstr ""
 
-#: public/class-open-accessibility-public.php:421
+#: public/class-open-accessibility-public.php:429
 msgid "Reset"
 msgstr ""
 
-#: public/class-open-accessibility-public.php:422
+#: public/class-open-accessibility-public.php:430
 msgid "Keyboard Navigation"
 msgstr ""
 
-#: public/class-open-accessibility-public.php:423
+#: public/class-open-accessibility-public.php:431
 msgid "Use Alt+"
 msgstr ""
 
-#: public/class-open-accessibility-public.php:424
-#: public/partials/widget-template.php:101
+#: public/class-open-accessibility-public.php:432
+#: public/partials/widget-template.php:108
 msgid "Contrast"
 msgstr ""
 
-#: public/class-open-accessibility-public.php:426
-#: public/partials/widget-template.php:104
+#: public/class-open-accessibility-public.php:434
+#: public/partials/widget-template.php:111
 msgid "High Contrast"
 msgstr ""
 
-#: public/class-open-accessibility-public.php:427
-#: public/partials/widget-template.php:107
+#: public/class-open-accessibility-public.php:435
+#: public/partials/widget-template.php:114
 msgid "Negative Contrast"
 msgstr ""
 
-#: public/class-open-accessibility-public.php:428
-#: public/partials/widget-template.php:110
+#: public/class-open-accessibility-public.php:436
+#: public/partials/widget-template.php:117
 msgid "Light Background"
 msgstr ""
 
-#: public/class-open-accessibility-public.php:429
-#: public/partials/widget-template.php:113
+#: public/class-open-accessibility-public.php:437
+#: public/partials/widget-template.php:120
 msgid "Dark Background"
 msgstr ""
 
-#: public/class-open-accessibility-public.php:433
-#: public/partials/widget-template.php:134
+#: public/class-open-accessibility-public.php:441
+#: public/partials/widget-template.php:141
 msgid "Text Size"
 msgstr ""
 
-#: public/class-open-accessibility-public.php:434
+#: public/class-open-accessibility-public.php:442
 msgid "Increase Text"
 msgstr ""
 
-#: public/class-open-accessibility-public.php:435
+#: public/class-open-accessibility-public.php:443
 msgid "Decrease Text"
 msgstr ""
 
-#: public/class-open-accessibility-public.php:437
-#: public/partials/widget-template.php:157
+#: public/class-open-accessibility-public.php:445
+#: public/partials/widget-template.php:164
 msgid "Default Font"
 msgstr ""
 
-#: public/class-open-accessibility-public.php:438
-#: public/partials/widget-template.php:161
+#: public/class-open-accessibility-public.php:446
+#: public/partials/widget-template.php:168
 msgid "Atkinson Hyperlegible"
 msgstr ""
 
-#: public/class-open-accessibility-public.php:439
-#: public/partials/widget-template.php:166
+#: public/class-open-accessibility-public.php:447
+#: public/partials/widget-template.php:173
 msgid "OpenDyslexic"
 msgstr ""
 
-#: public/class-open-accessibility-public.php:448
-#: public/class-open-accessibility-public.php:449
-#: public/partials/widget-template.php:256
+#: public/class-open-accessibility-public.php:456
+#: public/class-open-accessibility-public.php:457
+#: public/partials/widget-template.php:263
 msgid "Line Height"
 msgstr ""
 
-#: public/class-open-accessibility-public.php:450
-#: public/partials/widget-template.php:272
+#: public/class-open-accessibility-public.php:458
+#: public/partials/widget-template.php:279
 msgid "Text Align"
 msgstr ""
 
-#: public/class-open-accessibility-public.php:451
-#: public/partials/widget-template.php:278
+#: public/class-open-accessibility-public.php:459
+#: public/partials/widget-template.php:285
 msgid "Center"
 msgstr ""
 
-#: public/class-open-accessibility-public.php:462
+#: public/class-open-accessibility-public.php:470
 msgid "Dismiss"
 msgstr ""
 
-#: public/class-open-accessibility-public.php:463
-#: public/class-open-accessibility-public.php:481
+#: public/class-open-accessibility-public.php:471
+#: public/class-open-accessibility-public.php:503
 msgid "Skip to content"
 msgstr ""
 
-#: public/partials/widget-template.php:37
+#: public/class-open-accessibility-public.php:472
+#: public/partials/widget-template.php:320
+msgid "Help"
+msgstr ""
+
+#: public/class-open-accessibility-public.php:473
+#: public/partials/widget-template.php:324
+msgid "Accessibility Feedback"
+msgstr ""
+
+#: public/partials/widget-template.php:44
 msgid "Open accessibility tools"
 msgstr ""
 
-#: public/partials/widget-template.php:84
+#: public/partials/widget-template.php:91
 msgid "Close accessibility tools"
 msgstr ""
 
-#: public/partials/widget-template.php:94
+#: public/partials/widget-template.php:101
 msgid "Reset All"
 msgstr ""
 
-#: public/partials/widget-template.php:137
-#: public/partials/widget-template.php:179
-#: public/partials/widget-template.php:195
-#: public/partials/widget-template.php:259
+#: public/partials/widget-template.php:144
+#: public/partials/widget-template.php:186
+#: public/partials/widget-template.php:202
+#: public/partials/widget-template.php:266
 msgid "Decrease"
 msgstr ""
 
-#: public/partials/widget-template.php:139
+#: public/partials/widget-template.php:146
 msgid "Text size level"
 msgstr ""
 
-#: public/partials/widget-template.php:141
-#: public/partials/widget-template.php:183
-#: public/partials/widget-template.php:199
-#: public/partials/widget-template.php:263
+#: public/partials/widget-template.php:148
+#: public/partials/widget-template.php:190
+#: public/partials/widget-template.php:206
+#: public/partials/widget-template.php:270
 msgid "Increase"
 msgstr ""
 
-#: public/partials/widget-template.php:178
+#: public/partials/widget-template.php:185
 msgid "Decrease letter spacing"
 msgstr ""
 
-#: public/partials/widget-template.php:181
+#: public/partials/widget-template.php:188
 msgid "Letter spacing level"
 msgstr ""
 
-#: public/partials/widget-template.php:182
+#: public/partials/widget-template.php:189
 msgid "Increase letter spacing"
 msgstr ""
 
-#: public/partials/widget-template.php:194
+#: public/partials/widget-template.php:201
 msgid "Decrease word spacing"
 msgstr ""
 
-#: public/partials/widget-template.php:197
+#: public/partials/widget-template.php:204
 msgid "Word spacing level"
 msgstr ""
 
-#: public/partials/widget-template.php:198
+#: public/partials/widget-template.php:205
 msgid "Increase word spacing"
 msgstr ""
 
-#: public/partials/widget-template.php:258
+#: public/partials/widget-template.php:265
 msgid "Decrease line height"
 msgstr ""
 
-#: public/partials/widget-template.php:261
+#: public/partials/widget-template.php:268
 msgid "Line height level"
 msgstr ""
 
-#: public/partials/widget-template.php:262
+#: public/partials/widget-template.php:269
 msgid "Increase line height"
 msgstr ""
 
-#: public/partials/widget-template.php:317
+#: public/partials/widget-template.php:350
 msgid "Hide Accessibility Panel"
 msgstr ""

@@ -142,6 +142,10 @@ class Open_Accessibility_Public {
 			'bg_color' => $this->get_option('bg_color', '#4054b2'),
 			'statement_url' => $this->get_option('statement_url', ''),
 			'sitemap_url' => $this->get_option('sitemap_url', ''),
+			'help_url' => $this->get_option('help_url', ''),
+			'feedback_url' => $this->get_option('feedback_url', ''),
+			'strip_link_targets' => (bool) $this->get_option('strip_link_targets', false),
+			'enable_analytics' => (bool) $this->get_option('enable_analytics', false),
 			'enable_contrast' => $this->get_option('enable_contrast', true),
 			'enable_grayscale' => $this->get_option('enable_grayscale', true),
 			'enable_text_size' => $this->get_option('enable_text_size', true),
@@ -415,8 +419,12 @@ class Open_Accessibility_Public {
 	 * @return array
 	 */
 	private function get_strings() {
-		return array(
-			'widget_title' => __('Accessibility Options', 'open-accessibility'),
+		$title_override = $this->get_option('widget_title', '');
+
+		$strings = array(
+			'widget_title' => '' !== $title_override
+				? $title_override
+				: __('Accessibility Options', 'open-accessibility'),
 			'reset_title' => __('Reset Settings', 'open-accessibility'),
 			'reset_text' => __('Reset', 'open-accessibility'),
 			'keyboard_nav_title' => __('Keyboard Navigation', 'open-accessibility'),
@@ -461,7 +469,21 @@ class Open_Accessibility_Public {
 			'statement_text' => __('Accessibility Statement', 'open-accessibility'),
 			'dismiss_text' => __('Dismiss', 'open-accessibility'),
 			'skip_to_content' => __('Skip to content', 'open-accessibility'),
+			'help_text' => __('Help', 'open-accessibility'),
+			'feedback_text' => __('Accessibility Feedback', 'open-accessibility'),
+			'sitemap_text' => __('Sitemap', 'open-accessibility'),
 		);
+
+		/**
+		 * Filter every user-facing widget string.
+		 *
+		 * Lets themes and site owners relabel any control without the plugin
+		 * needing a settings field per label.
+		 *
+		 * @since 1.3.03
+		 * @param array $strings Keyed list of widget strings.
+		 */
+		return apply_filters( 'open_accessibility_strings', $strings );
 	}
 
 	/**
