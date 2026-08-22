@@ -144,6 +144,7 @@ class Open_Accessibility_Public {
 			'sitemap_url' => $this->get_option('sitemap_url', ''),
 			'help_url' => $this->get_option('help_url', ''),
 			'feedback_url' => $this->get_option('feedback_url', ''),
+			'skip_to_element_id' => $this->get_option('skip_to_element_id', 'content'),
 			'strip_link_targets' => (bool) $this->get_option('strip_link_targets', false),
 			'enable_analytics' => (bool) $this->get_option('enable_analytics', false),
 			'enable_contrast' => $this->get_option('enable_contrast', true),

@@ -186,6 +186,9 @@ Frontend selector diagnostics are browser-side diagnostics. Use `window.OpenAcce
 * Fix usage logging recording the admin-ajax action name instead of the interaction; the field is now `feature_action`
 * Stop storing IP addresses and user agents with usage data, which could imply a visitor's disability
 * Remove a `SHOW TABLES` query that ran on every single page load
+* Fix the skip-to-content link doing nothing on themes without an `#content` element, including all block themes and Kadence
+* Skip-to-content now moves keyboard focus to the target rather than only scrolling to it (WCAG 2.1 SC 2.4.1)
+* Tested against Hello Elementor, Astra, GeneratePress, OceanWP, Kadence, and Twenty Twenty-Five
 
 = 1.3.01 =
 * Make typography controls adapt to theme-defined line height, spacing, and font sizing instead of overriding whole-page styles

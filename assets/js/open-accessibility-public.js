@@ -288,6 +288,7 @@
         // Apply saved state
         applyState();
         applyLinkTargetPolicy();
+        initSkipLink();
         dispatchReadyEvent();
 
         // Button click handler
@@ -1764,6 +1765,101 @@
     }
 
     // Helper function to set cookies
+    // Ordered list of places "skip to content" should land when the configured
+    // element ID is not on the page.
+    //
+    // Order matters: the first match wins, so the most specific, most reliably
+    // "start of the main content" candidate belongs first. Block themes get
+    // #wp--skip-link--target injected by WordPress core, which is why it leads.
+    //
+    // TODO(tune me): themes disagree about what counts as the content start.
+    // If your sites commonly use a builder or a theme that wraps content
+    // differently, reorder or extend this list to suit.
+    function getSkipTargetCandidates() {
+        return [
+            '#wp--skip-link--target',
+            '#content',
+            '#main',
+            '#primary',
+            'main',
+            '[role="main"]',
+            '.site-main',
+            '.entry-content'
+        ];
+    }
+
+    // Resolve the element the skip link should actually move focus to.
+    function resolveSkipTarget() {
+        const configured = getFrontendOption('skip_to_element_id', 'content');
+
+        // An explicitly configured ID always wins when it is really on the page.
+        if (configured) {
+            const byId = document.getElementById(configured);
+            if (byId) {
+                return byId;
+            }
+        }
+
+        const candidates = getSkipTargetCandidates();
+
+        for (let i = 0; i < candidates.length; i++) {
+            try {
+                const el = document.querySelector(candidates[i]);
+                if (el) {
+                    return el;
+                }
+            } catch (e) {
+                // Ignore an invalid selector and keep looking.
+            }
+        }
+
+        return null;
+    }
+
+    // Point the skip link at something real, and actually move focus.
+    //
+    // Two separate problems are handled here. Block themes have no #content,
+    // so the default href resolves to nothing. And even when the target does
+    // exist, following an in-page anchor scrolls the viewport without moving
+    // keyboard focus unless the target can hold it - the classic reason a skip
+    // link appears to do nothing for screen reader users (WCAG 2.1 SC 2.4.1).
+    function initSkipLink() {
+        const $link = $('.open-accessibility-skip-to-content-link');
+
+        if (!$link.length) {
+            return;
+        }
+
+        const target = resolveSkipTarget();
+
+        if (!target) {
+            logDebug('Open Accessibility: no skip-to-content target found on this page');
+            return;
+        }
+
+        // Give the target an ID if it has none, so the href stays meaningful.
+        if (!target.id) {
+            target.id = 'open-accessibility-content';
+        }
+
+        $link.attr('href', '#' + target.id);
+
+        $link.on('click', function(e) {
+            e.preventDefault();
+
+            // Headings, divs and <main> are not focusable by default. -1 keeps
+            // them out of the tab order while still allowing programmatic focus.
+            if (!target.hasAttribute('tabindex')) {
+                target.setAttribute('tabindex', '-1');
+            }
+
+            target.focus({ preventScroll: true });
+            target.scrollIntoView();
+
+            $link.trigger('blur');
+        });
+    }
+
     // Read a frontend option pushed through wp_localize_script.
     function getFrontendOption(key, fallback) {
         if (typeof open_accessibility_data === 'undefined' ||
