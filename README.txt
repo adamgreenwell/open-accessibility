@@ -188,6 +188,7 @@ Frontend selector diagnostics are browser-side diagnostics. Use `window.OpenAcce
 * Remove a `SHOW TABLES` query that ran on every single page load
 * Fix the skip-to-content link doing nothing on themes without an `#content` element, including all block themes and Kadence
 * Skip-to-content now moves keyboard focus to the target rather than only scrolling to it (WCAG 2.1 SC 2.4.1)
+* Add an `open_accessibility_skip_target_candidates` filter to control where skip-to-content lands
 * Tested against Hello Elementor, Astra, GeneratePress, OceanWP, Kadence, and Twenty Twenty-Five
 
 = 1.3.01 =

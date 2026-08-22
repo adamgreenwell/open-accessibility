@@ -1768,14 +1768,20 @@
     // Ordered list of places "skip to content" should land when the configured
     // element ID is not on the page.
     //
-    // Order matters: the first match wins, so the most specific, most reliably
-    // "start of the main content" candidate belongs first. Block themes get
+    // Order matters: the first match wins, so the most reliably "start of the
+    // main content" candidate belongs first. Block themes get
     // #wp--skip-link--target injected by WordPress core, which is why it leads.
     //
-    // TODO(tune me): themes disagree about what counts as the content start.
-    // If your sites commonly use a builder or a theme that wraps content
-    // differently, reorder or extend this list to suit.
+    // The list is supplied by PHP and can be reordered or extended with the
+    // open_accessibility_skip_target_candidates filter. The literals here are
+    // only a fallback for when the option fails to arrive.
     function getSkipTargetCandidates() {
+        const configured = getFrontendOption('skip_target_candidates', null);
+
+        if (Array.isArray(configured) && configured.length) {
+            return configured.filter((s) => typeof s === 'string' && s.trim().length);
+        }
+
         return [
             '#wp--skip-link--target',
             '#content',
