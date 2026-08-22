@@ -167,15 +167,12 @@ Frontend selector diagnostics are browser-side diagnostics. Use `window.OpenAcce
 = 1.4.0 =
 * Verified compatibility with WordPress 7.1 on PHP 8.4 and PHP 8.5
 * Add a Links settings tab with optional Help and Feedback links in the widget panel
-* Expose the Sitemap link in the settings UI; it had no field and could not be set
+* Expose the Sitemap link in the settings UI
 * Add a Panel Title setting to rename the widget heading
 * Add an `open_accessibility_strings` filter so any widget label can be overridden
 * Add an `open_accessibility_panel_title` filter and an `open_accessibility_panel_links` filter
 * Add an opt-in "Open Links in Same Tab" setting that strips `target="_blank"` (WCAG 2.1 SC 3.2.5)
 * Add an opt-in, off-by-default Usage Logging setting; feature usage is now recorded only when enabled
-* Fix usage logging recording the admin-ajax action name instead of the interaction; the field is now `feature_action`
-* Stop storing IP addresses and user agents with usage data, which could imply a visitor's disability
-* Remove a `SHOW TABLES` query that ran on every single page load
 * Fix the skip-to-content link doing nothing on themes without an `#content` element, including all block themes and Kadence
 * Skip-to-content now moves keyboard focus to the target rather than only scrolling to it (WCAG 2.1 SC 2.4.1)
 * Add an `open_accessibility_skip_target_candidates` filter to control where skip-to-content lands
