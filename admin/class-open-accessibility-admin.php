@@ -208,6 +208,14 @@ class Open_Accessibility_Admin {
 			'open-accessibility-settings'
 		);
 
+		// Helpful Links
+		add_settings_section(
+			'open_accessibility_links',
+			__('Helpful Links', 'open-accessibility'),
+			array($this, 'links_section_callback'),
+			'open-accessibility-settings'
+		);
+
 		// Add a new section for Advanced Settings
 		add_settings_section(
 			'open_accessibility_advanced',
@@ -302,6 +310,19 @@ class Open_Accessibility_Admin {
 			)
 		);
 
+		add_settings_field(
+			'widget_title',
+			__('Panel Title', 'open-accessibility'),
+			array($this, 'text_field_callback'),
+			'open-accessibility-settings',
+			'open_accessibility_design',
+			array(
+				'id' => 'widget_title',
+				'default' => '',
+				'description' => __('Heading shown at the top of the widget panel. Leave empty to use the default, "Accessibility Options".', 'open-accessibility')
+			)
+		);
+
 		// Widget position fields
 		add_settings_field(
 			'position',
@@ -380,6 +401,37 @@ class Open_Accessibility_Admin {
 			'open_accessibility_statement'
 		);
 
+		// Helpful Links fields. Each link renders in the widget panel only when
+		// its URL is set, so an empty field simply hides that link.
+		$links = array(
+			'sitemap_url' => array(
+				'label' => __('Sitemap URL', 'open-accessibility'),
+				'description' => __('Link to your sitemap. Leave empty to hide this link.', 'open-accessibility'),
+			),
+			'help_url' => array(
+				'label' => __('Help URL', 'open-accessibility'),
+				'description' => __('Link to a help or support page. Leave empty to hide this link.', 'open-accessibility'),
+			),
+			'feedback_url' => array(
+				'label' => __('Feedback URL', 'open-accessibility'),
+				'description' => __('Link to an accessibility feedback form. Leave empty to hide this link.', 'open-accessibility'),
+			),
+		);
+
+		foreach ($links as $id => $link) {
+			add_settings_field(
+				$id,
+				$link['label'],
+				array($this, 'url_field_callback'),
+				'open-accessibility-settings',
+				'open_accessibility_links',
+				array(
+					'id' => $id,
+					'description' => $link['description'],
+				)
+			);
+		}
+
 		// Advanced Settings field
 		add_settings_field(
 			'enable_debug',
@@ -391,6 +443,32 @@ class Open_Accessibility_Admin {
 				'id' => 'enable_debug',
 				'label' => __('Enable debug logging for troubleshooting', 'open-accessibility'),
 				'description' => __('When enabled, debug information will be logged to the WordPress debug.log file. Please make sure that your WordPress install also has debugging and debug logging enabled.', 'open-accessibility')
+			)
+		);
+
+		add_settings_field(
+			'strip_link_targets',
+			__('Open Links in Same Tab', 'open-accessibility'),
+			array($this, 'checkbox_field_callback'),
+			'open-accessibility-settings',
+			'open_accessibility_advanced',
+			array(
+				'id' => 'strip_link_targets',
+				'label' => __('Remove target="_blank" so links open in the same tab', 'open-accessibility'),
+				'description' => __('Unexpected new tabs can disorient screen reader and magnifier users (WCAG 2.1 SC 3.2.5, AAA). Off by default because it changes how every link on the site behaves.', 'open-accessibility')
+			)
+		);
+
+		add_settings_field(
+			'enable_analytics',
+			__('Enable Usage Logging', 'open-accessibility'),
+			array($this, 'checkbox_field_callback'),
+			'open-accessibility-settings',
+			'open_accessibility_advanced',
+			array(
+				'id' => 'enable_analytics',
+				'label' => __('Record which widget features visitors use', 'open-accessibility'),
+				'description' => __('Off by default. Records only the feature name, the interaction, and its value — no IP address, no user agent, no visitor identifier. Even so, feature choices can imply a disability, so disclose this in your privacy policy before enabling it.', 'open-accessibility')
 			)
 		);
 
@@ -437,6 +515,15 @@ class Open_Accessibility_Admin {
 	 */
 	public function statement_section_callback() {
 		echo '<p>' . esc_html(__('Configure your accessibility statement.', 'open-accessibility')) . '</p>';
+	}
+
+	/**
+	 * Links section callback
+	 *
+	 * @since 1.4.0
+	 */
+	public function links_section_callback() {
+		echo '<p>' . esc_html__('Optional links shown at the bottom of the widget panel. Each one appears only when its URL is filled in.', 'open-accessibility') . '</p>';
 	}
 
 	/**
@@ -759,6 +846,8 @@ class Open_Accessibility_Admin {
 			'enable_text_align',
 			'enable_animations_pause',
 			'enable_debug',
+			'strip_link_targets',
+			'enable_analytics',
 		);
 
 		foreach ($checkboxes as $key) {
@@ -773,6 +862,18 @@ class Open_Accessibility_Admin {
 		// Sanitize URLs
 		if (isset($input['sitemap_url'])) {
 			$sanitized['sitemap_url'] = esc_url_raw($input['sitemap_url']);
+		}
+
+		if (isset($input['help_url'])) {
+			$sanitized['help_url'] = esc_url_raw($input['help_url']);
+		}
+
+		if (isset($input['feedback_url'])) {
+			$sanitized['feedback_url'] = esc_url_raw($input['feedback_url']);
+		}
+
+		if (isset($input['widget_title'])) {
+			$sanitized['widget_title'] = sanitize_text_field($input['widget_title']);
 		}
 
 		if (isset($input['statement_url'])) {

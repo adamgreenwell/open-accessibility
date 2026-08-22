@@ -287,6 +287,8 @@
 
         // Apply saved state
         applyState();
+        applyLinkTargetPolicy();
+        initSkipLink();
         dispatchReadyEvent();
 
         // Button click handler
@@ -1255,6 +1257,9 @@
         // Update state
         syncActionButtonStates();
         saveState();
+
+        // Logged after the sync so toggles report the state they landed in.
+        logFeatureUsage($btn, action, value);
     }
 
     function setButtonPressed(action, value, pressed) {
@@ -1760,6 +1765,200 @@
     }
 
     // Helper function to set cookies
+    // Ordered list of places "skip to content" should land when the configured
+    // element ID is not on the page.
+    //
+    // Order matters: the first match wins, so the most reliably "start of the
+    // main content" candidate belongs first. Block themes get
+    // #wp--skip-link--target injected by WordPress core, which is why it leads.
+    //
+    // The list is supplied by PHP and can be reordered or extended with the
+    // open_accessibility_skip_target_candidates filter. The literals here are
+    // only a fallback for when the option fails to arrive.
+    function getSkipTargetCandidates() {
+        const configured = getFrontendOption('skip_target_candidates', null);
+
+        if (Array.isArray(configured) && configured.length) {
+            return configured.filter((s) => typeof s === 'string' && s.trim().length);
+        }
+
+        return [
+            '#wp--skip-link--target',
+            '#content',
+            '#main',
+            '#primary',
+            'main',
+            '[role="main"]',
+            '.site-main',
+            '.entry-content'
+        ];
+    }
+
+    // Resolve the element the skip link should actually move focus to.
+    function resolveSkipTarget() {
+        const configured = getFrontendOption('skip_to_element_id', 'content');
+
+        // An explicitly configured ID always wins when it is really on the page.
+        if (configured) {
+            const byId = document.getElementById(configured);
+            if (byId) {
+                return byId;
+            }
+        }
+
+        const candidates = getSkipTargetCandidates();
+
+        for (let i = 0; i < candidates.length; i++) {
+            try {
+                const el = document.querySelector(candidates[i]);
+                if (el) {
+                    return el;
+                }
+            } catch (e) {
+                // Ignore an invalid selector and keep looking.
+            }
+        }
+
+        return null;
+    }
+
+    // Point the skip link at something real, and actually move focus.
+    //
+    // Two separate problems are handled here. Block themes have no #content,
+    // so the default href resolves to nothing. And even when the target does
+    // exist, following an in-page anchor scrolls the viewport without moving
+    // keyboard focus unless the target can hold it - the classic reason a skip
+    // link appears to do nothing for screen reader users (WCAG 2.1 SC 2.4.1).
+    function initSkipLink() {
+        const $link = $('.open-accessibility-skip-to-content-link');
+
+        if (!$link.length) {
+            return;
+        }
+
+        const target = resolveSkipTarget();
+
+        if (!target) {
+            logDebug('Open Accessibility: no skip-to-content target found on this page');
+            return;
+        }
+
+        // Give the target an ID if it has none, so the href stays meaningful.
+        if (!target.id) {
+            target.id = 'open-accessibility-content';
+        }
+
+        $link.attr('href', '#' + target.id);
+
+        $link.on('click', function(e) {
+            e.preventDefault();
+
+            // Headings, divs and <main> are not focusable by default. -1 keeps
+            // them out of the tab order while still allowing programmatic focus.
+            if (!target.hasAttribute('tabindex')) {
+                target.setAttribute('tabindex', '-1');
+            }
+
+            target.focus({ preventScroll: true });
+            target.scrollIntoView();
+
+            $link.trigger('blur');
+        });
+    }
+
+    // Read a frontend option pushed through wp_localize_script.
+    function getFrontendOption(key, fallback) {
+        if (typeof open_accessibility_data === 'undefined' ||
+            !open_accessibility_data ||
+            !open_accessibility_data.options ||
+            typeof open_accessibility_data.options[key] === 'undefined') {
+            return fallback;
+        }
+
+        return open_accessibility_data.options[key];
+    }
+
+    // Open links in the same tab.
+    //
+    // An unannounced new tab breaks the back button and disorients screen
+    // reader and magnifier users (WCAG 2.1 SC 3.2.5). Opt-in, because it
+    // changes the behaviour of every link on the site. The widget's own links
+    // and anything explicitly excluded are left alone.
+    function applyLinkTargetPolicy() {
+        if (!getFrontendOption('strip_link_targets', false)) {
+            return;
+        }
+
+        $('a[target="_blank"]').each(function() {
+            const $link = $(this);
+
+            if ($link.closest('.open-accessibility-widget-wrapper, .open-accessibility-ignore, [data-oa-ignore]').length) {
+                return;
+            }
+
+            $link.removeAttr('target');
+        });
+    }
+
+    // Per-tab identifier so repeated toggles in one visit group together.
+    // Deliberately sessionStorage, not localStorage: it dies with the tab and
+    // never becomes a cross-visit identifier.
+    function getSessionId() {
+        const key = 'open-accessibility-session';
+
+        try {
+            let id = sessionStorage.getItem(key);
+
+            if (!id) {
+                id = 'oa-' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+                sessionStorage.setItem(key, id);
+            }
+
+            return id;
+        } catch (e) {
+            // Private browsing or storage disabled: skip logging rather than throw.
+            return '';
+        }
+    }
+
+    // Report a control interaction, when the site owner has opted in.
+    //
+    // Sends `feature_action` rather than `action`: admin-ajax reserves `action`
+    // to route the request, so a field of that name never reaches the handler.
+    function logFeatureUsage($button, feature, value) {
+        if (!getFrontendOption('enable_analytics', false)) {
+            return;
+        }
+
+        if (typeof open_accessibility_data === 'undefined' ||
+            !open_accessibility_data ||
+            !open_accessibility_data.ajaxurl) {
+            return;
+        }
+
+        const sessionId = getSessionId();
+
+        if (!sessionId || !feature) {
+            return;
+        }
+
+        // Toggles report the state they landed in; value controls report the
+        // value that was chosen.
+        const isToggle = value === 'toggle';
+        const pressed = $button && $button.attr('aria-pressed') === 'true';
+
+        $.post(open_accessibility_data.ajaxurl, {
+            action: 'open_accessibility_log_usage',
+            nonce: open_accessibility_data.nonce,
+            session_id: sessionId,
+            feature: feature,
+            feature_action: isToggle ? 'toggle' : 'set',
+            value: isToggle ? (pressed ? 'on' : 'off') : String(value == null ? '' : value)
+        }).fail(function() {
+            logDebug('Open Accessibility: usage logging request failed');
+        });
+    }
+
     function setCookie(name, value, days) {
         let expires = '';
         if (days) {

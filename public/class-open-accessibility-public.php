@@ -142,6 +142,12 @@ class Open_Accessibility_Public {
 			'bg_color' => $this->get_option('bg_color', '#4054b2'),
 			'statement_url' => $this->get_option('statement_url', ''),
 			'sitemap_url' => $this->get_option('sitemap_url', ''),
+			'help_url' => $this->get_option('help_url', ''),
+			'feedback_url' => $this->get_option('feedback_url', ''),
+			'skip_to_element_id' => $this->get_option('skip_to_element_id', 'content'),
+			'skip_target_candidates' => $this->get_skip_target_candidates(),
+			'strip_link_targets' => (bool) $this->get_option('strip_link_targets', false),
+			'enable_analytics' => (bool) $this->get_option('enable_analytics', false),
 			'enable_contrast' => $this->get_option('enable_contrast', true),
 			'enable_grayscale' => $this->get_option('enable_grayscale', true),
 			'enable_text_size' => $this->get_option('enable_text_size', true),
@@ -163,6 +169,37 @@ class Open_Accessibility_Public {
 			'typography_targets' => $typography_targets,
 			'target_config' => $this->get_target_config( $typography_targets ),
 			'debug' => (bool) $this->is_debug_enabled,
+		);
+	}
+
+	/**
+	 * Get the ordered fallback selectors for the skip-to-content target.
+	 *
+	 * Used only when the configured element ID is not present on the page.
+	 * The first selector that matches wins, so the most reliable "start of
+	 * main content" candidate should come first. WordPress core injects
+	 * #wp--skip-link--target into block themes, which is why it leads.
+	 *
+	 * Themes can reorder or extend the list with:
+	 * - open_accessibility_skip_target_candidates
+	 *
+	 * @since 1.4.0
+	 * @return array
+	 */
+	private function get_skip_target_candidates() {
+		$candidates = array(
+			'#wp--skip-link--target',
+			'#content',
+			'#main',
+			'#primary',
+			'main',
+			'[role="main"]',
+			'.site-main',
+			'.entry-content',
+		);
+
+		return $this->normalize_selector_list(
+			apply_filters( 'open_accessibility_skip_target_candidates', $candidates )
 		);
 	}
 
@@ -415,8 +452,12 @@ class Open_Accessibility_Public {
 	 * @return array
 	 */
 	private function get_strings() {
-		return array(
-			'widget_title' => __('Accessibility Options', 'open-accessibility'),
+		$title_override = $this->get_option('widget_title', '');
+
+		$strings = array(
+			'widget_title' => '' !== $title_override
+				? $title_override
+				: __('Accessibility Options', 'open-accessibility'),
 			'reset_title' => __('Reset Settings', 'open-accessibility'),
 			'reset_text' => __('Reset', 'open-accessibility'),
 			'keyboard_nav_title' => __('Keyboard Navigation', 'open-accessibility'),
@@ -461,7 +502,21 @@ class Open_Accessibility_Public {
 			'statement_text' => __('Accessibility Statement', 'open-accessibility'),
 			'dismiss_text' => __('Dismiss', 'open-accessibility'),
 			'skip_to_content' => __('Skip to content', 'open-accessibility'),
+			'help_text' => __('Help', 'open-accessibility'),
+			'feedback_text' => __('Accessibility Feedback', 'open-accessibility'),
+			'sitemap_text' => __('Sitemap', 'open-accessibility'),
 		);
+
+		/**
+		 * Filter every user-facing widget string.
+		 *
+		 * Lets themes and site owners relabel any control without the plugin
+		 * needing a settings field per label.
+		 *
+		 * @since 1.4.0
+		 * @param array $strings Keyed list of widget strings.
+		 */
+		return apply_filters( 'open_accessibility_strings', $strings );
 	}
 
 	/**

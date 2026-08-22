@@ -169,10 +169,20 @@ class Open_Accessibility_Ajax {
 			wp_send_json_error( array( 'message' => __( 'Security check failed.', 'open-accessibility' ) ) );
 		}
 
-		// Get parameters
+		// Usage logging is opt-in and off by default.
+		$options = get_option( 'open_accessibility_options', array() );
+		if ( empty( $options['enable_analytics'] ) ) {
+			wp_send_json_error( array( 'message' => __( 'Usage logging is disabled.', 'open-accessibility' ) ) );
+		}
+
+		// Get parameters.
+		//
+		// Note: the interaction type arrives as `feature_action`, not `action`.
+		// `action` is reserved by WordPress to route the admin-ajax request, so
+		// reading it here would always yield 'open_accessibility_log_usage'.
 		$session_id = isset( $_POST['session_id'] ) ? sanitize_text_field( wp_unslash($_POST['session_id'] ) ) : '';
 		$feature = isset( $_POST['feature'] ) ? sanitize_text_field( wp_unslash($_POST['feature'] ) ) : '';
-		$action = isset( $_POST['action'] ) ? sanitize_text_field( wp_unslash($_POST['action'] ) ) : '';
+		$action = isset( $_POST['feature_action'] ) ? sanitize_text_field( wp_unslash($_POST['feature_action'] ) ) : '';
 		$value = isset( $_POST['value'] ) ? sanitize_text_field( wp_unslash($_POST['value'] ) ) : '';
 
 		// Validate required fields

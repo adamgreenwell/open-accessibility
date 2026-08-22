@@ -36,6 +36,7 @@ if (!defined('ABSPATH')) {
 			<a href="#tab-position" class="nav-tab"><?php esc_html_e('Position', 'open-accessibility'); ?></a>
 			<a href="#tab-features" class="nav-tab"><?php esc_html_e('Features', 'open-accessibility'); ?></a>
 			<a href="#tab-statement" class="nav-tab"><?php esc_html_e('Statement', 'open-accessibility'); ?></a>
+			<a href="#tab-links" class="nav-tab"><?php esc_html_e('Links', 'open-accessibility'); ?></a>
             <a href="#tab-advanced" class="nav-tab"><?php esc_html_e('Advanced', 'open-accessibility'); ?></a>
 		</nav>
 	</div>
@@ -101,6 +102,17 @@ if (!defined('ABSPATH')) {
 				<h2><?php esc_html_e('Accessibility Statement', 'open-accessibility'); ?></h2>
 				<table class="form-table">
 					<?php do_settings_fields('open-accessibility-settings', 'open_accessibility_statement'); ?>
+				</table>
+			</div>
+
+			<!-- Links Tab -->
+			<div id="tab-links" class="open-accessibility-tab">
+				<h2><?php esc_html_e('Helpful Links', 'open-accessibility'); ?></h2>
+				<p class="description">
+					<?php esc_html_e('Optional links shown at the bottom of the widget panel. Each one appears only when its URL is filled in.', 'open-accessibility'); ?>
+				</p>
+				<table class="form-table">
+					<?php do_settings_fields('open-accessibility-settings', 'open_accessibility_links'); ?>
 				</table>
 			</div>
 
