@@ -37,8 +37,9 @@ dist/
 *.zip
 composer.lock
 
-# Release tooling is part of the source tree even if a local/global ignore
-# pattern hides generic bin directories.
-!/bin/
-!/bin/*.sh
-!/Makefile
+# Release tooling and planning notes are kept locally, not published.
+# They live in the working tree but are deliberately absent from the public
+# repository; .distignore also keeps them out of release packages.
+/bin/
+/docs/
+/Makefile
