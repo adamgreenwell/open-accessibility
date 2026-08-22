@@ -180,6 +180,13 @@ Frontend selector diagnostics are browser-side diagnostics. Use `window.OpenAcce
 
 ## Changelog
 
+### 1.4.01
+* Fix the widget becoming unreachable when a contrast mode is switched on
+* Raise the skip-to-content link above theme chrome
+* Improve content detection for page builders, including Divi
+* Add a Reading Mask control that dims the page except for a band tracking the pointer
+* Tested against Divi, Blocksy, Neve, Sydney, and Hestia
+
 ### 1.4.0
 * Verified compatibility with WordPress 7.1 on PHP 8.4 and PHP 8.5
 * Add a Links settings tab with optional Help and Feedback links in the widget panel

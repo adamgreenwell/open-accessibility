@@ -158,6 +158,7 @@ class Open_Accessibility_Public {
 			'enable_links_underline' => $this->get_option('enable_links_underline', true),
 			'enable_hide_images' => $this->get_option('enable_hide_images', true),
 			'enable_reading_guide' => $this->get_option('enable_reading_guide', true),
+			'enable_reading_mask' => $this->get_option('enable_reading_mask', true),
 			'enable_focus_outline' => $this->get_option('enable_focus_outline', true),
 			'enable_line_height' => $this->get_option('enable_line_height', true),
 			'enable_text_align' => $this->get_option('enable_text_align', true),
@@ -194,6 +195,8 @@ class Open_Accessibility_Public {
 			'#primary',
 			'main',
 			'[role="main"]',
+			'#main-content',
+			'#et-main-area',
 			'.site-main',
 			'.entry-content',
 		);
@@ -230,6 +233,13 @@ class Open_Accessibility_Public {
 				'.site-main',
 				'#content',
 				'#primary',
+				// Page builders wrap content in their own containers and ship
+				// no #content at all. Divi in particular matched only 2 of the
+				// roots above, leaving most of the page out of reach.
+				'#main-content',
+				'#et-main-area',
+				'#content-area',
+				'#left-area',
 			),
 			'text_elements' => array(
 				'p',
@@ -484,6 +494,8 @@ class Open_Accessibility_Public {
 			'hide_images_text' => __('Hide Images', 'open-accessibility'),
 			'reading_guide_title' => __('Reading Guide', 'open-accessibility'),
 			'reading_guide_text' => __('Reading Guide', 'open-accessibility'),
+			'reading_mask_title' => __('Reading Mask', 'open-accessibility'),
+			'reading_mask_text' => __('Reading Mask', 'open-accessibility'),
 			'focus_outline_title' => __('Focus Outline', 'open-accessibility'),
 			'focus_outline_text' => __('Focus Outline', 'open-accessibility'),
 			'line_height_title' => __('Line Height', 'open-accessibility'),

@@ -245,6 +245,26 @@ $panel_title = apply_filters( 'open_accessibility_panel_title', $panel_title );
 				</div>
 			<?php endif; ?>
 
+			<!-- Reading Mask Section -->
+			<?php
+			// New in 1.4.01: existing installs have no saved value for this key,
+			// and an isset() gate would hide the control until they re-saved
+			// their settings. Default it on, matching the other reading aids.
+			$oa_enable_reading_mask = isset($options['enable_reading_mask'])
+				? (bool) $options['enable_reading_mask']
+				: true;
+			?>
+			<?php if ($oa_enable_reading_mask): ?>
+				<div class="open-accessibility-widget-section">
+					<h3><?php esc_html_e('Reading Mask', 'open-accessibility'); ?></h3>
+					<div class="open-accessibility-actions">
+						<button class="open-accessibility-action-button" data-action="reading-mask" data-value="toggle" aria-pressed="false">
+							<?php esc_html_e('Reading Mask', 'open-accessibility'); ?>
+						</button>
+					</div>
+				</div>
+			<?php endif; ?>
+
 			<!-- Focus Outline Section -->
 			<?php if (isset($options['enable_focus_outline']) && $options['enable_focus_outline']): ?>
 				<div class="open-accessibility-widget-section">

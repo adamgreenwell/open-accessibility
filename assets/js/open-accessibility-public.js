@@ -18,6 +18,7 @@
         linksUnderline: false,
         hideImages: false,
         readingGuide: false,
+        readingMask: false,
         focusOutline: false,
         lineHeightLevel: 0,
         textAlign: '',
@@ -99,6 +100,7 @@
         excluded: [
             '.open-accessibility-widget-wrapper',
             '.open-accessibility-reading-guide',
+            '.open-accessibility-reading-mask',
             '.open-accessibility-skip-to-content-link',
             '.open-accessibility-skip-to-content-backdrop',
             '.open-accessibility-ignore',
@@ -157,6 +159,7 @@
             linksUnderline: Boolean(source.linksUnderline),
             hideImages: Boolean(source.hideImages),
             readingGuide: Boolean(source.readingGuide),
+            readingMask: Boolean(source.readingMask),
             focusOutline: Boolean(source.focusOutline),
             lineHeightLevel: clampLevel(source.lineHeightLevel, MAX_SPACING_LEVEL),
             textAlign: normalizeChoice(source.textAlign, VALID_TEXT_ALIGN_VALUES, ''),
@@ -283,6 +286,10 @@
         // Create reading guide element
         if ($('.open-accessibility-reading-guide').length === 0) {
             $('body').append('<div class="open-accessibility-reading-guide"></div>');
+        }
+
+        if ($('.open-accessibility-reading-mask').length === 0) {
+            $('body').append('<div class="open-accessibility-reading-mask"></div>');
         }
 
         // Apply saved state
@@ -512,7 +519,7 @@
                 return true;
             }
 
-            if (closest(element, '.open-accessibility-widget-wrapper, .open-accessibility-reading-guide, .open-accessibility-skip-to-content-link, .open-accessibility-skip-to-content-backdrop, .open-accessibility-ignore, [data-oa-ignore]', 'built-in exclusions')) {
+            if (closest(element, '.open-accessibility-widget-wrapper, .open-accessibility-reading-guide, .open-accessibility-reading-mask, .open-accessibility-skip-to-content-link, .open-accessibility-skip-to-content-backdrop, .open-accessibility-ignore, [data-oa-ignore]', 'built-in exclusions')) {
                 return true;
             }
 
@@ -1229,6 +1236,10 @@
                 toggleReadingGuide();
                 break;
 
+            case 'reading-mask':
+                toggleReadingMask();
+                break;
+
             case 'focus-outline':
                 toggleFocusOutline();
                 break;
@@ -1287,6 +1298,7 @@
         setButtonPressed('links-underline', 'toggle', accessibilityState.linksUnderline);
         setButtonPressed('hide-images', 'toggle', accessibilityState.hideImages);
         setButtonPressed('reading-guide', 'toggle', accessibilityState.readingGuide);
+        setButtonPressed('reading-mask', 'toggle', accessibilityState.readingMask);
         setButtonPressed('focus-outline', 'toggle', accessibilityState.focusOutline);
 
         if (accessibilityState.textAlign) {
@@ -1468,10 +1480,30 @@
         saveState();
     }
 
-    // Handle reading guide mouse movement
+    // Toggle reading mask
+    function toggleReadingMask() {
+        accessibilityState.readingMask = !accessibilityState.readingMask;
+        $('.open-accessibility-action-button[data-action="reading-mask"]').toggleClass('active', accessibilityState.readingMask);
+        if (accessibilityState.readingMask) {
+            $('.open-accessibility-reading-mask').show();
+        } else {
+            $('.open-accessibility-reading-mask').hide();
+        }
+        saveState();
+    }
+
+    // Handle reading guide and mask mouse movement
+    //
+    // Both overlays track the pointer, so they share one handler rather than
+    // registering two mousemove listeners.
     function handleReadingGuide(e) {
         if (accessibilityState.readingGuide) {
             $('.open-accessibility-reading-guide').css('top', e.clientY - 15);
+        }
+
+        if (accessibilityState.readingMask) {
+            const mask = $('.open-accessibility-reading-mask');
+            $('.open-accessibility-reading-mask').css('top', e.clientY - (mask.outerHeight() / 2));
         }
     }
 
@@ -1630,7 +1662,8 @@
         updateIndicator('line-height', 0);
 
         // Explicitly hide the reading guide on reset
-        $('.open-accessibility-reading-guide').hide(); 
+        $('.open-accessibility-reading-guide').hide();
+        $('.open-accessibility-reading-mask').hide(); 
 
         applyDynamicTypographyAdjustments();
         applyReadableFontTargets('default');
@@ -1733,6 +1766,8 @@
         // Apply reading guide
         $('.open-accessibility-reading-guide').toggle(accessibilityState.readingGuide);
         $('.open-accessibility-action-button[data-action="reading-guide"]').toggleClass('active', accessibilityState.readingGuide);
+        $('.open-accessibility-reading-mask').toggle(accessibilityState.readingMask);
+        $('.open-accessibility-action-button[data-action="reading-mask"]').toggleClass('active', accessibilityState.readingMask);
 
         // Apply focus outline
         $('body').toggleClass('open-accessibility-focus-outline', accessibilityState.focusOutline);

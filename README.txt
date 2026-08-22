@@ -3,7 +3,7 @@ Contributors: adamgreenwell
 Tags: accessibility, wcag, ada, disability, readable
 Requires at least: 5.2
 Tested up to: 7.1
-Stable tag: 1.4.0
+Stable tag: 1.4.01
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -163,6 +163,13 @@ To see debug messages from this plugin, you need to do two things:
 Frontend selector diagnostics are browser-side diagnostics. Use `window.OpenAccessibility.debug()` or the browser console for those; they are not written to WordPress `debug.log`.
 
 == Changelog ==
+
+= 1.4.01 =
+* Fix the widget becoming unreachable when a contrast mode is switched on
+* Raise the skip-to-content link above theme chrome
+* Improve content detection for page builders, including Divi
+* Add a Reading Mask control that dims the page except for a band tracking the pointer
+* Tested against Divi, Blocksy, Neve, Sydney, and Hestia
 
 = 1.4.0 =
 * Verified compatibility with WordPress 7.1 on PHP 8.4 and PHP 8.5

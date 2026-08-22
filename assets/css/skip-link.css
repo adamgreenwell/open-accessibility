@@ -24,7 +24,7 @@
     color: #0c0d0e;
     text-decoration: none;
     word-wrap: normal !important;
-    z-index: 100000;
+    z-index: var(--oa-z-skip-link, 1000040);
 }
 
 .open-accessibility-skip-to-content-link:focus {
@@ -44,6 +44,6 @@
     right: 0;
     left: 0;
     bottom: 0;
-    z-index: 9999;
+    z-index: var(--oa-z-skip-backdrop, 1000030);
     background-color: rgba(0, 0, 0, 0.5);
 }

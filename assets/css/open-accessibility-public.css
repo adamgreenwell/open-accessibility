@@ -1,3 +1,19 @@
+/* ==========================================================================
+   Stacking order
+   ==========================================================================
+   One documented band, deliberately above the highest z-index observed in
+   popular themes (Blocksy's off-canvas panel sits at 999999). Ordered so the
+   skip link always wins: it is the one control that must never be hidden
+   behind theme chrome when it receives focus.
+   ========================================================================== */
+
+:root {
+    --oa-z-skip-link: 1000040;
+    --oa-z-skip-backdrop: 1000030;
+    --oa-z-widget: 1000020;
+    --oa-z-reading-overlay: 1000010;
+}
+
 /**
  * Frontend CSS for the Open Accessibility plugin
  */
@@ -49,7 +65,7 @@
     color: #0c0d0e;
     text-decoration: none;
     word-wrap: normal !important;
-    z-index: 100000;
+    z-index: var(--oa-z-skip-link, 1000040);
 }
 
 .open-accessibility-skip-to-content-link:focus {
@@ -69,7 +85,7 @@
     right: 0;
     left: 0;
     bottom: 0;
-    z-index: 9999;
+    z-index: var(--oa-z-skip-backdrop, 1000030);
     background-color: rgba(0, 0, 0, 0.5);
 }
 
@@ -77,7 +93,7 @@
 .open-accessibility-widget-wrapper {
     position: fixed;
     filter: none !important;
-    z-index: 1000000;
+    z-index: var(--oa-z-widget, 1000020);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
     font-size: 16px;
     line-height: 1.5;
@@ -1427,6 +1443,24 @@ body.open-accessibility-pause-animations *::after {
 }
 
 /* Reading guide */
+/* Reading mask
+   --------------------------------------------------------------------------
+   Dims the page except for a band that tracks the pointer. Distinct from the
+   reading guide, which tints a band instead of masking around it. The dimming
+   is one huge box-shadow spread rather than four positioned panels, so there
+   is a single element to move on pointer events. */
+.open-accessibility-reading-mask {
+    position: fixed;
+    left: 0;
+    width: 100%;
+    height: 120px;
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.65);
+    pointer-events: none;
+    z-index: var(--oa-z-reading-overlay, 1000010);
+    display: none;
+    transition: top 0.05s ease-out;
+}
+
 .open-accessibility-reading-guide {
     position: fixed;
     background-color: rgba(255, 255, 0, 0.3); /* Slightly more visible yellow */
@@ -1434,7 +1468,7 @@ body.open-accessibility-pause-animations *::after {
     width: 100%;
     left: 0; /* Ensure it spans full width */
     pointer-events: none; /* Allow clicks through the guide */
-    z-index: 999999; /* Keep high, but lower than widget */
+    z-index: var(--oa-z-reading-overlay, 1000010);
     display: none; /* Hide by default, JS controls show/hide */
     transition: top 0.05s ease-out; /* Add subtle smoothing */
 }
@@ -1574,9 +1608,13 @@ body.open-accessibility-text-size-5 {
 /* Isolate widget from body filter effects */
 body.open-accessibility-high-contrast .open-accessibility-widget-wrapper,
 body.open-accessibility-negative-contrast .open-accessibility-widget-wrapper {
-    /* Create a new stacking context */
+    /* A new stacking context keeps the widget out of the body filter. The
+       z-index must stay on the widget layer: an earlier 9999 here dropped the
+       widget beneath theme overlays the moment contrast was switched on, which
+       could leave the panel unreachable - including the control to switch it
+       back off. */
     isolation: isolate;
-    z-index: 9999;
+    z-index: var(--oa-z-widget, 1000020);
 }
 
 /* Special panel handling for contrast modes */
