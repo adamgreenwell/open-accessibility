@@ -41,6 +41,18 @@ TRANSLATION_MAINTENANCE.md
 /docs
 
 # Local environment, editor, and OS files.
+#
+# .gitignore already excludes these, so they never reach the repository - but
+# the release build copies from the working tree, not from git. Without them
+# listed here an IDE directory ships straight into the package: 1.4.0 went out
+# with .idea/ because of exactly this gap.
+.idea
+.idea/
+.vscode
+.vscode/
+*.iml
+*.sublime-project
+*.sublime-workspace
 .DS_Store
 Thumbs.db
 .env
