@@ -183,7 +183,7 @@ class Open_Accessibility_Public {
 	 * Themes can reorder or extend the list with:
 	 * - open_accessibility_skip_target_candidates
 	 *
-	 * @since 1.3.03
+	 * @since 1.4.0
 	 * @return array
 	 */
 	private function get_skip_target_candidates() {
@@ -513,7 +513,7 @@ class Open_Accessibility_Public {
 		 * Lets themes and site owners relabel any control without the plugin
 		 * needing a settings field per label.
 		 *
-		 * @since 1.3.03
+		 * @since 1.4.0
 		 * @param array $strings Keyed list of widget strings.
 		 */
 		return apply_filters( 'open_accessibility_strings', $strings );

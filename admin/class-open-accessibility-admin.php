@@ -520,7 +520,7 @@ class Open_Accessibility_Admin {
 	/**
 	 * Links section callback
 	 *
-	 * @since 1.3.03
+	 * @since 1.4.0
 	 */
 	public function links_section_callback() {
 		echo '<p>' . esc_html__('Optional links shown at the bottom of the widget panel. Each one appears only when its URL is filled in.', 'open-accessibility') . '</p>';

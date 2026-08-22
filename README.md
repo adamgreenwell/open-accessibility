@@ -180,17 +180,7 @@ Frontend selector diagnostics are browser-side diagnostics. Use `window.OpenAcce
 
 ## Changelog
 
-### 1.3.02
-* Fix shortcode-embedded widget panel opening offscreen when the toggle is placed near the top or right edge of the page (e.g. in a site header)
-* Panel placement for shortcode embeds now adapts to available viewport space, and its height is capped so it scrolls instead of overflowing
-* Add `direction` (auto/up/down) and `align` (auto/left/right) shortcode attributes to control which way the panel opens
-* Fix shortcode-embedded widget panel being invisible on small screens; it now uses the same full-screen panel as the standard widget
-* Add a shared frontend targeting resolver for typography, links, media, and layout-sensitive controls
-* Add theme integration filters, HTML attributes, lifecycle events, and `window.OpenAccessibility` helpers
-* Scope readable fonts, link underlining, hide-images, and grayscale controls to resolved content targets
-* Improve widget ARIA state syncing for expanded panels, toggle buttons, and live indicators
-* Harden saved and public API state so malformed values are normalized before applying settings
-* Honor intentionally empty target config arrays while preserving built-in widget and explicit ignore exclusions
+### 1.4.0
 * Verified compatibility with WordPress 7.1 on PHP 8.4 and PHP 8.5
 * Add a Links settings tab with optional Help and Feedback links in the widget panel
 * Expose the Sitemap link in the settings UI; it had no field and could not be set
@@ -207,6 +197,17 @@ Frontend selector diagnostics are browser-side diagnostics. Use `window.OpenAcce
 * Add an `open_accessibility_skip_target_candidates` filter to control where skip-to-content lands
 * Tested against Hello Elementor, Astra, GeneratePress, OceanWP, Kadence, and Twenty Twenty-Five
 
+### 1.3.02
+* Fix shortcode-embedded widget panel opening offscreen when the toggle is placed near the top or right edge of the page (e.g. in a site header)
+* Panel placement for shortcode embeds now adapts to available viewport space, and its height is capped so it scrolls instead of overflowing
+* Add `direction` (auto/up/down) and `align` (auto/left/right) shortcode attributes to control which way the panel opens
+* Fix shortcode-embedded widget panel being invisible on small screens; it now uses the same full-screen panel as the standard widget
+* Add a shared frontend targeting resolver for typography, links, media, and layout-sensitive controls
+* Add theme integration filters, HTML attributes, lifecycle events, and `window.OpenAccessibility` helpers
+* Scope readable fonts, link underlining, hide-images, and grayscale controls to resolved content targets
+* Improve widget ARIA state syncing for expanded panels, toggle buttons, and live indicators
+* Harden saved and public API state so malformed values are normalized before applying settings
+* Honor intentionally empty target config arrays while preserving built-in widget and explicit ignore exclusions
 ### 1.3.01
 * Make typography controls adapt to theme-defined line height, spacing, and font sizing instead of overriding whole-page styles
 * Scope text size, line height, spacing, and alignment controls to readable content areas
