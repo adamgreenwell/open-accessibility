@@ -60,6 +60,33 @@ class Open_Accessibility_Utils {
 	}
 
 	/**
+	 * Valid cursor size values.
+	 *
+	 * The blank value means the default cursor, so the setting can be switched
+	 * off by choosing it. Declared once and used by both the sanitiser and the
+	 * frontend, so an invalid value cannot reach CSS as a class name.
+	 *
+	 * @since    1.4.2
+	 * @return   string[]
+	 */
+	public static function get_cursor_sizes() {
+		return array( '', 'large', 'xlarge' );
+	}
+
+	/**
+	 * Highest saturation level.
+	 *
+	 * Delivered to the frontend so the script clamps against the same bound the
+	 * sanitiser enforces, rather than declaring its own copy.
+	 *
+	 * @since    1.4.2
+	 * @return   int
+	 */
+	public static function get_max_saturation_level() {
+		return 3;
+	}
+
+	/**
 	 * Names of the state fields a profile preset can set.
 	 *
 	 * Derived from get_default_accessibility_state() rather than restated, so
@@ -423,6 +450,20 @@ class Open_Accessibility_Utils {
 
 			// Position.
 			'position' => 'left',
+
+			// Cursor. A choice, not a toggle, so it is stored as a size rather
+			// than a flag; the enable key gates the widget control.
+			'cursor_size' => '',
+			'enable_cursor_size' => 0,
+
+			// Saturation. A level rather than a flag, and separate from Grayscale:
+			// this reduces colour intensity without removing colour entirely.
+			'saturation_level' => 0,
+			'enable_saturation' => 0,
+
+			// Highlight every link with a background, stronger than the underline
+			// toggle which only changes text-decoration.
+			'enable_highlight_links' => 0,
 
 			// Features. Most default to on; the opt-in ones are noted below.
 			'enable_skip_to_content' => 1,
