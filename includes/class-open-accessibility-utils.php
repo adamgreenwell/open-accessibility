@@ -12,6 +12,178 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 class Open_Accessibility_Utils {
 
 	/**
+	 * Full accessibility state shared by every profile preset.
+	 *
+	 * Presets are built from this rather than each listing all fifteen fields,
+	 * so a field added to the frontend state later cannot be silently omitted
+	 * from a preset. A partial preset leaks the previously active state into the
+	 * new profile, which reads as "the profile is wrong" rather than "the preset
+	 * was incomplete".
+	 *
+	 * Keys and value ranges must match DEFAULT_ACCESSIBILITY_STATE and the
+	 * validators in assets/js/open-accessibility-public.js. That contract is
+	 * enforced by tests/includes/test-profiles.php, which reads the script's own
+	 * whitelists rather than trusting a copy.
+	 *
+	 * @since    1.4.2
+	 * @return   array    Neutral accessibility state.
+	 */
+	public static function get_default_accessibility_state() {
+		return array(
+			'active'             => true,
+			'contrast'           => '',
+			'grayscale'          => false,
+			'textSize'           => 0,
+			'selectedFont'       => 'default',
+			'linksUnderline'     => false,
+			'hideImages'         => false,
+			'readingGuide'       => false,
+			'readingMask'        => false,
+			'focusOutline'       => false,
+			'lineHeightLevel'    => 0,
+			'textAlign'          => '',
+			'pauseAnimations'    => false,
+			'letterSpacingLevel' => 0,
+			'wordSpacingLevel'   => 0,
+		);
+	}
+
+	/**
+	 * Merge preset overrides over the neutral accessibility state.
+	 *
+	 * @since    1.4.2
+	 * @param    array    $overrides    State values to change.
+	 * @return   array    Complete accessibility state.
+	 */
+	private static function profile_state( $overrides ) {
+		return array_merge( self::get_default_accessibility_state(), $overrides );
+	}
+
+	/**
+	 * Get the registered accessibility profiles.
+	 *
+	 * A profile is a one-click preset over the accessibility state. The labels
+	 * deliberately use the vocabulary the commercial widgets use, because that is
+	 * what people search for.
+	 *
+	 * The option key for a profile is always `enable_profile_<name>`, so the
+	 * registry is the only place that mapping is written down.
+	 *
+	 * @since    1.4.2
+	 * @return   array    Profile name => label, description, option key and state.
+	 */
+	public static function get_profiles() {
+		$profiles = array(
+			'seizure_safe'    => array(
+				'label'       => __( 'Seizure Safe', 'open-accessibility' ),
+				'description' => __( 'Reduces motion and softening contrast.', 'open-accessibility' ),
+				'option'      => 'enable_profile_seizure_safe',
+				'state'       => self::profile_state(
+					array(
+						'pauseAnimations' => true,
+						'contrast'        => 'light',
+					)
+				),
+			),
+			'vision_impaired' => array(
+				'label'       => __( 'Vision Impaired', 'open-accessibility' ),
+				'description' => __( 'Larger text with more line, letter and word spacing, and underlined links.', 'open-accessibility' ),
+				'option'      => 'enable_profile_vision_impaired',
+				'state'       => self::profile_state(
+					array(
+						'textSize'           => 3,
+						'lineHeightLevel'    => 2,
+						'letterSpacingLevel' => 1,
+						'linksUnderline'     => true,
+					)
+				),
+			),
+			'adhd_friendly'   => array(
+				'label'       => __( 'ADHD Friendly', 'open-accessibility' ),
+				'description' => __( 'Cuts distraction with a reading mask, hidden images and paused motion.', 'open-accessibility' ),
+				'option'      => 'enable_profile_adhd_friendly',
+				'state'       => self::profile_state(
+					array(
+						'readingMask'     => true,
+						'hideImages'      => true,
+						'pauseAnimations' => true,
+					)
+				),
+			),
+			'blind'           => array(
+				'label'       => __( 'Blind', 'open-accessibility' ),
+				'description' => __( 'Emphasises links and focus visibility for keyboard and screen reader use.', 'open-accessibility' ),
+				'option'      => 'enable_profile_blind',
+				'state'       => self::profile_state(
+					array(
+						'focusOutline'   => true,
+						'linksUnderline' => true,
+					)
+				),
+			),
+			'epilepsy_safe'   => array(
+				'label'       => __( 'Epilepsy Safe', 'open-accessibility' ),
+				'description' => __( 'Pauses motion and removes colour to reduce the chance of a seizure.', 'open-accessibility' ),
+				'option'      => 'enable_profile_epilepsy_safe',
+				'state'       => self::profile_state(
+					array(
+						'pauseAnimations' => true,
+						'grayscale'       => true,
+						'contrast'        => 'high',
+					)
+				),
+			),
+		);
+
+		/**
+		 * Filter the registered accessibility profiles.
+		 *
+		 * Lets a theme add a profile or adjust an existing one without the plugin
+		 * needing a settings field per preset.
+		 *
+		 * @since 1.4.2
+		 * @param array $profiles Profile name => definition.
+		 */
+		return apply_filters( 'open_accessibility_profiles', $profiles );
+	}
+
+	/**
+	 * Get a single profile definition.
+	 *
+	 * @since    1.4.2
+	 * @param    string    $name    Profile name.
+	 * @return   array|null    Profile definition, or null if unknown.
+	 */
+	public static function get_profile( $name ) {
+		if ( ! is_string( $name ) || '' === $name ) {
+			return null;
+		}
+
+		$profiles = self::get_profiles();
+
+		return isset( $profiles[ $name ] ) ? $profiles[ $name ] : null;
+	}
+
+	/**
+	 * Get the profiles that are currently offered in the widget.
+	 *
+	 * @since    1.4.2
+	 * @return   array    Profile name => definition, disabled profiles removed.
+	 */
+	public static function get_enabled_profiles() {
+		$options = self::get_options();
+		$enabled = array();
+
+		foreach ( self::get_profiles() as $name => $profile ) {
+			if ( ! empty( $options[ $profile['option'] ] ) ) {
+				$enabled[ $name ] = $profile;
+			}
+		}
+
+		return $enabled;
+	}
+
+	/**
 	 * Check if a user agent is a mobile device.
 	 *
 	 * @since    1.0.0
@@ -183,6 +355,15 @@ class Open_Accessibility_Utils {
 			'enable_animations_pause' => 1,
 			'enable_letter_spacing' => 0,
 			'enable_word_spacing' => 0,
+
+			// Profiles. Offered by default so the feature is visible without
+			// setup; the option keys must match Open_Accessibility_Utils::get_profiles().
+			'enable_profile_seizure_safe' => 1,
+			'enable_profile_vision_impaired' => 1,
+			'enable_profile_adhd_friendly' => 1,
+			'enable_profile_blind' => 1,
+			'enable_profile_epilepsy_safe' => 1,
+			'default_profile' => '',
 
 			// Links and statement.
 			'skip_to_element_id' => 'content',
