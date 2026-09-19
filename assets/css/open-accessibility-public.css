@@ -1643,6 +1643,23 @@ body.open-accessibility-negative-contrast .open-accessibility-widget-wrapper {
     z-index: var(--oa-z-widget, 1000020);
 }
 
+/* Contrast modes repaint the panel black with white or cyan text, but they do it
+   with hardcoded colours rather than by updating the tokens. Anything reading a
+   token — the level indicators, for instance — therefore kept the light-mode
+   value and rendered #333 on black, about 1.7:1, in the very modes meant to
+   improve visibility. Re-point the tokens at what these modes actually paint. */
+body.open-accessibility-high-contrast .open-accessibility-widget-wrapper {
+    --oa-panel-text: #ffffff;
+    --oa-panel-bg: #000000;
+    --oa-panel-border: #ffffff;
+}
+
+body.open-accessibility-negative-contrast .open-accessibility-widget-wrapper {
+    --oa-panel-text: #00ffff;
+    --oa-panel-bg: #000000;
+    --oa-panel-border: #00ffff;
+}
+
 /* Special panel handling for contrast modes */
 body.open-accessibility-high-contrast .open-accessibility-widget-panel,
 body.open-accessibility-negative-contrast .open-accessibility-widget-panel {

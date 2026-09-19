@@ -65,9 +65,15 @@ class Test_Profile_Css extends OA_TestCase {
 
 		$colour_only = array( 'background-color', 'border-color', 'color' );
 
+		// Strip comments first. The rule documents why it carries an inset ring,
+		// and an earlier version of this test counted that prose as a
+		// declaration — so the assertion passed even with the ring removed, which
+		// is the opposite of what it exists to check.
+		$properties_only = preg_replace( '#/\*.*?\*/#s', '', $declarations );
+
 		$found_structural_cue = false;
 
-		foreach ( explode( ';', $declarations ) as $declaration ) {
+		foreach ( explode( ';', $properties_only ) as $declaration ) {
 			$property = trim( strtok( $declaration, ':' ) );
 
 			if ( '' === $property || in_array( $property, $colour_only, true ) ) {
@@ -125,6 +131,41 @@ class Test_Profile_Css extends OA_TestCase {
 
 		foreach ( array_unique( $matches[1] ) as $selector ) {
 			$this->assertStringStartsWith( 'open-accessibility-', $selector );
+		}
+	}
+
+	/**
+	 * Contrast modes re-point the panel tokens.
+	 *
+	 * Those modes repaint the panel with hardcoded colours rather than updating
+	 * the tokens, so anything token-driven kept its light-mode value. The level
+	 * indicators rendered #333 on a black panel — about 1.7:1 — in the modes
+	 * meant to improve visibility.
+	 */
+	public function test_contrast_modes_override_the_panel_tokens() {
+		$css = $this->css();
+
+		foreach ( array( 'high-contrast', 'negative-contrast' ) as $mode ) {
+			// A selector may appear in more than one block, so gather them all
+			// rather than assuming the first one carries the declaration.
+			$pattern = '/' . preg_quote( 'body.open-accessibility-' . $mode . ' .open-accessibility-widget-wrapper', '/' ) . '\s*\{([^}]*)\}/';
+
+			preg_match_all( $pattern, $css, $matches );
+
+			$this->assertNotEmpty( $matches[1], "No wrapper rule for {$mode}." );
+
+			$found = false;
+
+			foreach ( $matches[1] as $block ) {
+				if ( false !== strpos( $block, '--oa-panel-text' ) ) {
+					$found = true;
+				}
+			}
+
+			$this->assertTrue(
+				$found,
+				"The {$mode} wrapper should re-point --oa-panel-text at the colour that mode paints."
+			);
 		}
 	}
 }
