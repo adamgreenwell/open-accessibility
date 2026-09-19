@@ -401,7 +401,8 @@ class Open_Accessibility_Admin {
 			'enable_text_align' => __('Text Alignment Options', 'open-accessibility'),
 			'enable_animations_pause' => __('Pause Animations', 'open-accessibility'),
 			'enable_cursor_size' => __('Cursor Size', 'open-accessibility'),
-			'enable_saturation' => __('Saturation', 'open-accessibility')
+			'enable_saturation' => __('Saturation', 'open-accessibility'),
+			'enable_highlight_links' => __('Highlight Links', 'open-accessibility')
 		);
 
 		foreach ($features as $id => $label) {
@@ -942,6 +943,7 @@ class Open_Accessibility_Admin {
 			'enable_animations_pause',
 			'enable_cursor_size',
 			'enable_saturation',
+			'enable_highlight_links',
 			'enable_debug',
 			'strip_link_targets',
 			'enable_analytics',

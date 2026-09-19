@@ -302,6 +302,18 @@ $panel_title = apply_filters( 'open_accessibility_panel_title', $panel_title );
 				</div>
 			<?php endif; ?>
 
+			<!-- Highlight Links Section -->
+			<?php if ( ! empty( $options['enable_highlight_links'] ) ) : ?>
+				<div class="open-accessibility-widget-section">
+					<h3><?php echo esc_html( $oa_strings['highlight_links_title'] ); ?></h3>
+					<div class="open-accessibility-actions">
+						<button class="open-accessibility-action-button" data-action="highlight-links" data-value="toggle" aria-pressed="false">
+							<?php echo esc_html( $oa_strings['highlight_links_title'] ); ?>
+						</button>
+					</div>
+				</div>
+			<?php endif; ?>
+
 			<!-- Hide Images Section -->
 			<?php if (isset($options['enable_hide_images']) && $options['enable_hide_images']): ?>
 				<div class="open-accessibility-widget-section">

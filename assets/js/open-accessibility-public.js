@@ -34,7 +34,9 @@
         cursorSize: '',
         // Saturation is a level rather than a flag, and separate from grayscale:
         // it reduces colour intensity without removing colour.
-        saturationLevel: 0
+        saturationLevel: 0,
+        // Highlights links with a background, distinct from the underline toggle.
+        highlightLinks: false
     };
     let accessibilityState = Object.assign({}, DEFAULT_ACCESSIBILITY_STATE);
 
@@ -189,7 +191,8 @@
             wordSpacingLevel: clampLevel(source.wordSpacingLevel, MAX_SPACING_LEVEL),
             activeProfile: normalizeChoice(source.activeProfile, getProfileNames(), ''),
             cursorSize: normalizeChoice(source.cursorSize, getCursorSizes(), ''),
-            saturationLevel: clampLevel(source.saturationLevel, MAX_SATURATION_LEVEL)
+            saturationLevel: clampLevel(source.saturationLevel, MAX_SATURATION_LEVEL),
+            highlightLinks: Boolean(source.highlightLinks)
         };
     }
 
@@ -1035,6 +1038,45 @@
         delete element.dataset.oaLinksUnderlineOriginalCaptured;
     }
 
+    // Highlight links so they stand out from surrounding text.
+    //
+    // Uses a translucent background plus a text-coloured underline, rather than
+    // the fixed black border the original design specified: a black border is
+    // invisible on the black background the high contrast modes paint. The two
+    // cues together also mean the highlight does not rely on colour alone.
+    function applyHighlightLinksTargets() {
+        clearManagedStyles('[data-oa-highlight-links-managed="1"]', restoreHighlightLinksTarget);
+
+        if (!accessibilityState.highlightLinks || !targetResolver) {
+            return;
+        }
+
+        targetResolver.getTargets('links').forEach((element) => {
+            captureOriginalStyle(element, 'oaHighlightBg', 'backgroundColor');
+            captureOriginalStyle(element, 'oaHighlightDecoration', 'textDecorationColor');
+            captureOriginalStyle(element, 'oaHighlightDecorationStyle', 'textDecorationStyle');
+            element.dataset.oaHighlightLinksManaged = '1';
+            element.style.backgroundColor = 'rgba(255, 235, 59, 0.45)';
+            // currentColor keeps the underline legible whatever colour the theme
+            // (or a contrast mode) has given the link text.
+            element.style.textDecorationColor = 'currentColor';
+            element.style.textDecorationStyle = 'solid';
+        });
+    }
+
+    function restoreHighlightLinksTarget(element) {
+        restoreOriginalStyle(element, 'oaHighlightBg', 'backgroundColor');
+        restoreOriginalStyle(element, 'oaHighlightDecoration', 'textDecorationColor');
+        restoreOriginalStyle(element, 'oaHighlightDecorationStyle', 'textDecorationStyle');
+        delete element.dataset.oaHighlightLinksManaged;
+    }
+
+    function toggleHighlightLinks() {
+        accessibilityState.highlightLinks = !accessibilityState.highlightLinks;
+        applyHighlightLinksTargets();
+        syncActionButtonStates();
+    }
+
     function applyLinksUnderlineTargets() {
         clearManagedStyles('[data-oa-links-underline-managed="1"]', restoreLinksUnderlineTarget);
 
@@ -1486,6 +1528,10 @@
             case 'saturation':
                 adjustSaturation(value);
                 break;
+
+            case 'highlight-links':
+                toggleHighlightLinks();
+                break;
         }
 
         // Any manual adjustment takes the visitor out of the profile they had
@@ -1560,6 +1606,7 @@
         setButtonPressed('set-font', accessibilityState.selectedFont || 'default', true);
         setButtonPressed('links-underline', 'toggle', accessibilityState.linksUnderline);
         setButtonPressed('hide-images', 'toggle', accessibilityState.hideImages);
+        setButtonPressed('highlight-links', 'toggle', accessibilityState.highlightLinks);
         setButtonPressed('reading-guide', 'toggle', accessibilityState.readingGuide);
         setButtonPressed('reading-mask', 'toggle', accessibilityState.readingMask);
         setButtonPressed('focus-outline', 'toggle', accessibilityState.focusOutline);
@@ -2001,6 +2048,7 @@
         applyReadableFontTargets('default');
         applyGrayscaleTargets();
         applySaturationTargets();
+        applyHighlightLinksTargets();
         applyLinksUnderlineTargets();
         applyHideImagesTargets();
         syncActionButtonStates();
@@ -2087,6 +2135,9 @@
 
         // Apply saturation
         applySaturationTargets();
+
+        // Apply link highlighting
+        applyHighlightLinksTargets();
 
         // Apply selected font (directly without toggle logic)
         applyFont(accessibilityState.selectedFont || 'default');
