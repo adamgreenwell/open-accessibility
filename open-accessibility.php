@@ -33,36 +33,18 @@ require_once OPEN_ACCESSIBILITY_PLUGIN_DIR . 'includes/class-open-accessibility.
 
 /**
  * Set default options if none exist.
+ *
+ * The defaults are not repeated here. Open_Accessibility_Utils::get_default_options()
+ * is the single source of truth, so a key can never be seeded without being
+ * declared, or declared without being seeded.
+ *
+ * @since    1.0.0
  */
 function open_accessibility_activate() {
-	if (!get_option('open_accessibility_options')) {
-		$default_options = array(
-			'icon' => 'accessibility',
-			'icon_size' => 'medium',
-			'icon_color' => '#ffffff',
-			'bg_color' => '#4054b2',
-			'position' => 'left',
-			'enable_skip_to_content' => 1,
-			'enable_contrast' => 1,
-			'enable_grayscale' => 1,
-			'enable_text_size' => 1,
-			'enable_font_atkinson' => 0,
-			'enable_font_opendyslexic' => 0,
-			'enable_links_underline' => 1,
-			'enable_hide_images' => 1,
-			'enable_reading_guide' => 1,
-			'enable_focus_outline' => 1,
-			'enable_line_height' => 1,
-			'enable_text_align' => 1,
-			'enable_animations_pause' => 1,
-			'enable_letter_spacing' => 0,
-			'enable_word_spacing' => 0,
-			'disable_widget' => 0,
-			'hide_on_mobile' => 0,
-			'hide_on_desktop' => 0,
-			'skip_to_element_id' => 'content',
-		);
-		update_option('open_accessibility_options', $default_options);
+	require_once OPEN_ACCESSIBILITY_PLUGIN_DIR . 'includes/class-open-accessibility-utils.php';
+
+	if ( ! get_option( 'open_accessibility_options' ) ) {
+		update_option( 'open_accessibility_options', Open_Accessibility_Utils::get_default_options() );
 	}
 
 	require_once OPEN_ACCESSIBILITY_PLUGIN_DIR . 'includes/database/class-open-accessibility-db.php';
