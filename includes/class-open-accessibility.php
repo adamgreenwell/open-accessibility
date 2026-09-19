@@ -47,7 +47,6 @@ class Open_Accessibility {
 	 * - Open_Accessibility_i18n. Defines internationalization functionality.
 	 * - Open_Accessibility_Admin. Defines all hooks for the admin area.
 	 * - Open_Accessibility_Public. Defines all hooks for the public side of the site.
-	 * - Open_Accessibility_Widget. Defines the accessibility widget.
 	 *
 	 * Create an instance of the loader which will be used to register the hooks
 	 * with WordPress.
@@ -72,11 +71,6 @@ class Open_Accessibility {
 		 * side of the site.
 		 */
 		require_once OPEN_ACCESSIBILITY_PLUGIN_DIR . 'public/class-open-accessibility-public.php';
-
-		/**
-		 * The class responsible for defining the accessibility widget.
-		 */
-		require_once OPEN_ACCESSIBILITY_PLUGIN_DIR . 'includes/class-open-accessibility-widget.php';
 
 		/**
 		 * Core utilities and helpers

@@ -133,12 +133,6 @@ if (!defined('ABSPATH')) {
                     </p>
                 </div>
 
-                <div id="open-accessibility-log-viewer" style="display: none;">
-                    <div class="open-accessibility-log-content">
-                        <pre class="open-accessibility-log-entries"></pre>
-                    </div>
-                </div>
-
                 <hr>
 
                 <h3><?php esc_html_e('Advanced Settings', 'open-accessibility'); ?></h3>
