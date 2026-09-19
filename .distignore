@@ -29,6 +29,8 @@ phpunit.xml.dist
 Makefile
 composer.json
 composer.lock
+docker-compose.yml
+docker-compose.example.yml
 package.json
 package-lock.json
 pnpm-lock.yaml

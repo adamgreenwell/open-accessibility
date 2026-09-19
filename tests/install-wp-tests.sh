@@ -8,16 +8,22 @@
 #   - defaults match this project's docker-compose.yml (host, port, table prefix).
 #
 # Usage:
-#   bin/install-wp-tests.sh [<db-name> <db-user> <db-pass> [<db-host>] [<wp-version>] [<skip-db-create>]]
+#   tests/install-wp-tests.sh [<db-name> <db-user> <db-pass> [<db-host>] [<wp-version>] [<skip-db-create>]]
 #
 # Environment overrides (used when positional args are omitted):
-#   WP_TESTS_DIR       where to install the library (default: /tmp/wordpress-tests-lib)
-#   WP_CORE_DIR        where to install WordPress   (default: /tmp/wordpress)
-#   WP_TESTS_DB_NAME   default: wordpress_test
-#   WP_TESTS_DB_USER   default: wp_test
-#   WP_TESTS_DB_PASS   default: wp_test_pw
-#   WP_TESTS_DB_HOST   default: 127.0.0.1:3309
-#   WP_TESTS_TABLE_PREFIX default: wptests_
+#   WP_TESTS_DIR            where to install the library (default: /tmp/wordpress-tests-lib)
+#   WP_CORE_DIR             where to install WordPress   (default: /tmp/wordpress)
+#   WP_TESTS_DB_NAME        default: wordpress_test
+#   WP_TESTS_DB_USER        the user the suite runs as (default: wp_test)
+#   WP_TESTS_DB_PASS        default: wp_test_pw
+#   WP_TESTS_DB_HOST        default: 127.0.0.1:3309
+#   WP_TESTS_DB_ROOT_USER   used only to CREATE the test database (default: root)
+#   WP_TESTS_DB_ROOT_PASS   default: root
+#   WP_TESTS_TABLE_PREFIX   default: wptests_
+#
+# The root credentials are used only for the one-off CREATE DATABASE and GRANT.
+# The suite itself connects as WP_TESTS_DB_USER, so the tests never run with
+# more privilege than they need.
 
 set -euo pipefail
 
@@ -27,6 +33,9 @@ DB_PASS="${3:-${WP_TESTS_DB_PASS:-wp_test_pw}}"
 DB_HOST="${4:-${WP_TESTS_DB_HOST:-127.0.0.1:3309}}"
 WP_VERSION="${5:-${WP_TESTS_WP_VERSION:-latest}}"
 SKIP_DB_CREATE="${6:-${WP_TESTS_SKIP_DB_CREATE:-false}}"
+
+DB_ROOT_USER="${WP_TESTS_DB_ROOT_USER:-root}"
+DB_ROOT_PASS="${WP_TESTS_DB_ROOT_PASS:-root}"
 
 WP_TESTS_DIR="${WP_TESTS_DIR:-/tmp/wordpress-tests-lib}"
 WP_CORE_DIR="${WP_CORE_DIR:-/tmp/wordpress}"
@@ -44,14 +53,50 @@ command -v svn >/dev/null 2>&1 || { echo 'svn is required (WordPress distributes
 
 # ---------------------------------------------------------------------------
 # Database
+#
+# The test user needs its own database plus the CREATE privilege the WordPress
+# test suite uses to build its tables. Rather than granting that to the test
+# user globally, the database and grant are created here with the root
+# credentials, and the grant is scoped to this database only.
+#
+# Prefer a local `mysql` client; fall back to the Docker container, which is
+# where the compose example runs MariaDB.
 # ---------------------------------------------------------------------------
 if [ "${SKIP_DB_CREATE}" != "true" ]; then
-	if command -v mysqladmin >/dev/null 2>&1; then
-		echo "Creating database ${DB_NAME} (if it does not already exist)..."
-		mysqladmin create "${DB_NAME}" --user="${DB_USER}" --password="${DB_PASS}" --host="${DB_HOST}" --protocol=tcp 2>/dev/null \
-			|| echo "  Database already exists, or the user lacks CREATE. Continuing."
+	SQL="CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\`;
+GRANT ALL PRIVILEGES ON \`${DB_NAME}\`.* TO '${DB_USER}'@'%';
+FLUSH PRIVILEGES;"
+
+	echo "Ensuring database ${DB_NAME} exists and ${DB_USER} has access..."
+	if command -v mysql >/dev/null 2>&1; then
+		if ! mysql --user="${DB_ROOT_USER}" --password="${DB_ROOT_PASS}" --host="${DB_HOST}" \
+			--protocol=tcp -e "${SQL}" 2>/dev/null; then
+			echo "  Could not reach the database as ${DB_ROOT_USER} at ${DB_HOST}." >&2
+			echo "  Set WP_TESTS_DB_ROOT_USER / WP_TESTS_DB_ROOT_PASS, or create the database manually" >&2
+			echo "  and re-run with the skip-db-create argument set to true." >&2
+			exit 1
+		fi
+		echo "  OK"
+	elif command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then
+		# The compose example names its database service mariadb.
+		CONTAINER=$(docker ps --filter "ancestor=mariadb:11.4" --format '{{.Names}}' | head -1)
+		if [ -z "${CONTAINER}" ]; then
+			CONTAINER=$(docker ps --filter "name=mariadb" --format '{{.Names}}' | head -1)
+		fi
+
+		if [ -n "${CONTAINER}" ] && docker exec -i "${CONTAINER}" \
+			mariadb --user="${DB_ROOT_USER}" --password="${DB_ROOT_PASS}" -e "${SQL}" 2>/dev/null; then
+			echo "  OK (via container ${CONTAINER})"
+		else
+			echo "  Could not reach the database as ${DB_ROOT_USER}." >&2
+			echo "  Is the stack running? Try: docker compose up -d" >&2
+			exit 1
+		fi
 	else
-		echo "mysqladmin not found; skipping database creation and assuming ${DB_NAME} exists."
+		echo "  Neither a mysql client nor a running Docker daemon was found." >&2
+		echo "  Create the ${DB_NAME} database manually, grant ${DB_USER} access to it," >&2
+		echo "  then re-run with the skip-db-create argument set to true." >&2
+		exit 1
 	fi
 fi
 

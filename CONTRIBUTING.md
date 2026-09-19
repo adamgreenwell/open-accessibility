@@ -13,15 +13,26 @@ justify it first in an issue.
 
 ## Getting set up
 
-The development environment is a WordPress install running under Docker, using the
-`docker-compose.yml` at the repository root:
+Two ways in. Pick whichever fits how you already work.
+
+**Already have a WordPress install?** Clone this repository into its
+`wp-content/plugins/` directory and activate the plugin. That is the whole setup —
+this is a plugin, not a WordPress distribution.
+
+**Need an environment?** A Compose file is included:
 
 ```bash
+cp docker-compose.example.yml docker-compose.yml
 docker compose up -d
 ```
 
-The site is then at <http://localhost:9080>. The plugin lives at
-`wp-content/plugins/open-accessibility/` and is normally already active.
+Then open <http://localhost:9080> and complete the WordPress installer, and
+activate **Open Accessibility** under Plugins. Your working copy is bind-mounted,
+so edits take effect immediately.
+
+The example publishes WordPress on 9080 and MariaDB on 3309, chosen to avoid
+clashing with a default local MySQL (3306) and web server (80). If you use your
+own environment, note the database host and port — the test suite needs them.
 
 ## Running the tests
 
@@ -30,8 +41,8 @@ option layer in particular: `get_option()`, `update_option()` and `register_sett
 callback are frequently the code under test, and a stubbed environment would not reproduce their
 merge and serialisation behaviour.
 
-One-time setup (installs WordPress core and the WordPress test library, and expects the Docker
-database to be running):
+One-time setup. It installs WordPress core and the WordPress test library into `/tmp`, and creates
+a `wordpress_test` database for the suite to own:
 
 ```bash
 composer install
@@ -44,8 +55,17 @@ Then:
 composer test
 ```
 
-Credentials and paths come from environment variables, so the setup is non-interactive and can be
-retargeted for CI. See the header of `tests/install-wp-tests.sh` for the full list.
+`composer test:setup` needs the database to be reachable, and uses root credentials **once** to
+create the test database and grant the test user access to it. Everything after that runs as the
+unprivileged `wp_test` user, so the suite never holds more privilege than it needs.
+
+Every setting has an environment override, so the setup is non-interactive and can be retargeted
+for CI or a different database. The full list is in the header of
+`tests/install-wp-tests.sh`:
+
+```bash
+WP_TESTS_DB_HOST=127.0.0.1:3307 WP_TESTS_DB_ROOT_PASS=secret composer test:setup
+```
 
 **Every change should come with tests.** Run `composer check` before opening a pull request; it
 validates version parity, PHP syntax, JavaScript syntax, whitespace, and builds the release
