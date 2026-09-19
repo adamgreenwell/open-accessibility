@@ -298,6 +298,28 @@
     background-color: #4054b2;
     color: white;
     border-color: #4054b2;
+    /* The pressed state must not be signalled by colour alone (WCAG 1.4.1).
+       currentColor tracks the button's own text colour, so the ring follows
+       whatever palette a contrast mode has applied rather than assuming blue. */
+    box-shadow: inset 0 0 0 2px currentColor;
+    font-weight: 600;
+}
+
+/* Profile buttons: one row of presets, visually set apart from the individual
+   controls that follow. */
+.open-accessibility-profiles-section .open-accessibility-actions {
+    gap: 8px;
+}
+
+.open-accessibility-profile-button {
+    flex: 1 1 45%;
+    min-width: 45%;
+    text-align: center;
+}
+
+.open-accessibility-profile-button.active {
+    box-shadow: inset 0 0 0 2px currentColor;
+    font-weight: 600;
 }
 
 .open-accessibility-action-button:disabled {
@@ -329,8 +351,12 @@
 }
 
 .open-accessibility-indicator-dot.active {
-    background-color: var(--oa-action-button-border, #4054b2);
-    border-color: var(--oa-action-button-border, #4054b2);
+    /* Was var(--oa-action-button-border), a dark grey in the dark panel theme:
+       about 1.4:1 against the panel, so the active dot was effectively
+       invisible. The panel text colour is the one token guaranteed to contrast
+       with the panel background in every theme. */
+    background-color: var(--oa-panel-text, #333);
+    border-color: var(--oa-panel-text, #333);
 }
 
 /* Widget footer */
