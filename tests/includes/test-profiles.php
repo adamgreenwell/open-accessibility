@@ -303,4 +303,213 @@ class Test_Profiles extends OA_TestCase {
 
 		remove_all_filters( 'open_accessibility_profiles' );
 	}
+
+	/**
+	 * A profile's description must describe what its preset actually does.
+	 *
+	 * The vision preset promised word spacing it did not set, so visitors who
+	 * chose it received less than the label advertised. A description is a
+	 * promise; this keeps the two in step.
+	 */
+	public function test_vision_profile_description_matches_its_preset() {
+		$profile = Open_Accessibility_Utils::get_profile( 'vision_impaired' );
+		$state   = $profile['state'];
+
+		if ( false !== stripos( $profile['description'], 'word spacing' ) ) {
+			$this->assertGreaterThan(
+				0,
+				$state['wordSpacingLevel'],
+				'The vision profile promises word spacing but sets wordSpacingLevel to 0.'
+			);
+		}
+
+		if ( false !== stripos( $profile['description'], 'letter' ) ) {
+			$this->assertGreaterThan( 0, $state['letterSpacingLevel'] );
+		}
+
+		if ( false !== stripos( $profile['description'], 'line' ) ) {
+			$this->assertGreaterThan( 0, $state['lineHeightLevel'] );
+		}
+
+		if ( false !== stripos( $profile['description'], 'larger text' ) ) {
+			$this->assertGreaterThan( 0, $state['textSize'] );
+		}
+
+		if ( false !== stripos( $profile['description'], 'underlined links' ) ) {
+			$this->assertTrue( $state['linksUnderline'] );
+		}
+	}
+
+	/**
+	 * A profile added by a theme is offered without further setup.
+	 *
+	 * The documented open_accessibility_profiles filter is the extension point
+	 * for adding a preset. A theme-added profile has no entry in
+	 * get_default_options(), so anything that requires one would make the filter
+	 * advertise a capability it cannot deliver.
+	 */
+	public function test_theme_added_profile_is_enabled_without_declaring_a_default() {
+		add_filter(
+			'open_accessibility_profiles',
+			function ( $profiles ) {
+				$profiles['theme_custom'] = array(
+					'label'       => 'Theme Custom',
+					'description' => 'Added by a theme.',
+					'option'      => 'enable_profile_theme_custom',
+					'state'       => Open_Accessibility_Utils::get_default_accessibility_state(),
+				);
+				return $profiles;
+			}
+		);
+
+		$declared = Open_Accessibility_Utils::get_default_options();
+		$this->assertArrayNotHasKey(
+			'enable_profile_theme_custom',
+			$declared,
+			'Precondition: the theme profile must not be a declared default for this test to mean anything.'
+		);
+
+		$enabled = Open_Accessibility_Utils::get_enabled_profiles();
+
+		$this->assertArrayHasKey(
+			'theme_custom',
+			$enabled,
+			'A theme-added profile must be offered; the filter would otherwise add a registry entry nothing can reach.'
+		);
+
+		remove_all_filters( 'open_accessibility_profiles' );
+	}
+
+	/**
+	 * A theme-added profile can still be switched off.
+	 */
+	public function test_theme_added_profile_can_be_disabled() {
+		add_filter(
+			'open_accessibility_profiles',
+			function ( $profiles ) {
+				$profiles['theme_custom'] = array(
+					'label'       => 'Theme Custom',
+					'description' => 'Added by a theme.',
+					'option'      => 'enable_profile_theme_custom',
+					'state'       => Open_Accessibility_Utils::get_default_accessibility_state(),
+				);
+				return $profiles;
+			}
+		);
+
+		update_option( self::OPTION, array( 'enable_profile_theme_custom' => 0 ) );
+		wp_cache_flush();
+
+		$enabled = Open_Accessibility_Utils::get_enabled_profiles();
+
+		$this->assertArrayNotHasKey( 'theme_custom', $enabled );
+
+		remove_all_filters( 'open_accessibility_profiles' );
+	}
+
+	/**
+	 * A profile depending on a switched-off feature is not offered.
+	 *
+	 * Otherwise applying it would set that feature's state on the frontend even
+	 * though the site owner removed its control — a setting the visitor can
+	 * neither see nor undo.
+	 */
+	public function test_profile_is_withheld_when_a_required_feature_is_disabled() {
+		delete_option( self::OPTION );
+
+		$this->assertArrayHasKey(
+			'adhd_friendly',
+			Open_Accessibility_Utils::get_enabled_profiles(),
+			'Precondition: ADHD Friendly should be offered with default settings.'
+		);
+
+		update_option( self::OPTION, array( 'enable_hide_images' => 0 ) );
+		wp_cache_flush();
+
+		$this->assertArrayNotHasKey(
+			'adhd_friendly',
+			Open_Accessibility_Utils::get_enabled_profiles(),
+			'A profile that hides images must not be offered when Hide Images is disabled.'
+		);
+	}
+
+	/**
+	 * Disabling one dependency does not affect profiles that do not need it.
+	 */
+	public function test_disabling_a_feature_leaves_unrelated_profiles_alone() {
+		update_option( self::OPTION, array( 'enable_hide_images' => 0 ) );
+		wp_cache_flush();
+
+		$enabled = Open_Accessibility_Utils::get_enabled_profiles();
+
+		$this->assertArrayHasKey( 'blind', $enabled );
+		$this->assertArrayHasKey( 'seizure_safe', $enabled );
+		$this->assertArrayHasKey( 'vision_impaired', $enabled );
+	}
+
+	/**
+	 * Every profile declares its feature dependencies.
+	 *
+	 * Without the declaration the filtering above cannot work for a new profile,
+	 * and the omission is silent — the profile would simply be offered and then
+	 * re-enable a control the site had switched off.
+	 */
+	public function test_every_profile_declares_its_requirements() {
+		foreach ( Open_Accessibility_Utils::get_profiles() as $name => $profile ) {
+			$this->assertArrayHasKey( 'requires', $profile, "Profile {$name} declares no requirements." );
+			$this->assertIsArray( $profile['requires'], "Profile {$name} requirements should be an array." );
+			$this->assertNotEmpty( $profile['requires'], "Profile {$name} requires nothing, which is unlikely to be deliberate." );
+
+			$defaults = Open_Accessibility_Utils::get_default_options();
+
+			foreach ( $profile['requires'] as $required ) {
+				$this->assertArrayHasKey(
+					$required,
+					$defaults,
+					"Profile {$name} requires '{$required}', which is not a known option key."
+				);
+			}
+		}
+	}
+
+	/**
+	 * Every profile is available with default settings.
+	 *
+	 * A profile that ships disabled-by-default is a profile most sites never see.
+	 * If a preset genuinely needs an opt-in control, that is a signal the preset
+	 * should not depend on it.
+	 */
+	public function test_every_profile_is_available_with_default_settings() {
+		delete_option( self::OPTION );
+
+		$available = Open_Accessibility_Utils::get_enabled_profiles();
+		$declared  = Open_Accessibility_Utils::get_profiles();
+
+		$missing = array_values( array_diff( array_keys( $declared ), array_keys( $available ) ) );
+
+		$this->assertSame(
+			array(),
+			$missing,
+			'These profiles are not offered on a default install: ' . implode( ', ', $missing )
+		);
+	}
+
+	/**
+	 * is_profile_available() tracks the enabled set.
+	 */
+	public function test_is_profile_available_matches_the_enabled_set() {
+		delete_option( self::OPTION );
+
+		$this->assertTrue( Open_Accessibility_Utils::is_profile_available( 'seizure_safe' ) );
+		$this->assertFalse( Open_Accessibility_Utils::is_profile_available( 'not_a_profile' ) );
+		$this->assertFalse( Open_Accessibility_Utils::is_profile_available( '' ) );
+
+		update_option( self::OPTION, array( 'enable_profile_blind' => 0 ) );
+		wp_cache_flush();
+
+		$this->assertFalse(
+			Open_Accessibility_Utils::is_profile_available( 'blind' ),
+			'A profile switched off by the site is not available.'
+		);
+	}
 }

@@ -209,6 +209,38 @@
         return open_accessibility_data.options.default_profile || '';
     }
 
+    // State fields a profile controls.
+    //
+    // Used to decide whether a partial update has invalidated the active
+    // profile. Mirrors the preset fields defined in PHP.
+    const PROFILE_CONTROLLED_FIELDS = [
+        'contrast',
+        'grayscale',
+        'textSize',
+        'selectedFont',
+        'linksUnderline',
+        'hideImages',
+        'readingGuide',
+        'readingMask',
+        'focusOutline',
+        'lineHeightLevel',
+        'textAlign',
+        'pauseAnimations',
+        'letterSpacingLevel',
+        'wordSpacingLevel'
+    ];
+
+    // Whether a partial state changes anything a profile controls.
+    function changesProfileFields(partialState) {
+        if (!partialState || typeof partialState !== 'object') {
+            return false;
+        }
+
+        return PROFILE_CONTROLLED_FIELDS.some((field) =>
+            Object.prototype.hasOwnProperty.call(partialState, field)
+        );
+    }
+
     // Build the state a profile represents.
     //
     // Every preset is complete (PHP guarantees it), so replacing the state
@@ -318,7 +350,19 @@
                 return;
             }
 
+            const invalidatesProfile = changesProfileFields(partialState);
+
             accessibilityState = normalizeAccessibilityState($.extend({}, accessibilityState, partialState));
+
+            // Changing a profile-controlled field means the settings no longer
+            // match the preset that was applied, so the marker has to go. Without
+            // this the state and the pressed button would keep claiming a profile
+            // the visitor has already left. Callers that pass activeProfile
+            // explicitly keep control of it.
+            if (invalidatesProfile && !Object.prototype.hasOwnProperty.call(partialState, 'activeProfile')) {
+                accessibilityState.activeProfile = '';
+            }
+
             saveState();
             applyState();
         };
