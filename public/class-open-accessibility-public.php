@@ -529,6 +529,10 @@ class Open_Accessibility_Public {
 			'feedback_text' => __('Accessibility Feedback', 'open-accessibility'),
 			'sitemap_text' => __('Sitemap', 'open-accessibility'),
 
+			// Section heading for the profile buttons. Individual profile labels
+			// come from the registry, which is filterable in its own right.
+			'profiles_title' => __('Accessibility Profiles', 'open-accessibility'),
+
 			// Screen-reader-only labels. These name the control rather than the
 			// value, because "Decrease" on its own is meaningless out of context.
 			'toggle_open' => __('Open accessibility tools', 'open-accessibility'),
