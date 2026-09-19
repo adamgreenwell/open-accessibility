@@ -200,6 +200,14 @@ class Open_Accessibility_Admin {
 			'open-accessibility-settings'
 		);
 
+		// Accessibility Profiles
+		add_settings_section(
+			'open_accessibility_profiles',
+			__('Accessibility Profiles', 'open-accessibility'),
+			array($this, 'profiles_section_callback'),
+			'open-accessibility-settings'
+		);
+
 		// Accessibility Statement
 		add_settings_section(
 			'open_accessibility_statement',
@@ -367,6 +375,46 @@ class Open_Accessibility_Admin {
 			);
 		}
 
+		// Profile fields. Driven by the registry, so adding a profile in
+		// Open_Accessibility_Utils::get_profiles() is enough for it to appear
+		// here; the field id doubles as the option key.
+		foreach ( Open_Accessibility_Utils::get_profiles() as $profile_name => $profile ) {
+			add_settings_field(
+				$profile['option'],
+				$profile['label'],
+				array($this, 'checkbox_field_callback'),
+				'open-accessibility-settings',
+				'open_accessibility_profiles',
+				array(
+					'id'          => $profile['option'],
+					/* translators: %s: profile name */
+					'label'       => sprintf( __( 'Offer the %s profile', 'open-accessibility' ), $profile['label'] ),
+					'description' => $profile['description'],
+				)
+			);
+		}
+
+		// Default profile. An explicit empty option is required: the select
+		// callback has no automatic blank entry and does not merge defaults.
+		$profile_choices = array( '' => __( 'No default', 'open-accessibility' ) );
+		foreach ( Open_Accessibility_Utils::get_profiles() as $profile_name => $profile ) {
+			$profile_choices[ $profile_name ] = $profile['label'];
+		}
+
+		add_settings_field(
+			'default_profile',
+			__('Default Profile', 'open-accessibility'),
+			array($this, 'select_field_callback'),
+			'open-accessibility-settings',
+			'open_accessibility_profiles',
+			array(
+				'id'          => 'default_profile',
+				'default'     => '',
+				'options'     => $profile_choices,
+				'description' => __( 'Applied to visitors who have not chosen their own settings yet. Leave as "No default" to start everyone from the standard settings.', 'open-accessibility' ),
+			)
+		);
+
 		// Skip to content settings
 		add_settings_field(
 			'skip_to_element_id',
@@ -530,6 +578,10 @@ class Open_Accessibility_Admin {
 	/**
 	 * Advanced section callback
 	 */
+	public function profiles_section_callback() {
+		echo '<p>' . esc_html__( 'One-click presets visitors can apply from the widget. Each profile changes several settings at once.', 'open-accessibility' ) . '</p>';
+	}
+
 	public function advanced_section_callback() {
 		echo '<p>' . esc_html__('Advanced settings for the accessibility widget.', 'open-accessibility') . '</p>';
 	}
@@ -849,6 +901,12 @@ class Open_Accessibility_Admin {
 			'enable_analytics',
 		);
 
+		// Profile toggles come from the registry rather than a hand-maintained
+		// list, so a profile added there cannot be silently dropped on save.
+		foreach ( Open_Accessibility_Utils::get_profiles() as $profile ) {
+			$checkboxes[] = $profile['option'];
+		}
+
 		foreach ($checkboxes as $key) {
 			$sanitized[$key] = isset($input[$key]) ? 1 : 0;
 		}
@@ -904,6 +962,63 @@ class Open_Accessibility_Admin {
 			$sanitized['position'] = in_array($input['position'], $valid_positions) ? $input['position'] : 'left';
 		}
 
+		// Default profile must name a profile that exists. An unknown value is
+		// discarded rather than stored, so a renamed or removed profile cannot
+		// leave the option pointing at nothing.
+		if (isset($input['default_profile'])) {
+			$requested = sanitize_text_field($input['default_profile']);
+
+			$sanitized['default_profile'] = $this->is_profile_selectable($requested, $input) ? $requested : '';
+		}
+
 		return $sanitized;
+	}
+
+	/**
+	 * Whether a profile can be chosen as the site default.
+	 *
+	 * Checked against the submitted form rather than the stored option, because
+	 * this runs before the new value is written: an admin who unchecks a
+	 * profile's "Offer" toggle and picks it as the default in the same save must
+	 * be rejected, not accepted and then silently dropped.
+	 *
+	 * Validating against the registry alone was not enough. get_enabled_profiles()
+	 * additionally withholds profiles whose dependent features are switched off,
+	 * so a profile could pass registry validation, disappear from the frontend
+	 * payload, and leave first-time visitors with no default and no explanation.
+	 *
+	 * @param string $name  Requested profile name.
+	 * @param array  $input Submitted form input.
+	 * @return bool
+	 */
+	private function is_profile_selectable($name, $input) {
+		if ('' === $name) {
+			// The blank choice is always valid; it is how the default is turned off.
+			return true;
+		}
+
+		$profile = Open_Accessibility_Utils::get_profile($name);
+
+		if (null === $profile) {
+			return false;
+		}
+
+		// Must be offered after this save.
+		if (empty($input[$profile['option']])) {
+			return false;
+		}
+
+		// And every feature it depends on must still be enabled after this save.
+		$defaults = Open_Accessibility_Utils::get_default_options();
+
+		foreach ((array) (isset($profile['requires']) ? $profile['requires'] : array()) as $required) {
+			$enabled = array_key_exists($required, $input) ? !empty($input[$required]) : !empty($defaults[$required]);
+
+			if (!$enabled) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 }
