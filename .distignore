@@ -38,6 +38,9 @@ yarn.lock
 phpcs.xml
 phpcs.xml.dist
 
+# Browser verification harness: needs a browser and a running site.
+/tests/js
+
 # Project-only documentation. These ship in the repository but not in the
 # release package. The test suite is already excluded above.
 TRANSLATION_MAINTENANCE.md
