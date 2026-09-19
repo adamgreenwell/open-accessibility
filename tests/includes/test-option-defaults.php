@@ -188,6 +188,8 @@ class Test_Option_Defaults extends OA_TestCase {
 			'enable_debug',          // Open_Accessibility_Utils::log().
 			'statement_url',         // Open_Accessibility_Statement_Generator::create_statement_page().
 			'default_profile',       // Open_Accessibility_Utils::get_enabled_profiles().
+			'cursor_size',           // frontend payload; gates a CSS class.
+			'enable_cursor_size',    // widget control gate.
 		);
 
 		// Profile toggles are read by iterating the profile registry rather than

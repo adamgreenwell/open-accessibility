@@ -28,7 +28,10 @@
         // Name of the profile currently applied, or '' once the visitor adjusts
         // anything by hand. Profiles are presets, not modes: changing one control
         // means the visitor is no longer in the profile they started from.
-        activeProfile: ''
+        activeProfile: '',
+        // Cursor size is a choice rather than a flag, and it is not part of any
+        // preset: it changes the pointer, not the page content.
+        cursorSize: ''
     };
     let accessibilityState = Object.assign({}, DEFAULT_ACCESSIBILITY_STATE);
 
@@ -170,8 +173,21 @@
             pauseAnimations: Boolean(source.pauseAnimations),
             letterSpacingLevel: clampLevel(source.letterSpacingLevel, MAX_SPACING_LEVEL),
             wordSpacingLevel: clampLevel(source.wordSpacingLevel, MAX_SPACING_LEVEL),
-            activeProfile: normalizeChoice(source.activeProfile, getProfileNames(), '')
+            activeProfile: normalizeChoice(source.activeProfile, getProfileNames(), ''),
+            cursorSize: normalizeChoice(source.cursorSize, getCursorSizes(), '')
         };
+    }
+
+    // Valid cursor sizes, delivered by PHP so the whitelist has one definition.
+    function getCursorSizes() {
+        if (typeof open_accessibility_data === 'undefined' ||
+            !open_accessibility_data ||
+            !open_accessibility_data.options ||
+            !Array.isArray(open_accessibility_data.options.cursor_sizes)) {
+            return [''];
+        }
+
+        return open_accessibility_data.options.cursor_sizes;
     }
 
     // Profiles are defined in PHP and delivered in the localised payload, so
@@ -1392,6 +1408,10 @@
             case 'profile':
                 applyProfile(value);
                 break;
+
+            case 'cursor-size':
+                applyCursorSize(value);
+                break;
         }
 
         // Any manual adjustment takes the visitor out of the profile they had
@@ -1399,6 +1419,12 @@
         // buttons set this themselves, so skip them.
         if (action !== 'profile') {
             accessibilityState.activeProfile = '';
+        }
+
+        // Cursor size is not a preset field, so it must survive a profile change.
+        // Re-apply after any profile application, which replaces the whole state.
+        if (action === 'profile') {
+            applyCursorSize(accessibilityState.cursorSize);
         }
 
         // Update state
@@ -1470,6 +1496,16 @@
 
         setButtonPressed('pause-animations', 'toggle', accessibilityState.pauseAnimations);
 
+        // Cursor size is a radio group: the active value is whichever the state
+        // names, and the blank value is the default cursor.
+        $('.open-accessibility-action-button[data-action="cursor-size"]').removeClass('active').attr('aria-pressed', 'false');
+
+        if (accessibilityState.cursorSize) {
+            setButtonPressed('cursor-size', accessibilityState.cursorSize, true);
+        } else {
+            setButtonPressed('cursor-size', '', true);
+        }
+
         // Profile buttons are a group, not toggles: the active one is whichever
         // the state names, and none is active once the visitor adjusts something.
         $('.open-accessibility-action-button[data-action="profile"]').removeClass('active').attr('aria-pressed', 'false');
@@ -1477,6 +1513,24 @@
         if (accessibilityState.activeProfile) {
             setButtonPressed('profile', accessibilityState.activeProfile, true);
         }
+    }
+
+    // Apply the cursor size.
+    //
+    // Set on <html> rather than <body> so the pointer applies over the whole
+    // document including any theme chrome outside body's box, and a class rather
+    // than an inline style so the stylesheet owns the cursor images.
+    function applyCursorSize(size) {
+        const sizes = getCursorSizes();
+        const value = sizes.includes(size) ? size : '';
+
+        $('html').removeClass('open-accessibility-cursor-large open-accessibility-cursor-xlarge');
+
+        if (value) {
+            $('html').addClass('open-accessibility-cursor-' + value);
+        }
+
+        accessibilityState.cursorSize = value;
     }
 
     // Handle contrast modes
@@ -1861,6 +1915,9 @@
         updateIndicator('word-spacing', 0);
         updateIndicator('line-height', 0);
 
+        // Clear the cursor size, which reset() would otherwise leave applied.
+        applyCursorSize('');
+
         // Explicitly hide the reading guide on reset
         $('.open-accessibility-reading-guide').hide();
         $('.open-accessibility-reading-mask').hide(); 
@@ -1972,6 +2029,9 @@
         // Apply focus outline
         $('body').toggleClass('open-accessibility-focus-outline', accessibilityState.focusOutline);
         $('.open-accessibility-action-button[data-action="focus-outline"]').toggleClass('active', accessibilityState.focusOutline);
+
+        // Apply cursor size
+        applyCursorSize(accessibilityState.cursorSize);
 
         // Apply pause animations
         $('body').toggleClass('open-accessibility-pause-animations', accessibilityState.pauseAnimations);

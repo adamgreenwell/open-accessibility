@@ -2098,3 +2098,39 @@ body.open-accessibility-word-spacing-3 {
     font-style: italic;
     font-display: swap;
 }
+
+/* ---------------------------------------------------------------------------
+   Cursor size.
+
+   Set on <html> so the pointer applies to the whole document, and re-declared for
+   interactive elements because those carry their own cursor value. The browser
+   caps cursor images around 128px, so only two enlarged steps are offered.
+
+   The images are inline SVG data URIs: no extra request, resolution independent,
+   and they follow the theme through currentColor is not possible in a cursor, so
+   a white fill with a black outline is used, which stays legible on light and
+   dark pages alike.
+   --------------------------------------------------------------------------- */
+html.open-accessibility-cursor-large,
+html.open-accessibility-cursor-large body,
+html.open-accessibility-cursor-large a,
+html.open-accessibility-cursor-large button,
+html.open-accessibility-cursor-large input,
+html.open-accessibility-cursor-large select,
+html.open-accessibility-cursor-large textarea,
+html.open-accessibility-cursor-large [role="button"],
+html.open-accessibility-cursor-large [tabindex] {
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'%3E%3Cpath d='M8 4 L8 38 L17 29 L23 44 L29 41 L23 27 L35 27 Z' fill='%23ffffff' stroke='%23000000' stroke-width='2.5'/%3E%3C/svg%3E") 8 4, auto;
+}
+
+html.open-accessibility-cursor-xlarge,
+html.open-accessibility-cursor-xlarge body,
+html.open-accessibility-cursor-xlarge a,
+html.open-accessibility-cursor-xlarge button,
+html.open-accessibility-cursor-xlarge input,
+html.open-accessibility-cursor-xlarge select,
+html.open-accessibility-cursor-xlarge textarea,
+html.open-accessibility-cursor-xlarge [role="button"],
+html.open-accessibility-cursor-xlarge [tabindex] {
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='72' viewBox='0 0 48 48'%3E%3Cpath d='M8 4 L8 38 L17 29 L23 44 L29 41 L23 27 L35 27 Z' fill='%23ffffff' stroke='%23000000' stroke-width='2'/%3E%3C/svg%3E") 12 6, auto;
+}

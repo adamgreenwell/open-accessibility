@@ -60,6 +60,20 @@ class Open_Accessibility_Utils {
 	}
 
 	/**
+	 * Valid cursor size values.
+	 *
+	 * The blank value means the default cursor, so the setting can be switched
+	 * off by choosing it. Declared once and used by both the sanitiser and the
+	 * frontend, so an invalid value cannot reach CSS as a class name.
+	 *
+	 * @since    1.4.2
+	 * @return   string[]
+	 */
+	public static function get_cursor_sizes() {
+		return array( '', 'large', 'xlarge' );
+	}
+
+	/**
 	 * Names of the state fields a profile preset can set.
 	 *
 	 * Derived from get_default_accessibility_state() rather than restated, so
@@ -423,6 +437,11 @@ class Open_Accessibility_Utils {
 
 			// Position.
 			'position' => 'left',
+
+			// Cursor. A choice, not a toggle, so it is stored as a size rather
+			// than a flag; the enable key gates the widget control.
+			'cursor_size' => '',
+			'enable_cursor_size' => 0,
 
 			// Features. Most default to on; the opt-in ones are noted below.
 			'enable_skip_to_content' => 1,

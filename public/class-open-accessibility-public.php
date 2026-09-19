@@ -178,6 +178,9 @@ class Open_Accessibility_Public {
 			// PHP state so the script does not declare its own copy; a field added
 			// there cannot leave the frontend behind.
 			'profile_fields' => Open_Accessibility_Utils::get_preset_field_names(),
+			'cursor_size' => $this->get_option('cursor_size', ''),
+			'cursor_sizes' => Open_Accessibility_Utils::get_cursor_sizes(),
+			'enable_cursor_size' => $this->get_option('enable_cursor_size', false),
 			'default_profile' => $this->get_option('default_profile', ''),
 			'debug' => (bool) $this->is_debug_enabled,
 		);
@@ -532,6 +535,11 @@ class Open_Accessibility_Public {
 			'help_text' => __('Help', 'open-accessibility'),
 			'feedback_text' => __('Accessibility Feedback', 'open-accessibility'),
 			'sitemap_text' => __('Sitemap', 'open-accessibility'),
+
+			'cursor_size_title' => __('Cursor Size', 'open-accessibility'),
+			'cursor_size_default' => __('Default', 'open-accessibility'),
+			'cursor_size_large' => __('Large', 'open-accessibility'),
+			'cursor_size_xlarge' => __('Extra Large', 'open-accessibility'),
 
 			// Section heading for the profile buttons. Individual profile labels
 			// come from the registry, which is filterable in its own right.
