@@ -121,8 +121,8 @@ if (!defined('ABSPATH')) {
                 <div class="open-accessibility-debug-controls">
                     <p>
 						<?php
-						$options = get_option('open_accessibility_options', array());
-						$debug_enabled = isset($options['enable_debug']) && $options['enable_debug'];
+						$options = Open_Accessibility_Utils::get_options();
+						$debug_enabled = ! empty( $options['enable_debug'] );
 
 						if ($debug_enabled):
 							?>

@@ -381,8 +381,8 @@ class Open_Accessibility_Utils {
 	 * @return   void
 	 */
 	public static function log($message, $level = 'debug') {
-		$options = get_option('open_accessibility_options', array());
-		$plugin_debug_enabled = isset($options['enable_debug']) && $options['enable_debug'];
+		$options = self::get_options();
+		$plugin_debug_enabled = ! empty( $options['enable_debug'] );
 
 		// Only log if plugin debug mode is enabled AND WordPress debug log is active
 		if ($plugin_debug_enabled && defined('WP_DEBUG') && WP_DEBUG === true && defined('WP_DEBUG_LOG') && WP_DEBUG_LOG === true) {

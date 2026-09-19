@@ -165,7 +165,7 @@ class Open_Accessibility_Statement_Generator {
 
 		if (!is_wp_error($page_id)) {
 			// Update plugin settings with the new page URL
-			$options = get_option('open_accessibility_options', []);
+			$options = Open_Accessibility_Utils::get_options();
 			$page_url = get_permalink($page_id);
 			$options['statement_url'] = $page_url;
 			update_option('open_accessibility_options', $options);

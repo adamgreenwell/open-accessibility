@@ -56,7 +56,9 @@ class Open_Accessibility_Public {
 	public function __construct() {
 		$this->plugin_name = 'open-accessibility';
 		$this->version = OPEN_ACCESSIBILITY_VERSION;
-		$this->options = get_option('open_accessibility_options', array());
+		// Merged over defaults, so every key the frontend reads is present even
+		// on an install whose stored option predates the key.
+		$this->options = Open_Accessibility_Utils::get_options();
 		// Set the debug state based on plugin options
 		$this->is_debug_enabled = $this->get_option('enable_debug', false);
 	}
