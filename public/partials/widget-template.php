@@ -138,7 +138,7 @@ $panel_title = apply_filters( 'open_accessibility_panel_title', $panel_title );
 			<!-- Grayscale Section -->
 			<?php if (isset($options['enable_grayscale']) && $options['enable_grayscale']): ?>
 				<div class="open-accessibility-widget-section">
-					<h3><?php echo esc_html( $oa_strings['grayscale_text'] ); ?></h3>
+					<h3><?php echo esc_html( $oa_strings['grayscale_title'] ); ?></h3>
 					<div class="open-accessibility-actions">
 						<button class="open-accessibility-action-button" data-action="grayscale" data-value="toggle" aria-pressed="false">
 							<?php echo esc_html( $oa_strings['grayscale_text'] ); ?>
@@ -153,11 +153,11 @@ $panel_title = apply_filters( 'open_accessibility_panel_title', $panel_title );
 					<h3><?php echo esc_html( $oa_strings['text_size_title'] ); ?></h3>
 					<div class="open-accessibility-actions">
 						<button class="open-accessibility-action-button" data-action="text-size" data-value="decrease">
-							<?php echo esc_html( $oa_strings['decrease_text'] ); ?>
+							<?php echo esc_html( $oa_strings['text_size_decrease'] ); ?>
 						</button>
 						<span class="open-accessibility-indicator" data-action="text-size" data-max="5" role="status" aria-live="polite" aria-atomic="true" aria-label="<?php echo esc_attr( $oa_strings['text_size_level'] ); ?>"></span>
 						<button class="open-accessibility-action-button" data-action="text-size" data-value="increase">
-							<?php echo esc_html( $oa_strings['increase_text'] ); ?>
+							<?php echo esc_html( $oa_strings['text_size_increase'] ); ?>
 						</button>
 					</div>
 				</div>
@@ -195,11 +195,11 @@ $panel_title = apply_filters( 'open_accessibility_panel_title', $panel_title );
 					<h3><?php echo esc_html( $oa_strings['letter_spacing_title'] ); ?></h3>
 					<div class="open-accessibility-actions">
 						<button class="open-accessibility-action-button" data-action="letter-spacing" data-value="decrease" aria-label="<?php echo esc_attr( $oa_strings['letter_spacing_decrease'] ); ?>">
-							<?php echo esc_html( $oa_strings['decrease_text'] ); ?>
+							<?php echo esc_html( $oa_strings['letter_spacing_decrease'] ); ?>
 						</button>
 						<span class="open-accessibility-indicator" data-action="letter-spacing" data-max="3" role="status" aria-live="polite" aria-atomic="true" aria-label="<?php echo esc_attr( $oa_strings['letter_spacing_level'] ); ?>"></span>
 						<button class="open-accessibility-action-button" data-action="letter-spacing" data-value="increase" aria-label="<?php echo esc_attr( $oa_strings['letter_spacing_increase'] ); ?>">
-							<?php echo esc_html( $oa_strings['increase_text'] ); ?>
+							<?php echo esc_html( $oa_strings['letter_spacing_increase'] ); ?>
 						</button>
 					</div>
 				</div>
@@ -211,11 +211,11 @@ $panel_title = apply_filters( 'open_accessibility_panel_title', $panel_title );
 					<h3><?php echo esc_html( $oa_strings['word_spacing_title'] ); ?></h3>
 					<div class="open-accessibility-actions">
 						 <button class="open-accessibility-action-button" data-action="word-spacing" data-value="decrease" aria-label="<?php echo esc_attr( $oa_strings['word_spacing_decrease'] ); ?>">
-							<?php echo esc_html( $oa_strings['decrease_text'] ); ?>
+							<?php echo esc_html( $oa_strings['word_spacing_decrease'] ); ?>
 						</button>
 						<span class="open-accessibility-indicator" data-action="word-spacing" data-max="3" role="status" aria-live="polite" aria-atomic="true" aria-label="<?php echo esc_attr( $oa_strings['word_spacing_level'] ); ?>"></span>
 						<button class="open-accessibility-action-button" data-action="word-spacing" data-value="increase" aria-label="<?php echo esc_attr( $oa_strings['word_spacing_increase'] ); ?>">
-							<?php echo esc_html( $oa_strings['increase_text'] ); ?>
+							<?php echo esc_html( $oa_strings['word_spacing_increase'] ); ?>
 						</button>
 					</div>
 				</div>
@@ -224,7 +224,7 @@ $panel_title = apply_filters( 'open_accessibility_panel_title', $panel_title );
 			<!-- Links Underline Section -->
 			<?php if (isset($options['enable_links_underline']) && $options['enable_links_underline']): ?>
 				<div class="open-accessibility-widget-section">
-					<h3><?php echo esc_html( $oa_strings['links_underline_text'] ); ?></h3>
+					<h3><?php echo esc_html( $oa_strings['links_underline_title'] ); ?></h3>
 					<div class="open-accessibility-actions">
 						<button class="open-accessibility-action-button" data-action="links-underline" data-value="toggle" aria-pressed="false">
 							<?php echo esc_html( $oa_strings['links_underline_text'] ); ?>
@@ -236,7 +236,7 @@ $panel_title = apply_filters( 'open_accessibility_panel_title', $panel_title );
 			<!-- Hide Images Section -->
 			<?php if (isset($options['enable_hide_images']) && $options['enable_hide_images']): ?>
 				<div class="open-accessibility-widget-section">
-					<h3><?php echo esc_html( $oa_strings['hide_images_text'] ); ?></h3>
+					<h3><?php echo esc_html( $oa_strings['hide_images_title'] ); ?></h3>
 					<div class="open-accessibility-actions">
 						<button class="open-accessibility-action-button" data-action="hide-images" data-value="toggle" aria-pressed="false">
 							<?php echo esc_html( $oa_strings['hide_images_text'] ); ?>
@@ -248,7 +248,7 @@ $panel_title = apply_filters( 'open_accessibility_panel_title', $panel_title );
 			<!-- Reading Guide Section -->
 			<?php if (isset($options['enable_reading_guide']) && $options['enable_reading_guide']): ?>
 				<div class="open-accessibility-widget-section">
-					<h3><?php echo esc_html( $oa_strings['reading_guide_text'] ); ?></h3>
+					<h3><?php echo esc_html( $oa_strings['reading_guide_title'] ); ?></h3>
 					<div class="open-accessibility-actions">
 						<button class="open-accessibility-action-button" data-action="reading-guide" data-value="toggle" aria-pressed="false">
 							<?php echo esc_html( $oa_strings['reading_guide_text'] ); ?>
@@ -268,7 +268,7 @@ $panel_title = apply_filters( 'open_accessibility_panel_title', $panel_title );
 			?>
 			<?php if ($oa_enable_reading_mask): ?>
 				<div class="open-accessibility-widget-section">
-					<h3><?php echo esc_html( $oa_strings['reading_mask_text'] ); ?></h3>
+					<h3><?php echo esc_html( $oa_strings['reading_mask_title'] ); ?></h3>
 					<div class="open-accessibility-actions">
 						<button class="open-accessibility-action-button" data-action="reading-mask" data-value="toggle" aria-pressed="false">
 							<?php echo esc_html( $oa_strings['reading_mask_text'] ); ?>
@@ -280,7 +280,7 @@ $panel_title = apply_filters( 'open_accessibility_panel_title', $panel_title );
 			<!-- Focus Outline Section -->
 			<?php if (isset($options['enable_focus_outline']) && $options['enable_focus_outline']): ?>
 				<div class="open-accessibility-widget-section">
-					<h3><?php echo esc_html( $oa_strings['focus_outline_text'] ); ?></h3>
+					<h3><?php echo esc_html( $oa_strings['focus_outline_title'] ); ?></h3>
 					<div class="open-accessibility-actions">
 						<button class="open-accessibility-action-button" data-action="focus-outline" data-value="toggle" aria-pressed="false">
 							<?php echo esc_html( $oa_strings['focus_outline_text'] ); ?>
@@ -295,11 +295,11 @@ $panel_title = apply_filters( 'open_accessibility_panel_title', $panel_title );
 					<h3><?php echo esc_html( $oa_strings['line_height_title'] ); ?></h3>
 					<div class="open-accessibility-actions">
 						<button class="open-accessibility-action-button" data-action="line-height" data-value="decrease" aria-label="<?php echo esc_attr( $oa_strings['line_height_decrease'] ); ?>">
-							<?php echo esc_html( $oa_strings['decrease_text'] ); ?>
+							<?php echo esc_html( $oa_strings['line_height_decrease'] ); ?>
 						</button>
 						<span class="open-accessibility-indicator" data-action="line-height" data-max="3" role="status" aria-live="polite" aria-atomic="true" aria-label="<?php echo esc_attr( $oa_strings['line_height_level'] ); ?>"></span>
 						<button class="open-accessibility-action-button" data-action="line-height" data-value="increase" aria-label="<?php echo esc_attr( $oa_strings['line_height_increase'] ); ?>">
-							<?php echo esc_html( $oa_strings['increase_text'] ); ?>
+							<?php echo esc_html( $oa_strings['line_height_increase'] ); ?>
 						</button>
 					</div>
 				</div>
@@ -326,7 +326,7 @@ $panel_title = apply_filters( 'open_accessibility_panel_title', $panel_title );
 			<!-- Pause Animations Section -->
 			<?php if (isset($options['enable_animations_pause']) && $options['enable_animations_pause']): ?>
 				<div class="open-accessibility-widget-section">
-					<h3><?php echo esc_html( $oa_strings['pause_animations_text'] ); ?></h3>
+					<h3><?php echo esc_html( $oa_strings['pause_animations_title'] ); ?></h3>
 					<div class="open-accessibility-actions">
 						<button class="open-accessibility-action-button" data-action="pause-animations" data-value="toggle" aria-pressed="false">
 							<?php echo esc_html( $oa_strings['pause_animations_text'] ); ?>
@@ -341,19 +341,19 @@ $panel_title = apply_filters( 'open_accessibility_panel_title', $panel_title );
 			$panel_links = array(
 				'statement' => array(
 					'url'   => isset( $options['statement_url'] ) ? $options['statement_url'] : '',
-					'label' => __( 'Accessibility Statement', 'open-accessibility' ),
+					'label' => $oa_strings['statement_text'],
 				),
 				'sitemap' => array(
 					'url'   => isset( $options['sitemap_url'] ) ? $options['sitemap_url'] : '',
-					'label' => __( 'Sitemap', 'open-accessibility' ),
+					'label' => $oa_strings['sitemap_text'],
 				),
 				'help' => array(
 					'url'   => isset( $options['help_url'] ) ? $options['help_url'] : '',
-					'label' => __( 'Help', 'open-accessibility' ),
+					'label' => $oa_strings['help_text'],
 				),
 				'feedback' => array(
 					'url'   => isset( $options['feedback_url'] ) ? $options['feedback_url'] : '',
-					'label' => __( 'Accessibility Feedback', 'open-accessibility' ),
+					'label' => $oa_strings['feedback_text'],
 				),
 			);
 

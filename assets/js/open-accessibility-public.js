@@ -1617,11 +1617,10 @@
         }
 
         const maxLevel = parseInt($indicator.data('max'), 10);
-        const totalDots = maxLevel + 1; // 0 to maxLevel inclusive
-        
+
         // Clear existing dots
         $indicator.empty();
-        
+
         // Create dots for each level
         for (let i = 0; i <= maxLevel; i++) {
             const $dot = $('<span></span>')
@@ -1629,12 +1628,42 @@
                 .addClass(i <= currentLevel ? 'active' : '');
             $indicator.append($dot);
         }
-        
-        // Update aria-label
-        $indicator.attr('aria-label', `Level ${currentLevel} of ${maxLevel}`);
+
+        // Announce the level. The label comes from the filtered strings array via
+        // the localised payload, so a site that relabels a control also relabels
+        // what assistive technology announces. Falls back to English only if the
+        // payload is missing, which should not happen on a normal page load.
+        const announcement = getLevelAnnouncement(action, currentLevel, maxLevel);
+        $indicator.attr('aria-label', announcement);
         $indicator.append($('<span></span>')
             .addClass('screen-reader-text')
-            .text(`Level ${currentLevel} of ${maxLevel}`));
+            .text(announcement));
+    }
+
+    // Build the level announcement for an incremental control.
+    //
+    // Each control has its own localised label — "Text size level", "Line height
+    // level" and so on — because the level number alone is meaningless out of
+    // context. The numeric part reuses the existing string rather than
+    // concatenating translated fragments, which would not survive translation.
+    function getLevelAnnouncement(action, currentLevel, maxLevel) {
+        const labels = {
+            'text-size': 'text_size_level',
+            'letter-spacing': 'letter_spacing_level',
+            'word-spacing': 'word_spacing_level',
+            'line-height': 'line_height_level'
+        };
+
+        const fallback = `Level ${currentLevel} of ${maxLevel}`;
+        const key = labels[action];
+
+        if (!key) {
+            return fallback;
+        }
+
+        const label = getString(key);
+
+        return label ? `${label}: ${currentLevel}/${maxLevel}` : fallback;
     }
 
     // Reset all settings to default
@@ -1911,6 +1940,22 @@
         }
 
         return open_accessibility_data.options[key];
+    }
+
+    // Read a user-facing string pushed through wp_localize_script.
+    //
+    // These come from the same filtered array the template renders, so a site
+    // that relabels a control also relabels whatever assistive technology
+    // announces for it.
+    function getString(key, fallback) {
+        if (typeof open_accessibility_data === 'undefined' ||
+            !open_accessibility_data ||
+            !open_accessibility_data.i18n ||
+            typeof open_accessibility_data.i18n[key] === 'undefined') {
+            return fallback || '';
+        }
+
+        return open_accessibility_data.i18n[key];
     }
 
     // Open links in the same tab.

@@ -525,12 +525,6 @@ class Open_Accessibility_Public {
 			'feedback_text' => __('Accessibility Feedback', 'open-accessibility'),
 			'sitemap_text' => __('Sitemap', 'open-accessibility'),
 
-			// Controls shared by the incremental sections. The decrease/increase
-			// labels are the same words in every section, so they reuse the
-			// text-size keys rather than duplicating four identical pairs.
-			'decrease_text' => __('Decrease', 'open-accessibility'),
-			'increase_text' => __('Increase', 'open-accessibility'),
-
 			// Screen-reader-only labels. These name the control rather than the
 			// value, because "Decrease" on its own is meaningless out of context.
 			'toggle_open' => __('Open accessibility tools', 'open-accessibility'),
