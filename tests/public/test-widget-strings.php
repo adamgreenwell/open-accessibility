@@ -575,4 +575,116 @@ class Test_Widget_Strings extends OA_TestCase {
 		$this->assertArrayNotHasKey( 'blind', $data['options']['profiles'] );
 		$this->assertCount( 4, $data['options']['profiles'] );
 	}
+
+	/**
+	 * The profile section renders one button per enabled profile.
+	 */
+	public function test_profile_section_renders_a_button_per_enabled_profile() {
+		$this->activate_plugin();
+
+		$html     = $this->render_widget();
+		$profiles = Open_Accessibility_Utils::get_profiles();
+
+		$this->assertStringContainsString( 'data-action="profile"', $html, 'The profile section did not render.' );
+
+		foreach ( $profiles as $name => $profile ) {
+			$this->assertStringContainsString(
+				'data-value="' . $name . '"',
+				$html,
+				"Profile {$name} should render a button."
+			);
+
+			// The label sits on its own line inside the button, so match it
+			// between tags rather than assuming it abuts them.
+			$this->assertSame(
+				1,
+				preg_match( '/>\s*' . preg_quote( $profile['label'], '/' ) . '\s*</', $html ),
+				"Profile {$name} should render its registry label."
+			);
+		}
+	}
+
+	/**
+	 * A disabled profile renders nothing.
+	 */
+	public function test_disabled_profile_renders_no_button() {
+		$this->activate_plugin();
+
+		update_option( self::OPTION, array( 'enable_profile_blind' => 0 ) );
+		wp_cache_flush();
+
+		$html = $this->render_widget();
+
+		$this->assertStringNotContainsString( 'data-value="blind"', $html );
+		$this->assertStringContainsString( 'data-value="seizure_safe"', $html );
+	}
+
+	/**
+	 * Profile buttons start unpressed.
+	 *
+	 * The visitor's saved state decides which is active, and the script applies
+	 * that on load; server-rendered markup must not claim one is active.
+	 */
+	public function test_profile_buttons_render_unpressed() {
+		$this->activate_plugin();
+
+		$html = $this->render_widget();
+
+		// One button per enabled profile, and none claiming to be pressed.
+		$button_count = substr_count( $html, 'data-action="profile"' );
+
+		$this->assertGreaterThan( 0, $button_count, 'No profile buttons rendered.' );
+
+		preg_match_all( '/data-action="profile"[^>]*aria-pressed="([a-z]+)"/', $html, $matches );
+
+		$this->assertCount(
+			$button_count,
+			$matches[1],
+			'Every profile button should carry an explicit aria-pressed state.'
+		);
+
+		foreach ( $matches[1] as $pressed ) {
+			$this->assertSame( 'false', $pressed, 'Profile buttons should render unpressed.' );
+		}
+	}
+
+	/**
+	 * The profile section heading honours its own key.
+	 */
+	public function test_profile_section_heading_is_filterable() {
+		$this->add_tracked_filter(
+			'open_accessibility_strings',
+			function ( $strings ) {
+				$strings['profiles_title'] = 'Sentinel Profiles Heading';
+				return $strings;
+			}
+		);
+
+		$html = $this->render_widget();
+
+		$this->assertStringContainsString( 'Sentinel Profiles Heading', $html );
+	}
+
+	/**
+	 * The profile section appears before the individual controls.
+	 *
+	 * Profiles are the fast path: a visitor who wants one should not have to
+	 * scroll past fifteen individual settings to find it.
+	 */
+	public function test_profile_section_precedes_the_individual_controls() {
+		$this->activate_plugin();
+
+		$html = $this->render_widget();
+
+		$profile_position = strpos( $html, 'data-action="profile"' );
+		$contrast_position = strpos( $html, 'data-action="contrast"' );
+		$reset_position = strpos( $html, 'open-accessibility-reset-button' );
+
+		$this->assertNotFalse( $profile_position );
+		$this->assertNotFalse( $contrast_position );
+		$this->assertNotFalse( $reset_position );
+
+		$this->assertLessThan( $contrast_position, $profile_position, 'Profiles should come before the individual controls.' );
+		$this->assertGreaterThan( $reset_position, $profile_position, 'Reset should stay first.' );
+	}
 }

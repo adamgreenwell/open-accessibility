@@ -114,6 +114,31 @@ $panel_title = apply_filters( 'open_accessibility_panel_title', $panel_title );
 				</button>
 			</div>
 
+			<!-- Accessibility Profiles. Presets come first because they are the fast
+			     path: a visitor who wants one should not have to work through fifteen
+			     individual controls to find it. -->
+			<?php
+			$oa_profiles = Open_Accessibility_Utils::get_enabled_profiles();
+			?>
+			<?php if ( ! empty( $oa_profiles ) ) : ?>
+				<div class="open-accessibility-widget-section open-accessibility-profiles-section">
+					<h3><?php echo esc_html( $oa_strings['profiles_title'] ); ?></h3>
+					<div class="open-accessibility-actions">
+						<?php foreach ( $oa_profiles as $oa_profile_name => $oa_profile ) : ?>
+							<button
+								class="open-accessibility-action-button open-accessibility-profile-button"
+								data-action="profile"
+								data-value="<?php echo esc_attr( $oa_profile_name ); ?>"
+								aria-pressed="false"
+								title="<?php echo esc_attr( $oa_profile['description'] ); ?>"
+							>
+								<?php echo esc_html( $oa_profile['label'] ); ?>
+							</button>
+						<?php endforeach; ?>
+					</div>
+				</div>
+			<?php endif; ?>
+
 			<!-- Contrast Section -->
 			<?php if (isset($options['enable_contrast']) && $options['enable_contrast']): ?>
 				<div class="open-accessibility-widget-section">
