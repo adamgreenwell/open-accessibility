@@ -461,6 +461,10 @@ class Open_Accessibility_Utils {
 			'saturation_level' => 0,
 			'enable_saturation' => 0,
 
+			// Highlight every link with a background, stronger than the underline
+			// toggle which only changes text-decoration.
+			'enable_highlight_links' => 0,
+
 			// Features. Most default to on; the opt-in ones are noted below.
 			'enable_skip_to_content' => 1,
 			'enable_contrast' => 1,

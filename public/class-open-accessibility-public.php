@@ -183,6 +183,7 @@ class Open_Accessibility_Public {
 			'saturation_level' => (int) $this->get_option('saturation_level', 0),
 			'max_saturation_level' => Open_Accessibility_Utils::get_max_saturation_level(),
 			'enable_saturation' => $this->get_option('enable_saturation', false),
+			'enable_highlight_links' => $this->get_option('enable_highlight_links', false),
 			'enable_cursor_size' => $this->get_option('enable_cursor_size', false),
 			'default_profile' => $this->get_option('default_profile', ''),
 			'debug' => (bool) $this->is_debug_enabled,
@@ -545,6 +546,7 @@ class Open_Accessibility_Public {
 			// name the action keep a per-control pair instead.
 			'decrease_text' => __('Decrease', 'open-accessibility'),
 			'increase_text' => __('Increase', 'open-accessibility'),
+			'highlight_links_title' => __('Highlight Links', 'open-accessibility'),
 			'saturation_title' => __('Saturation', 'open-accessibility'),
 			'saturation_level' => __('Saturation level', 'open-accessibility'),
 			'saturation_decrease' => __('Decrease saturation', 'open-accessibility'),

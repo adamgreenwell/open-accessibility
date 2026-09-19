@@ -34,7 +34,9 @@
         cursorSize: '',
         // Saturation is a level rather than a flag, and separate from grayscale:
         // it reduces colour intensity without removing colour.
-        saturationLevel: 0
+        saturationLevel: 0,
+        // Highlights links with a background, distinct from the underline toggle.
+        highlightLinks: false
     };
     let accessibilityState = Object.assign({}, DEFAULT_ACCESSIBILITY_STATE);
 
@@ -189,7 +191,8 @@
             wordSpacingLevel: clampLevel(source.wordSpacingLevel, MAX_SPACING_LEVEL),
             activeProfile: normalizeChoice(source.activeProfile, getProfileNames(), ''),
             cursorSize: normalizeChoice(source.cursorSize, getCursorSizes(), ''),
-            saturationLevel: clampLevel(source.saturationLevel, MAX_SATURATION_LEVEL)
+            saturationLevel: clampLevel(source.saturationLevel, MAX_SATURATION_LEVEL),
+            highlightLinks: Boolean(source.highlightLinks)
         };
     }
 
@@ -207,6 +210,20 @@
         const configured = open_accessibility_data.options.cursor_size;
 
         return getCursorSizes().includes(configured) ? configured : '';
+    }
+
+    // The saturation level the site configured, if any.
+    //
+    // Clamped here rather than trusted, for the same reason the sanitiser clamps:
+    // the value drives an index into the step table.
+    function getConfiguredSaturationLevel() {
+        if (typeof open_accessibility_data === 'undefined' ||
+            !open_accessibility_data ||
+            !open_accessibility_data.options) {
+            return 0;
+        }
+
+        return clampLevel(open_accessibility_data.options.saturation_level, MAX_SATURATION_LEVEL);
     }
 
     // Valid cursor sizes, delivered by PHP so the whitelist has one definition.
@@ -278,9 +295,23 @@
     // Returned as a snapshot so a caller can restore it across a wholesale state
     // replacement. Anything listed here is outside every preset by design.
     function getCarriedState() {
-        return {
-            cursorSize: accessibilityState.cursorSize
-        };
+        const presetFields = getProfileFields();
+
+        // Fields the caller sets itself after the replacement. Carrying these
+        // would overwrite the value the caller is in the middle of applying —
+        // activeProfile would erase the profile just chosen, and the configured
+        // starting values would override the profile's own.
+        const callerOwned = ['activeProfile'];
+
+        const carried = {};
+
+        Object.keys(accessibilityState).forEach((field) => {
+            if (!presetFields.includes(field) && !callerOwned.includes(field)) {
+                carried[field] = accessibilityState[field];
+            }
+        });
+
+        return carried;
     }
 
     // Whether a partial state changes anything a profile controls.
@@ -478,11 +509,11 @@
                 });
             }
 
-            // The site's configured cursor size, which is a setting rather than a
-            // preset. Without this the admin control would appear to do nothing:
-            // the value reached the payload but nothing read it for a new
-            // visitor.
+            // Settings rather than presets. Without reading these the admin
+            // controls would appear to do nothing: the values reached the payload
+            // but nothing used them for a visitor with no stored preference.
             accessibilityState.cursorSize = getConfiguredCursorSize();
+            accessibilityState.saturationLevel = getConfiguredSaturationLevel();
         }
 
         // Apply saved state
@@ -910,6 +941,18 @@
         element.dataset[datasetKey] = element.style[propertyName] || '';
     }
 
+    // Restore an original value and clear its bookkeeping.
+    //
+    // restoreOriginalStyle() alone leaves the Captured flag set, and
+    // captureOriginalStyle() refuses to capture while that flag exists. The next
+    // activation therefore restores a value captured during the *first* one,
+    // silently discarding whatever the page set in between. Always pair the two.
+    function releaseOriginalStyle(element, datasetKey, propertyName) {
+        restoreOriginalStyle(element, datasetKey, propertyName);
+        delete element.dataset[datasetKey];
+        delete element.dataset[`${datasetKey}Captured`];
+    }
+
     function restoreOriginalStyle(element, datasetKey, propertyName) {
         if (element.dataset[datasetKey]) {
             element.style[propertyName] = element.dataset[datasetKey];
@@ -1043,10 +1086,8 @@
     }
 
     function restoreReadableFontTarget(element) {
-        restoreOriginalStyle(element, 'oaReadableFontOriginal', 'fontFamily');
+        releaseOriginalStyle(element, 'oaReadableFontOriginal', 'fontFamily');
         delete element.dataset.oaReadableFontManaged;
-        delete element.dataset.oaReadableFontOriginal;
-        delete element.dataset.oaReadableFontOriginalCaptured;
     }
 
     function applyReadableFontTargets(fontValue) {
@@ -1066,10 +1107,64 @@
     }
 
     function restoreLinksUnderlineTarget(element) {
-        restoreOriginalStyle(element, 'oaLinksUnderlineOriginal', 'textDecoration');
+        releaseOriginalStyle(element, 'oaLinksUnderlineOriginal', 'textDecoration');
         delete element.dataset.oaLinksUnderlineManaged;
-        delete element.dataset.oaLinksUnderlineOriginal;
-        delete element.dataset.oaLinksUnderlineOriginalCaptured;
+    }
+
+    // Highlight links so they stand out from surrounding text.
+    //
+    // Uses a translucent background plus a text-coloured underline, rather than
+    // the fixed black border the original design specified: a black border is
+    // invisible on the black background the high contrast modes paint. The two
+    // cues together also mean the highlight does not rely on colour alone.
+    function applyHighlightLinksTargets() {
+        clearManagedStyles('[data-oa-highlight-links-managed="1"]', restoreHighlightLinksTarget);
+
+        if (!accessibilityState.highlightLinks || !targetResolver) {
+            return;
+        }
+
+        const targets = targetResolver.getTargets('links');
+
+        // Two passes: capture every original first, so a value captured here is
+        // the page's own rather than one this feature just wrote.
+        targets.forEach((element) => {
+            captureOriginalStyle(element, 'oaHighlightBg', 'backgroundColor');
+            captureOriginalStyle(element, 'oaHighlightDecoration', 'textDecorationColor');
+            captureOriginalStyle(element, 'oaHighlightDecorationStyle', 'textDecorationStyle');
+            captureOriginalStyle(element, 'oaHighlightDecorationLine', 'textDecorationLine');
+        });
+
+        targets.forEach((element) => {
+            element.dataset.oaHighlightLinksManaged = '1';
+            // The class carries the stylesheet's non-colour cue, so it has to be
+            // on the element for that rule to apply at all.
+            element.classList.add('open-accessibility-highlight-links');
+            element.style.backgroundColor = 'rgba(255, 235, 59, 0.45)';
+            // An underline is what makes the cue survive someone who cannot
+            // distinguish the highlight colour. Setting only the decoration
+            // colour and style does not create one on a link that has none.
+            element.style.textDecorationLine = 'underline';
+            // currentColor keeps it legible whatever colour the theme (or a
+            // contrast mode) has given the link text.
+            element.style.textDecorationColor = 'currentColor';
+            element.style.textDecorationStyle = 'solid';
+        });
+    }
+
+    function restoreHighlightLinksTarget(element) {
+        releaseOriginalStyle(element, 'oaHighlightBg', 'backgroundColor');
+        releaseOriginalStyle(element, 'oaHighlightDecoration', 'textDecorationColor');
+        releaseOriginalStyle(element, 'oaHighlightDecorationStyle', 'textDecorationStyle');
+        releaseOriginalStyle(element, 'oaHighlightDecorationLine', 'textDecorationLine');
+        element.classList.remove('open-accessibility-highlight-links');
+        delete element.dataset.oaHighlightLinksManaged;
+    }
+
+    function toggleHighlightLinks() {
+        accessibilityState.highlightLinks = !accessibilityState.highlightLinks;
+        applyHighlightLinksTargets();
+        syncActionButtonStates();
     }
 
     function applyLinksUnderlineTargets() {
@@ -1087,10 +1182,8 @@
     }
 
     function restoreHideImagesTarget(element) {
-        restoreOriginalStyle(element, 'oaHideImagesOriginal', 'visibility');
+        releaseOriginalStyle(element, 'oaHideImagesOriginal', 'visibility');
         delete element.dataset.oaHideImagesManaged;
-        delete element.dataset.oaHideImagesOriginal;
-        delete element.dataset.oaHideImagesOriginalCaptured;
     }
 
     function applyHideImagesTargets() {
@@ -1111,14 +1204,10 @@
         });
     }
 
-    function restoreGrayscaleTarget(element) {
-        restoreOriginalStyle(element, 'oaGrayscaleOriginal', 'filter');
-        delete element.dataset.oaGrayscaleManaged;
-        delete element.dataset.oaGrayscaleOriginal;
-        delete element.dataset.oaGrayscaleOriginalCaptured;
-    }
-
-    function getGrayscaleTargets() {
+    // Elements the colour filters act on. Grayscale and saturation share this
+    // list because they write the same CSS property and therefore have to be
+    // composed rather than applied independently.
+    function getFilterTargets() {
         if (!targetResolver) {
             return [];
         }
@@ -1131,46 +1220,66 @@
         );
     }
 
-    // Reduce colour intensity without removing it.
+    // Apply grayscale and saturation together.
+    //
+    // They write the same CSS property, so whichever ran last used to win: with
+    // both enabled the second assignment replaced the first, and toggling one
+    // changed which of them took effect. Composing the two into a single value
+    // is the only way both can hold at once.
     //
     // Applied to the resolved target elements rather than to a shared ancestor,
-    // following grayscale. A filter on an ancestor would create a containing
-    // block for position:fixed descendants, which is what made the widget
-    // unreachable in 1.1.0 and again in 1.4.01; filtering leaf elements keeps
-    // that class of bug out of reach.
-    function applySaturationTargets() {
-        clearManagedStyles('[data-oa-saturation-managed="1"]', restoreSaturationTarget);
+    // following grayscale's original approach. A filter on an ancestor would
+    // create a containing block for position:fixed descendants, which is what
+    // made the widget unreachable in 1.1.0 and again in 1.4.01; filtering leaf
+    // elements keeps that class of bug out of reach.
+    function applyContentFilters() {
+        const $button = $('.open-accessibility-toggle-button');
+        const $panel = $('.open-accessibility-widget-panel');
 
-        const level = accessibilityState.saturationLevel;
-        const value = SATURATION_STEPS[level];
+        clearManagedStyles('[data-oa-filter-managed="1"]', restoreFilterTarget);
 
-        if (!level || !value) {
+        // The widget's own chrome is filtered directly rather than through the
+        // target set, which excludes it.
+        $button.toggleClass('widget-grayscale', accessibilityState.grayscale);
+        $panel.toggleClass('widget-grayscale', accessibilityState.grayscale);
+
+        const composed = getComposedFilter();
+
+        if (!composed) {
             return;
         }
 
-        getSaturationTargets().forEach((element) => {
-            captureOriginalStyle(element, 'oaSaturationOriginal', 'filter');
-            element.dataset.oaSaturationManaged = '1';
-            element.style.filter = `saturate(${value})`;
+        // Two passes so a value captured against the original state is not
+        // overwritten by a later one in the same run.
+        getFilterTargets().forEach((element) => {
+            captureOriginalStyle(element, 'oaFilterOriginal', 'filter');
+        });
+
+        getFilterTargets().forEach((element) => {
+            element.dataset.oaFilterManaged = '1';
+            element.style.filter = composed;
         });
     }
 
-    function restoreSaturationTarget(element) {
-        restoreOriginalStyle(element, 'oaSaturationOriginal', 'filter');
-        delete element.dataset.oaSaturationManaged;
+    function restoreFilterTarget(element) {
+        releaseOriginalStyle(element, 'oaFilterOriginal', 'filter');
+        delete element.dataset.oaFilterManaged;
     }
 
-    function getSaturationTargets() {
-        if (!targetResolver) {
-            return [];
+    function getComposedFilter() {
+        const parts = [];
+
+        if (accessibilityState.grayscale) {
+            parts.push('grayscale(100%)');
         }
 
-        return mergeUniqueElements(
-            targetResolver.getTargets('readable_text'),
-            targetResolver.getTargets('headings'),
-            targetResolver.getTargets('links'),
-            targetResolver.getTargets('media')
-        );
+        const saturation = SATURATION_STEPS[accessibilityState.saturationLevel];
+
+        if (accessibilityState.saturationLevel && saturation) {
+            parts.push(`saturate(${saturation})`);
+        }
+
+        return parts.join(' ');
     }
 
     // Adjust the saturation level.
@@ -1181,28 +1290,9 @@
             accessibilityState.saturationLevel = Math.max(accessibilityState.saturationLevel - 1, 0);
         }
 
-        applySaturationTargets();
+        applyContentFilters();
         updateSpacingButtonStates('saturation', accessibilityState.saturationLevel);
         updateIndicator('saturation', accessibilityState.saturationLevel);
-    }
-
-    function applyGrayscaleTargets() {
-        const $button = $('.open-accessibility-toggle-button');
-        const $panel = $('.open-accessibility-widget-panel');
-
-        clearManagedStyles('[data-oa-grayscale-managed="1"]', restoreGrayscaleTarget);
-        $button.toggleClass('widget-grayscale', accessibilityState.grayscale);
-        $panel.toggleClass('widget-grayscale', accessibilityState.grayscale);
-
-        if (!accessibilityState.grayscale) {
-            return;
-        }
-
-        getGrayscaleTargets().forEach((element) => {
-            captureOriginalStyle(element, 'oaGrayscaleOriginal', 'filter');
-            element.dataset.oaGrayscaleManaged = '1';
-            element.style.filter = 'grayscale(100%)';
-        });
     }
 
     function removeLegacyTypographyClasses() {
@@ -1523,6 +1613,10 @@
             case 'saturation':
                 adjustSaturation(value);
                 break;
+
+            case 'highlight-links':
+                toggleHighlightLinks();
+                break;
         }
 
         // Any manual adjustment takes the visitor out of the profile they had
@@ -1608,6 +1702,7 @@
         setButtonPressed('set-font', accessibilityState.selectedFont || 'default', true);
         setButtonPressed('links-underline', 'toggle', accessibilityState.linksUnderline);
         setButtonPressed('hide-images', 'toggle', accessibilityState.hideImages);
+        setButtonPressed('highlight-links', 'toggle', accessibilityState.highlightLinks);
         setButtonPressed('reading-guide', 'toggle', accessibilityState.readingGuide);
         setButtonPressed('reading-mask', 'toggle', accessibilityState.readingMask);
         setButtonPressed('focus-outline', 'toggle', accessibilityState.focusOutline);
@@ -1732,7 +1827,7 @@
     // Toggle grayscale
     function toggleGrayscale() {
         accessibilityState.grayscale = !accessibilityState.grayscale;
-        applyGrayscaleTargets();
+        applyContentFilters();
         syncActionButtonStates();
     }
 
@@ -2037,6 +2132,7 @@
         updateIndicator('letter-spacing', 0);
         updateIndicator('word-spacing', 0);
         updateIndicator('line-height', 0);
+        updateIndicator('saturation', 0);
 
         // Clear the cursor size, which reset() would otherwise leave applied.
         applyCursorSize('');
@@ -2047,8 +2143,9 @@
 
         applyDynamicTypographyAdjustments();
         applyReadableFontTargets('default');
-        applyGrayscaleTargets();
-        applySaturationTargets();
+        applyContentFilters();
+        applyContentFilters();
+        applyHighlightLinksTargets();
         applyLinksUnderlineTargets();
         applyHideImagesTargets();
         syncActionButtonStates();
@@ -2131,10 +2228,13 @@
         applyContrast(accessibilityState.contrast || '');
 
         // Apply grayscale
-        applyGrayscaleTargets();
+        applyContentFilters();
 
         // Apply saturation
-        applySaturationTargets();
+        applyContentFilters();
+
+        // Apply link highlighting
+        applyHighlightLinksTargets();
 
         // Apply selected font (directly without toggle logic)
         applyFont(accessibilityState.selectedFont || 'default');

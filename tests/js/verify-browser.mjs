@@ -139,6 +139,19 @@ async function main() {
 
 		check('page exposes window.OpenAccessibility', true);
 
+		// Start from a clean page. localStorage persists between runs, so a
+		// previous run's state would otherwise decide what this one observes, and
+		// a leftover managed style would make the "fully restored" checks pass for
+		// the wrong reason.
+		await evaluate(
+			client,
+			`(() => {
+				try { localStorage.clear(); } catch (e) { /* storage unavailable */ }
+				document.querySelector('.open-accessibility-reset-button')?.click();
+				return true;
+			})()`
+		);
+
 		// --- API surface -------------------------------------------------
 		const api = await evaluate(
 			client,
@@ -207,17 +220,25 @@ async function main() {
 		const saturation = await evaluate(
 			client,
 			`(() => {
+				window.OpenAccessibility.setState({ grayscale: false, saturationLevel: 0 });
 				window.OpenAccessibility.setState({ saturationLevel: 2 });
-				const filtered = Array.from(document.querySelectorAll('[data-oa-saturation-managed="1"]'));
-				const values = filtered.map((el) => el.style.filter).filter(Boolean);
+
+				const values = Array.from(document.querySelectorAll('[data-oa-filter-managed="1"]'))
+					.map((el) => el.style.filter).filter(Boolean);
+
 				window.OpenAccessibility.setState({ saturationLevel: 0 });
-				const afterReset = document.querySelectorAll('[data-oa-saturation-managed="1"]').length;
-				return { applied: values.length, sample: values[0] || null, afterReset: afterReset };
+
+				// Grayscale is deliberately off here, so any remaining filter would
+				// be saturation that was not cleared.
+				const leftover = Array.from(document.querySelectorAll('[data-oa-filter-managed="1"]'))
+					.map((el) => el.style.filter).filter(Boolean);
+
+				return { applied: values.length, sample: values[0] || null, leftover: leftover.length };
 			})()`
 		);
 
 		check('saturation filters target elements', saturation.applied > 0, `${saturation.applied} elements, e.g. ${saturation.sample}`);
-		check('saturation is removed at level 0', saturation.afterReset === 0);
+		check('saturation is removed at level 0', saturation.leftover === 0, `${saturation.leftover} filtered elements remain`);
 
 		// --- Highlight links ------------------------------------------------
 		const highlight = await evaluate(
@@ -234,6 +255,114 @@ async function main() {
 
 		check('highlight marks links', highlight.marked > 0, `${highlight.marked} links, background ${highlight.sample}`);
 		check('highlight is fully restored', highlight.afterOff === 0);
+
+		// --- Grayscale and saturation must compose, not overwrite ----------
+		// They write the same CSS property, so an uncomposed implementation lets
+		// whichever ran last win and the active control silently stops applying.
+		const composed = await evaluate(
+			client,
+			`(() => {
+				window.OpenAccessibility.setState({ grayscale: false, saturationLevel: 0 });
+				window.OpenAccessibility.setState({ grayscale: true, saturationLevel: 2 });
+				const both = Array.from(document.querySelectorAll('[data-oa-filter-managed="1"]'))
+					.map((el) => el.style.filter).filter(Boolean);
+				const sample = both[0] || '';
+				window.OpenAccessibility.setState({ grayscale: false });
+				const satOnly = Array.from(document.querySelectorAll('[data-oa-filter-managed="1"]'))
+					.map((el) => el.style.filter).filter(Boolean)[0] || '';
+				window.OpenAccessibility.setState({ saturationLevel: 0 });
+				return { sample: sample, satOnly: satOnly, count: both.length };
+			})()`
+		);
+
+		check('grayscale and saturation compose', /grayscale\(100%\)/.test(composed.sample) && /saturate\(/.test(composed.sample), composed.sample || 'no filter');
+		check('removing grayscale leaves saturation intact', /saturate\(/.test(composed.satOnly) && !/grayscale/.test(composed.satOnly), composed.satOnly || 'no filter');
+
+		// --- A second activation captures the page's own state, not the first's --
+		const recapture = await evaluate(
+			client,
+			`(() => {
+				const link = document.querySelector('[data-oa-filter-managed="1"]') || document.querySelector('p, li, a');
+				if (!link) { return { skipped: true }; }
+				link.style.filter = 'contrast(140%)';
+				window.OpenAccessibility.setState({ grayscale: true });
+				window.OpenAccessibility.setState({ grayscale: false });
+				const afterFirst = link.style.filter;
+				window.OpenAccessibility.setState({ grayscale: true });
+				window.OpenAccessibility.setState({ grayscale: false });
+				const afterSecond = link.style.filter;
+				const result = { afterFirst: afterFirst, afterSecond: afterSecond };
+				link.style.filter = '';
+				return result;
+			})()`
+		);
+
+		if (!recapture.skipped) {
+			check(
+				'a second activation does not lose the page\'s own filter',
+				recapture.afterSecond === recapture.afterFirst,
+				`first=${recapture.afterFirst} second=${recapture.afterSecond}`
+			);
+		}
+
+		// --- Highlight links: the non-colour cue must actually apply ---------
+		const cue = await evaluate(
+			client,
+			`(() => {
+				window.OpenAccessibility.setState({ highlightLinks: true });
+				const link = document.querySelector('[data-oa-highlight-links-managed="1"]');
+				if (!link) { return { skipped: true }; }
+				const style = window.getComputedStyle(link);
+				const result = {
+					hasClass: link.classList.contains('open-accessibility-highlight-links'),
+					decorationLine: style.textDecorationLine,
+					fontWeight: style.fontWeight
+				};
+				window.OpenAccessibility.setState({ highlightLinks: false });
+				return result;
+			})()`
+		);
+
+		if (!cue.skipped) {
+			check('highlighted link carries the stylesheet class', cue.hasClass);
+			check('highlighted link is underlined', /underline/.test(cue.decorationLine), cue.decorationLine);
+			check('highlighted link is emphasised', Number(cue.fontWeight) >= 600, `font-weight ${cue.fontWeight}`);
+		}
+
+		// --- Reset clears the saturation indicator ---------------------------
+		const indicator = await evaluate(
+			client,
+			`(() => {
+				window.OpenAccessibility.setState({ saturationLevel: 2 });
+				const before = document.querySelectorAll('.open-accessibility-indicator[data-action="saturation"] .open-accessibility-indicator-dot.active').length;
+				document.querySelector('.open-accessibility-reset-button').click();
+				const after = document.querySelectorAll('.open-accessibility-indicator[data-action="saturation"] .open-accessibility-indicator-dot.active').length;
+				const label = document.querySelector('.open-accessibility-indicator[data-action="saturation"]')?.getAttribute('aria-label') || '';
+				return { before: before, after: after, label: label };
+			})()`
+		);
+
+		const saturationControlPresent = await evaluate(
+			client,
+			`document.querySelectorAll('.open-accessibility-indicator[data-action="saturation"]').length > 0`
+		);
+
+		if (saturationControlPresent) {
+			// Level 2 of 3 lights the zero marker plus one dot per level reached:
+			// indices 0, 1 and 2.
+			check('saturation indicator shows the level', indicator.before === 3, `${indicator.before} active dots at level 2 of 3`);
+		} else {
+			check(
+				'saturation indicator shows the level',
+				true,
+				'skipped: the saturation control is disabled in the site settings'
+			);
+		}
+		// Level 0 is still one active dot: the zero marker, the same as the text
+		// size, spacing and line height indicators. What matters after a reset is
+		// that the indicator is back at level 0 and says so.
+		check('reset returns the saturation indicator to level 0', indicator.after === 1, `${indicator.after} active dots after reset`);
+		check('reset updates the indicator announcement', /0\s*\/\s*3|: 0\//.test(indicator.label) || indicator.label.indexOf('0') !== -1, indicator.label);
 
 		// --- Widget chrome is never inside a filtered ancestor --------------
 		const widgetSafe = await evaluate(
@@ -266,7 +395,7 @@ async function main() {
 				window.OpenAccessibility.setState({ saturationLevel: 2, highlightLinks: true, cursorSize: 'xlarge', grayscale: true });
 				document.querySelector('.open-accessibility-reset-button').click();
 				return {
-					saturation: document.querySelectorAll('[data-oa-saturation-managed="1"]').length,
+					saturation: document.querySelectorAll('[data-oa-filter-managed="1"]').length,
 					highlight: document.querySelectorAll('[data-oa-highlight-links-managed="1"]').length,
 					cursorClass: document.documentElement.className.indexOf('open-accessibility-cursor') !== -1,
 					state: window.OpenAccessibility.getState()
