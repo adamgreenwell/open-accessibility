@@ -292,4 +292,76 @@ class Test_Cursor_Size_Frontend extends OA_TestCase {
 			);
 		}
 	}
+
+	/**
+	 * The configured size reaches the frontend as a starting point.
+	 *
+	 * The admin setting was in the payload but nothing read it for a visitor with
+	 * no stored preference, so choosing Large or Extra Large appeared to do
+	 * nothing. Two review findings came from that: the value was never applied,
+	 * and applying a profile cleared it because the profile path replaces the
+	 * whole state.
+	 *
+	 * Both are the same underlying requirement — state outside the presets must
+	 * survive a preset being applied — so this asserts the payload contract the
+	 * script needs to honour it.
+	 */
+	public function test_configured_size_is_distinct_from_the_visitor_choice() {
+		$this->activate_plugin();
+
+		update_option(
+			self::OPTION,
+			array(
+				'cursor_size'        => 'xlarge',
+				'enable_cursor_size' => 1,
+			)
+		);
+		wp_cache_flush();
+
+		$public = new Open_Accessibility_Public();
+
+		$original              = wp_scripts();
+		$scripts               = new WP_Scripts();
+		$scripts->init();
+		$GLOBALS['wp_scripts'] = $scripts;
+
+		try {
+			wp_register_script( 'open-accessibility', 'https://example.org/oa.js', array( 'jquery' ), '1', true );
+			$public->enqueue_scripts();
+			$raw = $scripts->get_data( 'open-accessibility', 'data' );
+		} finally {
+			$GLOBALS['wp_scripts'] = $original;
+		}
+
+		$json = rtrim( trim( (string) preg_replace( '/^\s*var\s+open_accessibility_data\s*=\s*/', '', $raw ) ), "; \t\n\r\0\x0B" );
+		$data = json_decode( $json, true );
+
+		$this->assertSame(
+			'xlarge',
+			$data['options']['cursor_size'],
+			'The configured size must reach the frontend for a visitor with no preference.'
+		);
+
+		$this->assertContains(
+			'xlarge',
+			$data['options']['cursor_sizes'],
+			'The configured value must be one the whitelist accepts, or the script discards it.'
+		);
+	}
+
+	/**
+	 * No preset defines a cursor size, which is what makes carrying it necessary.
+	 *
+	 * If a preset ever did set one, the profile path would legitimately overwrite
+	 * it and the carry-forward would be wrong. This keeps that assumption honest.
+	 */
+	public function test_no_preset_defines_a_cursor_size() {
+		foreach ( Open_Accessibility_Utils::get_profiles() as $name => $profile ) {
+			$this->assertArrayNotHasKey(
+				'cursorSize',
+				$profile['state'],
+				"Profile {$name} now sets a cursor size, so the frontend carry-forward needs revisiting."
+			);
+		}
+	}
 }
