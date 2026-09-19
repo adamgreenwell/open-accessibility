@@ -105,17 +105,104 @@ class Test_Removed_Dead_Code extends OA_TestCase {
 
 		$this->assertNotEmpty( $wanted, 'No i18n keys found; the parser has drifted from the code.' );
 
-		$php = $this->read_plugin_file( 'admin/class-open-accessibility-admin.php' );
-		preg_match_all( "/'([a-z_]+)'\s*=>/", $php, $php_matches );
-		$defined = array_values( array_unique( $php_matches[1] ) );
+		$data = $this->localised_admin_data();
+
+		$this->assertArrayHasKey( 'i18n', $data, 'The admin script should localise an i18n object.' );
+
+		$defined = array_keys( $data['i18n'] );
 
 		$undefined = array_values( array_diff( $wanted, $defined ) );
 
 		$this->assertSame(
 			array(),
 			$undefined,
-			'These i18n keys are read by admin JS but never defined in PHP: ' . implode( ', ', $undefined )
+			'These i18n keys are read by admin JS but never localised: ' . implode( ', ', $undefined )
 		);
+	}
+
+	/**
+	 * The localised payload the admin script actually receives.
+	 *
+	 * Read through wp_localize_script()'s own output rather than by parsing the
+	 * PHP source. An earlier version of this test scraped every associative
+	 * array key in the admin class, which made it pass for keys like `label` or
+	 * `sitemap_url` that exist elsewhere in that file but are never localised —
+	 * exactly the false negative it was meant to catch.
+	 *
+	 * @return array
+	 */
+	private function localised_admin_data() {
+		// Use a private script registry so this helper is self-contained. Sharing
+		// the global one leaks state between tests: registering the same handle
+		// twice is a no-op, and WordPress escapes the localised payload
+		// differently on a repeat pass, which leaves the JSON undecodable.
+		$original              = wp_scripts();
+		$scripts               = new WP_Scripts();
+		$scripts->init();
+		$GLOBALS['wp_scripts'] = $scripts;
+
+		try {
+			// enqueue_scripts() bails unless the handle resolves, and calls
+			// wp_localize_script() against it. Register it the way the plugin does.
+			wp_register_script(
+				'open-accessibility',
+				'https://example.org/open-accessibility-admin.js',
+				array( 'jquery', 'wp-color-picker' ),
+				'1',
+				false
+			);
+
+			// wp-color-picker is an admin-only handle and is not registered in the
+			// test environment, which would make the enqueue below a silent no-op.
+			wp_register_script( 'wp-color-picker', 'https://example.org/color-picker.js', array( 'jquery' ), '1', false );
+			wp_enqueue_script( 'wp-color-picker' );
+
+			$admin = new Open_Accessibility_Admin();
+			$admin->enqueue_scripts( 'toplevel_page_open-accessibility-settings' );
+
+			$raw = $scripts->get_data( 'open-accessibility', 'data' );
+		} finally {
+			$GLOBALS['wp_scripts'] = $original;
+		}
+
+		$this->assertIsString( $raw, 'The admin script should localise data.' );
+
+		// The payload is emitted as: var open_accessibility_admin = {...};
+		$json = trim( (string) preg_replace( '/^\s*var\s+open_accessibility_admin\s*=\s*/', '', $raw ) );
+		$json = rtrim( $json, "; \t\n\r\0\x0B" );
+
+		$data = json_decode( $json, true );
+
+		$this->assertIsArray(
+			$data,
+			'The localised payload should be decodable JSON. Got: ' . substr( $json, 0, 200 )
+		);
+
+		return $data;
+	}
+
+	/**
+	 * The scan above must actually be able to fail.
+	 *
+	 * Guards the guard: a key that appears in the admin class but is not
+	 * localised must be reported as missing. Without this, a future refactor
+	 * could quietly return the test to source scraping, which is what let the
+	 * original seven undefined keys ship.
+	 */
+	public function test_i18n_scan_distinguishes_unlocalised_keys() {
+		$data = $this->localised_admin_data();
+
+		$this->assertArrayHasKey( 'nonce', $data, 'The payload should carry a nonce alongside i18n.' );
+
+		$this->assertArrayNotHasKey(
+			'nonce',
+			$data['i18n'],
+			'nonce is localised at the top level, not inside i18n. A scan that treated class-wide array keys as localised would wrongly accept it.'
+		);
+
+		// `label` is an array key used throughout the admin class but never
+		// localised. It is the concrete case that defeated the previous version.
+		$this->assertArrayNotHasKey( 'label', $data['i18n'] );
 	}
 
 	/**
