@@ -185,12 +185,82 @@ class Test_Admin_Profiles extends OA_TestCase {
 	}
 
 	/**
+	 * Build a realistic form submission.
+	 *
+	 * A settings save posts the whole form, so the profile toggles are present.
+	 * Passing only default_profile would mean "the site offers no profiles",
+	 * which is a different case — and one the validation correctly rejects.
+	 *
+	 * @param array $overrides Values to change.
+	 * @return array
+	 */
+	private function form_submission( array $overrides = array() ) {
+		$input = array();
+
+		foreach ( Open_Accessibility_Utils::get_profiles() as $profile ) {
+			$input[ $profile['option'] ] = '1';
+
+			foreach ( (array) ( $profile['requires'] ?? array() ) as $required ) {
+				$input[ $required ] = '1';
+			}
+		}
+
+		return array_merge( $input, $overrides );
+	}
+
+	/**
 	 * A valid default profile is kept.
 	 */
 	public function test_valid_default_profile_is_accepted() {
-		$sanitized = $this->sanitize( array( 'default_profile' => 'vision_impaired' ) );
+		$sanitized = $this->sanitize(
+			$this->form_submission( array( 'default_profile' => 'vision_impaired' ) )
+		);
 
 		$this->assertSame( 'vision_impaired', $sanitized['default_profile'] );
+	}
+
+	/**
+	 * A profile that is switched off cannot be the default.
+	 *
+	 * This is the case the registry-only check missed: the name is valid, so it
+	 * passed, but the profile then vanished from the frontend payload and
+	 * first-time visitors got no default at all with nothing to explain why.
+	 */
+	public function test_default_profile_must_still_be_offered() {
+		$sanitized = $this->sanitize(
+			$this->form_submission(
+				array(
+					'default_profile'            => 'blind',
+					'enable_profile_blind'       => '0',
+				)
+			)
+		);
+
+		$this->assertSame(
+			'',
+			$sanitized['default_profile'],
+			'A profile the site stops offering must not remain the default.'
+		);
+	}
+
+	/**
+	 * A profile whose dependent feature is switched off cannot be the default.
+	 */
+	public function test_default_profile_must_have_its_features_enabled() {
+		$sanitized = $this->sanitize(
+			$this->form_submission(
+				array(
+					'default_profile'   => 'adhd_friendly',
+					'enable_hide_images' => '0',
+				)
+			)
+		);
+
+		$this->assertSame(
+			'',
+			$sanitized['default_profile'],
+			'A profile that is withheld because a dependency is off must not be the default.'
+		);
 	}
 
 	/**

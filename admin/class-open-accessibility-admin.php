@@ -966,11 +966,59 @@ class Open_Accessibility_Admin {
 		// discarded rather than stored, so a renamed or removed profile cannot
 		// leave the option pointing at nothing.
 		if (isset($input['default_profile'])) {
-			$valid_profiles = array_merge(array(''), array_keys(Open_Accessibility_Utils::get_profiles()));
 			$requested = sanitize_text_field($input['default_profile']);
-			$sanitized['default_profile'] = in_array($requested, $valid_profiles, true) ? $requested : '';
+
+			$sanitized['default_profile'] = $this->is_profile_selectable($requested, $input) ? $requested : '';
 		}
 
 		return $sanitized;
+	}
+
+	/**
+	 * Whether a profile can be chosen as the site default.
+	 *
+	 * Checked against the submitted form rather than the stored option, because
+	 * this runs before the new value is written: an admin who unchecks a
+	 * profile's "Offer" toggle and picks it as the default in the same save must
+	 * be rejected, not accepted and then silently dropped.
+	 *
+	 * Validating against the registry alone was not enough. get_enabled_profiles()
+	 * additionally withholds profiles whose dependent features are switched off,
+	 * so a profile could pass registry validation, disappear from the frontend
+	 * payload, and leave first-time visitors with no default and no explanation.
+	 *
+	 * @param string $name  Requested profile name.
+	 * @param array  $input Submitted form input.
+	 * @return bool
+	 */
+	private function is_profile_selectable($name, $input) {
+		if ('' === $name) {
+			// The blank choice is always valid; it is how the default is turned off.
+			return true;
+		}
+
+		$profile = Open_Accessibility_Utils::get_profile($name);
+
+		if (null === $profile) {
+			return false;
+		}
+
+		// Must be offered after this save.
+		if (empty($input[$profile['option']])) {
+			return false;
+		}
+
+		// And every feature it depends on must still be enabled after this save.
+		$defaults = Open_Accessibility_Utils::get_default_options();
+
+		foreach ((array) (isset($profile['requires']) ? $profile['requires'] : array()) as $required) {
+			$enabled = array_key_exists($required, $input) ? !empty($input[$required]) : !empty($defaults[$required]);
+
+			if (!$enabled) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 }
