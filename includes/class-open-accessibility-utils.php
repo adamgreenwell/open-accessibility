@@ -78,6 +78,10 @@ class Open_Accessibility_Utils {
 				'label'       => __( 'Seizure Safe', 'open-accessibility' ),
 				'description' => __( 'Reduces motion and softening contrast.', 'open-accessibility' ),
 				'option'      => 'enable_profile_seizure_safe',
+				// Feature flags this preset depends on. A profile whose controls
+				// are switched off is not offered, so a preset can never re-enable
+				// behaviour the site owner deliberately disabled.
+				'requires'    => array( 'enable_animations_pause', 'enable_contrast' ),
 				'state'       => self::profile_state(
 					array(
 						'pauseAnimations' => true,
@@ -87,19 +91,23 @@ class Open_Accessibility_Utils {
 			),
 			'vision_impaired' => array(
 				'label'       => __( 'Vision Impaired', 'open-accessibility' ),
-				'description' => __( 'Larger text with more line, letter and word spacing, and underlined links.', 'open-accessibility' ),
+				'description' => __( 'Larger text with more line spacing and underlined links.', 'open-accessibility' ),
 				'option'      => 'enable_profile_vision_impaired',
+				// Feature flags this preset depends on. A profile whose controls
+				// are switched off is not offered, so a preset can never re-enable
+				// behaviour the site owner deliberately disabled.
+				//
+				// Deliberately does not require the letter- and word-spacing
+				// controls, which ship off. Requiring them would remove this
+				// profile — the most broadly useful one — from every site that has
+				// not opted into those controls. A site that enables them can add
+				// spacing through the open_accessibility_profiles filter.
+				'requires'    => array( 'enable_text_size', 'enable_line_height', 'enable_links_underline' ),
 				'state'       => self::profile_state(
 					array(
-						'textSize'           => 3,
-						'lineHeightLevel'    => 2,
-						'letterSpacingLevel' => 1,
-						// The description promises word spacing, so the preset has
-						// to set it. Increasing letter and line spacing while
-						// leaving word spacing alone also falls short of the
-						// combined text-spacing guidance these presets exist for.
-						'wordSpacingLevel'   => 1,
-						'linksUnderline'     => true,
+						'textSize'        => 3,
+						'lineHeightLevel' => 2,
+						'linksUnderline'  => true,
 					)
 				),
 			),
@@ -107,6 +115,10 @@ class Open_Accessibility_Utils {
 				'label'       => __( 'ADHD Friendly', 'open-accessibility' ),
 				'description' => __( 'Cuts distraction with a reading mask, hidden images and paused motion.', 'open-accessibility' ),
 				'option'      => 'enable_profile_adhd_friendly',
+				// Feature flags this preset depends on. A profile whose controls
+				// are switched off is not offered, so a preset can never re-enable
+				// behaviour the site owner deliberately disabled.
+				'requires'    => array( 'enable_reading_mask', 'enable_hide_images', 'enable_animations_pause' ),
 				'state'       => self::profile_state(
 					array(
 						'readingMask'     => true,
@@ -119,6 +131,10 @@ class Open_Accessibility_Utils {
 				'label'       => __( 'Blind', 'open-accessibility' ),
 				'description' => __( 'Emphasises links and focus visibility for keyboard and screen reader use.', 'open-accessibility' ),
 				'option'      => 'enable_profile_blind',
+				// Feature flags this preset depends on. A profile whose controls
+				// are switched off is not offered, so a preset can never re-enable
+				// behaviour the site owner deliberately disabled.
+				'requires'    => array( 'enable_focus_outline', 'enable_links_underline' ),
 				'state'       => self::profile_state(
 					array(
 						'focusOutline'   => true,
@@ -130,6 +146,10 @@ class Open_Accessibility_Utils {
 				'label'       => __( 'Epilepsy Safe', 'open-accessibility' ),
 				'description' => __( 'Pauses motion and removes colour to reduce the chance of a seizure.', 'open-accessibility' ),
 				'option'      => 'enable_profile_epilepsy_safe',
+				// Feature flags this preset depends on. A profile whose controls
+				// are switched off is not offered, so a preset can never re-enable
+				// behaviour the site owner deliberately disabled.
+				'requires'    => array( 'enable_animations_pause', 'enable_grayscale', 'enable_contrast' ),
 				'state'       => self::profile_state(
 					array(
 						'pauseAnimations' => true,
@@ -193,12 +213,40 @@ class Open_Accessibility_Utils {
 				? ! empty( $options[ $option ] )
 				: ! array_key_exists( $option, (array) get_option( 'open_accessibility_options', array() ) );
 
-			if ( $is_enabled ) {
-				$enabled[ $name ] = $profile;
+			if ( ! $is_enabled ) {
+				continue;
 			}
+
+			// A preset must not re-enable behaviour the site owner switched off.
+			// Applying ADHD Friendly with Hide Images disabled would set
+			// hideImages on the frontend even though the control is absent, which
+			// leaves the visitor with a setting they cannot see or undo.
+			foreach ( (array) ( isset( $profile['requires'] ) ? $profile['requires'] : array() ) as $required ) {
+				if ( empty( $options[ $required ] ) ) {
+					continue 2;
+				}
+			}
+
+			$enabled[ $name ] = $profile;
 		}
 
 		return $enabled;
+	}
+
+	/**
+	 * Check whether a profile is currently available.
+	 *
+	 * Available means offered *and* every feature it depends on is enabled.
+	 * Anything that accepts a profile name — the default-profile setting, the
+	 * frontend payload, the public API — should ask this rather than consulting
+	 * the registry, or a profile can be selected and then silently do nothing.
+	 *
+	 * @since    1.4.2
+	 * @param    string    $name    Profile name.
+	 * @return   bool
+	 */
+	public static function is_profile_available( $name ) {
+		return array_key_exists( $name, self::get_enabled_profiles() );
 	}
 
 	/**
