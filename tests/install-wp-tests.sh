@@ -1,0 +1,157 @@
+#!/usr/bin/env bash
+#
+# Install the WordPress test library for the Open Accessibility test suite.
+#
+# Adapted from the WordPress core scaffold (wp-cli/scaffold-command). Differences:
+#   - credentials can come from the environment, so `composer test:setup` works
+#     non-interactively against the project's docker-compose MariaDB;
+#   - defaults match this project's docker-compose.yml (host, port, table prefix).
+#
+# Usage:
+#   bin/install-wp-tests.sh [<db-name> <db-user> <db-pass> [<db-host>] [<wp-version>] [<skip-db-create>]]
+#
+# Environment overrides (used when positional args are omitted):
+#   WP_TESTS_DIR       where to install the library (default: /tmp/wordpress-tests-lib)
+#   WP_CORE_DIR        where to install WordPress   (default: /tmp/wordpress)
+#   WP_TESTS_DB_NAME   default: wordpress_test
+#   WP_TESTS_DB_USER   default: wp_test
+#   WP_TESTS_DB_PASS   default: wp_test_pw
+#   WP_TESTS_DB_HOST   default: 127.0.0.1:3309
+#   WP_TESTS_TABLE_PREFIX default: wptests_
+
+set -euo pipefail
+
+DB_NAME="${1:-${WP_TESTS_DB_NAME:-wordpress_test}}"
+DB_USER="${2:-${WP_TESTS_DB_USER:-wp_test}}"
+DB_PASS="${3:-${WP_TESTS_DB_PASS:-wp_test_pw}}"
+DB_HOST="${4:-${WP_TESTS_DB_HOST:-127.0.0.1:3309}}"
+WP_VERSION="${5:-${WP_TESTS_WP_VERSION:-latest}}"
+SKIP_DB_CREATE="${6:-${WP_TESTS_SKIP_DB_CREATE:-false}}"
+
+WP_TESTS_DIR="${WP_TESTS_DIR:-/tmp/wordpress-tests-lib}"
+WP_CORE_DIR="${WP_CORE_DIR:-/tmp/wordpress}"
+WP_TESTS_TABLE_PREFIX="${WP_TESTS_TABLE_PREFIX:-wptests_}"
+
+# Keep these defaults in sync with tests/bootstrap.php, which falls back to the
+# same literal path instead of sys_get_temp_dir() — that resolves per-user on
+# macOS, which would point the bootstrap at a different directory than this script.
+
+# WordPress core is fetched from the same host that serves the plugin's updates.
+WP_DOWNLOAD_HOST="${WP_TESTS_DOWNLOAD_HOST:-https://wordpress.org}"
+
+command -v curl >/dev/null 2>&1 || { echo 'curl is required.' >&2; exit 1; }
+command -v svn >/dev/null 2>&1 || { echo 'svn is required (WordPress distributes the test library over SVN).' >&2; exit 1; }
+
+# ---------------------------------------------------------------------------
+# Database
+# ---------------------------------------------------------------------------
+if [ "${SKIP_DB_CREATE}" != "true" ]; then
+	if command -v mysqladmin >/dev/null 2>&1; then
+		echo "Creating database ${DB_NAME} (if it does not already exist)..."
+		mysqladmin create "${DB_NAME}" --user="${DB_USER}" --password="${DB_PASS}" --host="${DB_HOST}" --protocol=tcp 2>/dev/null \
+			|| echo "  Database already exists, or the user lacks CREATE. Continuing."
+	else
+		echo "mysqladmin not found; skipping database creation and assuming ${DB_NAME} exists."
+	fi
+fi
+
+# ---------------------------------------------------------------------------
+# WordPress core
+# ---------------------------------------------------------------------------
+install_wp() {
+	local archive_name version_url
+
+	if [ -d "${WP_CORE_DIR}/wp-includes" ]; then
+		echo "WordPress core already present at ${WP_CORE_DIR}."
+		return
+	fi
+
+	mkdir -p "${WP_CORE_DIR}"
+
+	if [ "${WP_VERSION}" = "latest" ]; then
+		archive_name='latest.tar.gz'
+		version_url="${WP_DOWNLOAD_HOST}/latest.tar.gz"
+	else
+		archive_name="wordpress-${WP_VERSION}.tar.gz"
+		version_url="${WP_DOWNLOAD_HOST}/wordpress-${WP_VERSION}.tar.gz"
+	fi
+
+	echo "Downloading WordPress ${WP_VERSION}..."
+	curl -sS -L -o "/tmp/${archive_name}" "${version_url}"
+
+	tar --strip-components=1 -C "${WP_CORE_DIR}" -xzf "/tmp/${archive_name}"
+	rm -f "/tmp/${archive_name}"
+
+	echo "WordPress core installed to ${WP_CORE_DIR}."
+}
+
+# ---------------------------------------------------------------------------
+# Test library
+# ---------------------------------------------------------------------------
+install_test_suite() {
+	mkdir -p "${WP_TESTS_DIR}"
+
+	# The test library tracks the core branch, not the release tag.
+	local tag
+	if [ "${WP_VERSION}" = "latest" ]; then
+		# Discover the current stable branch from the downloaded core.
+		tag="trunk"
+		if [ -f "${WP_CORE_DIR}/wp-includes/version.php" ]; then
+			local series
+			series="$(grep -oE "\\\$wp_version = '[0-9]+\\.[0-9]+" "${WP_CORE_DIR}/wp-includes/version.php" | grep -oE '[0-9]+\.[0-9]+' || true)"
+			if [ -n "${series}" ]; then
+				tag="branches/${series}"
+			fi
+		fi
+	else
+		tag="tags/${WP_VERSION}"
+	fi
+
+	echo "Installing the test library from ${tag}..."
+	svn export --quiet --force "https://develop.svn.wordpress.org/${tag}/tests/phpunit/includes/" "${WP_TESTS_DIR}/includes"
+	svn export --quiet --force "https://develop.svn.wordpress.org/${tag}/tests/phpunit/data/" "${WP_TESTS_DIR}/data"
+
+	if [ ! -f "${WP_TESTS_DIR}/wp-tests-config-sample.php" ]; then
+		svn export --quiet --force "https://develop.svn.wordpress.org/${tag}/wp-tests-config-sample.php" "${WP_TESTS_DIR}/wp-tests-config-sample.php"
+	fi
+
+	cat > "${WP_TESTS_DIR}/wp-tests-config.php" <<-CONFIG
+	<?php
+	/* Generated by tests/install-wp-tests.sh — do not edit by hand. */
+	define( 'ABSPATH', '${WP_CORE_DIR}/' );
+	define( 'WP_DEFAULT_THEME', 'default' );
+	define( 'WP_TESTS_DOMAIN', 'example.org' );
+	define( 'WP_TESTS_EMAIL', 'admin@example.org' );
+	define( 'WP_TESTS_TITLE', 'Open Accessibility Test Suite' );
+	define( 'WP_PHP_BINARY', 'php' );
+	define( 'WPLANG', '' );
+
+	define( 'DB_NAME', '${DB_NAME}' );
+	define( 'DB_USER', '${DB_USER}' );
+	define( 'DB_PASSWORD', '${DB_PASS}' );
+	define( 'DB_HOST', '${DB_HOST}' );
+	define( 'DB_CHARSET', 'utf8' );
+	define( 'DB_COLLATE', '' );
+
+	\$table_prefix = '${WP_TESTS_TABLE_PREFIX}';
+	CONFIG
+
+	echo "Test library installed to ${WP_TESTS_DIR}."
+}
+
+install_wp
+install_test_suite
+
+cat <<-DONE
+
+Setup complete.
+
+  WP_TESTS_DIR=${WP_TESTS_DIR}
+  WP_CORE_DIR=${WP_CORE_DIR}
+  database=${DB_NAME} at ${DB_HOST}
+
+Run the suite with:
+
+  composer test
+
+DONE

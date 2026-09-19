@@ -12,6 +12,10 @@
   "require": {
     "php": ">=7.4"
   },
+  "require-dev": {
+    "phpunit/phpunit": "^9.6",
+    "yoast/phpunit-polyfills": "^2.0"
+  },
   "scripts": {
     "check": "bash bin/check-release.sh",
     "i18n": "bash bin/generate-pot.sh",
@@ -20,6 +24,11 @@
       "bash bin/build-release.sh"
     ],
     "build:zip": "@build",
-    "build:svn": "bash bin/deploy-svn.sh"
+    "build:svn": "bash bin/deploy-svn.sh",
+    "test": "phpunit",
+    "test:setup": "bash tests/install-wp-tests.sh"
+  },
+  "config": {
+    "sort-packages": true
   }
 }

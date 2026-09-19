@@ -37,6 +37,9 @@ dist/
 *.zip
 composer.lock
 
+# Test tooling output
+.phpunit.result.cache
+
 # Release tooling and planning notes are kept locally, not published.
 # They live in the working tree but are deliberately absent from the public
 # repository; .distignore also keeps them out of release packages.
