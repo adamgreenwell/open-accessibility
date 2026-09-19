@@ -67,6 +67,30 @@ for CI or a different database. The full list is in the header of
 WP_TESTS_DB_HOST=127.0.0.1:3307 WP_TESTS_DB_ROOT_PASS=secret composer test:setup
 ```
 
+### Browser checks
+
+PHPUnit asserts what PHP produces. The frontend script's own behaviour — state handling, what it
+applies to the page, what it restores on reset — has no coverage from it. `tests/js/verify-browser.mjs`
+drives a real browser over the Chrome DevTools Protocol to check exactly that, and needs no
+dependencies beyond Node 22 (which ships `fetch` and `WebSocket`).
+
+Start the site, then a browser with a debug port:
+
+```bash
+docker compose up -d
+
+# Any Chromium will do; adjust the path to your own binary.
+"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
+  --headless=new --remote-debugging-port=9222 \
+  --user-data-dir=/tmp/oa-chrome http://localhost:9080/
+
+node tests/js/verify-browser.mjs
+```
+
+It exits non-zero if a check fails. This is the only way to verify anything visual or
+script-driven headlessly, so it is worth extending when adding a frontend feature rather than
+relying on manual clicking.
+
 **Every change should come with tests.** Run `composer check` before opening a pull request; it
 validates version parity, PHP syntax, JavaScript syntax, whitespace, and builds the release
 package.
