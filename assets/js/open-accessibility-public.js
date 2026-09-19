@@ -24,7 +24,11 @@
         textAlign: '',
         pauseAnimations: false,
         letterSpacingLevel: 0,
-        wordSpacingLevel: 0
+        wordSpacingLevel: 0,
+        // Name of the profile currently applied, or '' once the visitor adjusts
+        // anything by hand. Profiles are presets, not modes: changing one control
+        // means the visitor is no longer in the profile they started from.
+        activeProfile: ''
     };
     let accessibilityState = Object.assign({}, DEFAULT_ACCESSIBILITY_STATE);
 
@@ -165,8 +169,71 @@
             textAlign: normalizeChoice(source.textAlign, VALID_TEXT_ALIGN_VALUES, ''),
             pauseAnimations: Boolean(source.pauseAnimations),
             letterSpacingLevel: clampLevel(source.letterSpacingLevel, MAX_SPACING_LEVEL),
-            wordSpacingLevel: clampLevel(source.wordSpacingLevel, MAX_SPACING_LEVEL)
+            wordSpacingLevel: clampLevel(source.wordSpacingLevel, MAX_SPACING_LEVEL),
+            activeProfile: normalizeChoice(source.activeProfile, getProfileNames(), '')
         };
+    }
+
+    // Profiles are defined in PHP and delivered in the localised payload, so
+    // there is one definition of a preset rather than two that can drift. The
+    // script only applies what it is handed.
+    function getProfiles() {
+        if (typeof open_accessibility_data === 'undefined' ||
+            !open_accessibility_data ||
+            !open_accessibility_data.options ||
+            !open_accessibility_data.options.profiles ||
+            typeof open_accessibility_data.options.profiles !== 'object') {
+            return {};
+        }
+
+        return open_accessibility_data.options.profiles;
+    }
+
+    function getProfileNames() {
+        return Object.keys(getProfiles());
+    }
+
+    function getProfile(name) {
+        const profiles = getProfiles();
+
+        return Object.prototype.hasOwnProperty.call(profiles, name) ? profiles[name] : null;
+    }
+
+    function getDefaultProfile() {
+        if (typeof open_accessibility_data === 'undefined' ||
+            !open_accessibility_data ||
+            !open_accessibility_data.options) {
+            return '';
+        }
+
+        return open_accessibility_data.options.default_profile || '';
+    }
+
+    // Build the state a profile represents.
+    //
+    // Every preset is complete (PHP guarantees it), so replacing the state
+    // wholesale is safe and is what stops one profile leaking into the next.
+    function buildProfileState(name) {
+        const profile = getProfile(name);
+
+        if (!profile || !profile.state) {
+            return null;
+        }
+
+        return normalizeAccessibilityState($.extend({}, profile.state));
+    }
+
+    // Whether the visitor has no saved preference yet.
+    //
+    // Used to decide if the site's default profile should be applied. A visitor
+    // who has already chosen something — including choosing nothing — is left
+    // alone.
+    function hasStoredPreference() {
+        try {
+            return typeof localStorage !== 'undefined' && localStorage.getItem(storageKey) !== null;
+        } catch (error) {
+            return false;
+        }
     }
 
     function isDebugStorageEnabled() {
@@ -264,6 +331,12 @@
                 targets: targetResolver.getSummary()
             };
         };
+        api.getProfiles = function() {
+            return $.extend(true, {}, getProfiles());
+        };
+        api.setProfile = function(name) {
+            return applyProfile(name);
+        };
 
         window.OpenAccessibility = api;
     }
@@ -290,6 +363,18 @@
 
         if ($('.open-accessibility-reading-mask').length === 0) {
             $('body').append('<div class="open-accessibility-reading-mask"></div>');
+        }
+
+        // A first-time visitor gets the site's default profile. Anyone with a
+        // stored preference is left alone, including someone who deliberately
+        // turned everything off.
+        if (!hasStoredPreference()) {
+            const brandNewProfile = buildProfileState(getDefaultProfile());
+
+            if (brandNewProfile) {
+                accessibilityState = brandNewProfile;
+                accessibilityState.activeProfile = getDefaultProfile();
+            }
         }
 
         // Apply saved state
@@ -1263,6 +1348,17 @@
             case 'word-spacing':
                 adjustWordSpacing(value);
                 break;
+
+            case 'profile':
+                applyProfile(value);
+                break;
+        }
+
+        // Any manual adjustment takes the visitor out of the profile they had
+        // applied, because the settings no longer match that preset. Profile
+        // buttons set this themselves, so skip them.
+        if (action !== 'profile') {
+            accessibilityState.activeProfile = '';
         }
 
         // Update state
@@ -1271,6 +1367,33 @@
 
         // Logged after the sync so toggles report the state they landed in.
         logFeatureUsage($btn, action, value);
+    }
+
+    // Apply a named profile.
+    //
+    // Replaces the whole accessibility state rather than merging into it: a
+    // profile is a preset, so anything the previous profile or the visitor had
+    // set is intentionally discarded.
+    function applyProfile(name) {
+        const nextState = buildProfileState(name);
+
+        if (!nextState) {
+            logDebug('Open Accessibility: unknown profile', name);
+            return false;
+        }
+
+        accessibilityState = nextState;
+        accessibilityState.activeProfile = name;
+
+        saveState();
+        applyState();
+
+        dispatchOpenAccessibilityEvent('openAccessibility:profileApplied', {
+            profile: name,
+            state: $.extend(true, {}, accessibilityState)
+        });
+
+        return true;
     }
 
     function setButtonPressed(action, value, pressed) {
@@ -1306,6 +1429,14 @@
         }
 
         setButtonPressed('pause-animations', 'toggle', accessibilityState.pauseAnimations);
+
+        // Profile buttons are a group, not toggles: the active one is whichever
+        // the state names, and none is active once the visitor adjusts something.
+        $('.open-accessibility-action-button[data-action="profile"]').removeClass('active').attr('aria-pressed', 'false');
+
+        if (accessibilityState.activeProfile) {
+            setButtonPressed('profile', accessibilityState.activeProfile, true);
+        }
     }
 
     // Handle contrast modes
