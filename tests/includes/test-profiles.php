@@ -303,4 +303,107 @@ class Test_Profiles extends OA_TestCase {
 
 		remove_all_filters( 'open_accessibility_profiles' );
 	}
+
+	/**
+	 * A profile's description must describe what its preset actually does.
+	 *
+	 * The vision preset promised word spacing it did not set, so visitors who
+	 * chose it received less than the label advertised. A description is a
+	 * promise; this keeps the two in step.
+	 */
+	public function test_vision_profile_description_matches_its_preset() {
+		$profile = Open_Accessibility_Utils::get_profile( 'vision_impaired' );
+		$state   = $profile['state'];
+
+		if ( false !== stripos( $profile['description'], 'word spacing' ) ) {
+			$this->assertGreaterThan(
+				0,
+				$state['wordSpacingLevel'],
+				'The vision profile promises word spacing but sets wordSpacingLevel to 0.'
+			);
+		}
+
+		if ( false !== stripos( $profile['description'], 'letter' ) ) {
+			$this->assertGreaterThan( 0, $state['letterSpacingLevel'] );
+		}
+
+		if ( false !== stripos( $profile['description'], 'line' ) ) {
+			$this->assertGreaterThan( 0, $state['lineHeightLevel'] );
+		}
+
+		if ( false !== stripos( $profile['description'], 'larger text' ) ) {
+			$this->assertGreaterThan( 0, $state['textSize'] );
+		}
+
+		if ( false !== stripos( $profile['description'], 'underlined links' ) ) {
+			$this->assertTrue( $state['linksUnderline'] );
+		}
+	}
+
+	/**
+	 * A profile added by a theme is offered without further setup.
+	 *
+	 * The documented open_accessibility_profiles filter is the extension point
+	 * for adding a preset. A theme-added profile has no entry in
+	 * get_default_options(), so anything that requires one would make the filter
+	 * advertise a capability it cannot deliver.
+	 */
+	public function test_theme_added_profile_is_enabled_without_declaring_a_default() {
+		add_filter(
+			'open_accessibility_profiles',
+			function ( $profiles ) {
+				$profiles['theme_custom'] = array(
+					'label'       => 'Theme Custom',
+					'description' => 'Added by a theme.',
+					'option'      => 'enable_profile_theme_custom',
+					'state'       => Open_Accessibility_Utils::get_default_accessibility_state(),
+				);
+				return $profiles;
+			}
+		);
+
+		$declared = Open_Accessibility_Utils::get_default_options();
+		$this->assertArrayNotHasKey(
+			'enable_profile_theme_custom',
+			$declared,
+			'Precondition: the theme profile must not be a declared default for this test to mean anything.'
+		);
+
+		$enabled = Open_Accessibility_Utils::get_enabled_profiles();
+
+		$this->assertArrayHasKey(
+			'theme_custom',
+			$enabled,
+			'A theme-added profile must be offered; the filter would otherwise add a registry entry nothing can reach.'
+		);
+
+		remove_all_filters( 'open_accessibility_profiles' );
+	}
+
+	/**
+	 * A theme-added profile can still be switched off.
+	 */
+	public function test_theme_added_profile_can_be_disabled() {
+		add_filter(
+			'open_accessibility_profiles',
+			function ( $profiles ) {
+				$profiles['theme_custom'] = array(
+					'label'       => 'Theme Custom',
+					'description' => 'Added by a theme.',
+					'option'      => 'enable_profile_theme_custom',
+					'state'       => Open_Accessibility_Utils::get_default_accessibility_state(),
+				);
+				return $profiles;
+			}
+		);
+
+		update_option( self::OPTION, array( 'enable_profile_theme_custom' => 0 ) );
+		wp_cache_flush();
+
+		$enabled = Open_Accessibility_Utils::get_enabled_profiles();
+
+		$this->assertArrayNotHasKey( 'theme_custom', $enabled );
+
+		remove_all_filters( 'open_accessibility_profiles' );
+	}
 }

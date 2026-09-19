@@ -94,6 +94,11 @@ class Open_Accessibility_Utils {
 						'textSize'           => 3,
 						'lineHeightLevel'    => 2,
 						'letterSpacingLevel' => 1,
+						// The description promises word spacing, so the preset has
+						// to set it. Increasing letter and line spacing while
+						// leaving word spacing alone also falls short of the
+						// combined text-spacing guidance these presets exist for.
+						'wordSpacingLevel'   => 1,
 						'linksUnderline'     => true,
 					)
 				),
@@ -175,7 +180,20 @@ class Open_Accessibility_Utils {
 		$enabled = array();
 
 		foreach ( self::get_profiles() as $name => $profile ) {
-			if ( ! empty( $options[ $profile['option'] ] ) ) {
+			$option = $profile['option'];
+
+			// A profile added through the open_accessibility_profiles filter has
+			// no entry in get_default_options(), so requiring one would make that
+			// documented extension point unable to deliver what it advertises.
+			// Such a profile is offered unless the site explicitly disables it,
+			// which its own filter callback can do by saving the option.
+			$is_declared = array_key_exists( $option, self::get_default_options() );
+
+			$is_enabled = $is_declared
+				? ! empty( $options[ $option ] )
+				: ! array_key_exists( $option, (array) get_option( 'open_accessibility_options', array() ) );
+
+			if ( $is_enabled ) {
 				$enabled[ $name ] = $profile;
 			}
 		}
