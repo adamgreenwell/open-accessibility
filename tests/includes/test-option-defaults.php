@@ -190,6 +190,8 @@ class Test_Option_Defaults extends OA_TestCase {
 			'default_profile',       // Open_Accessibility_Utils::get_enabled_profiles().
 			'cursor_size',           // frontend payload; gates a CSS class.
 			'enable_cursor_size',    // widget control gate.
+			'saturation_level',      // frontend payload; drives the inline filter.
+			'enable_saturation',     // widget control gate.
 		);
 
 		// Profile toggles are read by iterating the profile registry rather than
