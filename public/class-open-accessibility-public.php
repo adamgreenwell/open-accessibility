@@ -171,6 +171,10 @@ class Open_Accessibility_Public {
 			'enable_word_spacing' => $this->get_option('enable_word_spacing', false),
 			'typography_targets' => $typography_targets,
 			'target_config' => $this->get_target_config( $typography_targets ),
+			// Presets are defined in PHP so they are testable and filterable; the
+			// frontend script only applies what it is handed.
+			'profiles' => Open_Accessibility_Utils::get_enabled_profiles(),
+			'default_profile' => $this->get_option('default_profile', ''),
 			'debug' => (bool) $this->is_debug_enabled,
 		);
 	}
