@@ -187,7 +187,15 @@ class Test_Option_Defaults extends OA_TestCase {
 			'enable_analytics',      // Open_Accessibility_Ajax::log_usage().
 			'enable_debug',          // Open_Accessibility_Utils::log().
 			'statement_url',         // Open_Accessibility_Statement_Generator::create_statement_page().
+			'default_profile',       // Open_Accessibility_Utils::get_enabled_profiles().
 		);
+
+		// Profile toggles are read by iterating the profile registry rather than
+		// by naming each key, so they are discovered from the registry instead of
+		// being listed by hand. A profile whose option nobody reads still fails.
+		foreach ( Open_Accessibility_Utils::get_profiles() as $profile ) {
+			$consumed_elsewhere[] = $profile['option'];
+		}
 
 		$consumed = array_values( array_unique( array_merge( $consumed, $consumed_elsewhere ) ) );
 

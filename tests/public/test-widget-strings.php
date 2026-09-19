@@ -489,20 +489,7 @@ class Test_Widget_Strings extends OA_TestCase {
 	public function test_level_labels_are_localised_for_the_frontend_script() {
 		$this->activate_plugin();
 
-		$public = new Open_Accessibility_Public();
-
-		wp_register_script( 'open-accessibility', 'https://example.org/oa.js', array( 'jquery' ), '1', true );
-		$public->enqueue_scripts();
-
-		$raw = wp_scripts()->get_data( 'open-accessibility', 'data' );
-
-		$this->assertIsString( $raw, 'The public script should localise data.' );
-
-		$json = trim( (string) preg_replace( '/^\s*var\s+open_accessibility_data\s*=\s*/', '', $raw ) );
-		$json = rtrim( $json, "; \t\n\r\0\x0B" );
-		$data = json_decode( $json, true );
-
-		$this->assertIsArray( $data );
+		$data = $this->frontend_payload();
 
 		foreach ( array( 'text_size_level', 'letter_spacing_level', 'word_spacing_level', 'line_height_level' ) as $key ) {
 			$this->assertArrayHasKey(
@@ -511,5 +498,81 @@ class Test_Widget_Strings extends OA_TestCase {
 				"{$key} must reach the frontend script or the filtered label is overwritten with English."
 			);
 		}
+	}
+
+	/**
+	 * The data localised to the frontend script, decoded.
+	 *
+	 * @return array
+	 */
+	private function frontend_payload() {
+		$this->activate_plugin();
+
+		$public = new Open_Accessibility_Public();
+
+		// A private registry keeps this helper self-contained: registering the
+		// same handle twice is a no-op and WordPress escapes the payload
+		// differently on a repeat pass.
+		$original              = wp_scripts();
+		$scripts               = new WP_Scripts();
+		$scripts->init();
+		$GLOBALS['wp_scripts'] = $scripts;
+
+		try {
+			wp_register_script( 'open-accessibility', 'https://example.org/oa.js', array( 'jquery' ), '1', true );
+			$public->enqueue_scripts();
+			$raw = $scripts->get_data( 'open-accessibility', 'data' );
+		} finally {
+			$GLOBALS['wp_scripts'] = $original;
+		}
+
+		$this->assertIsString( $raw, 'The public script should localise data.' );
+
+		$json = trim( (string) preg_replace( '/^\s*var\s+open_accessibility_data\s*=\s*/', '', $raw ) );
+		$json = rtrim( $json, "; \t\n\r\0\x0B" );
+		$data = json_decode( $json, true );
+
+		$this->assertIsArray( $data, 'The localised payload should be decodable JSON.' );
+
+		return $data;
+	}
+
+	/**
+	 * The frontend payload carries the profiles the script has to apply.
+	 */
+	public function test_frontend_payload_carries_profiles() {
+		$data = $this->frontend_payload();
+
+		$this->assertArrayHasKey( 'profiles', $data['options'], 'The script cannot apply profiles it was not given.' );
+		$this->assertArrayHasKey( 'default_profile', $data['options'] );
+
+		$profiles = $data['options']['profiles'];
+
+		$this->assertCount( 5, $profiles, 'All five default profiles should reach the script.' );
+
+		foreach ( $profiles as $name => $profile ) {
+			$this->assertArrayHasKey( 'label', $profile, "Profile {$name} reached the script without a label." );
+			$this->assertArrayHasKey( 'state', $profile, "Profile {$name} reached the script without a state." );
+			$this->assertNotEmpty( $profile['state'], "Profile {$name} reached the script with an empty state." );
+		}
+	}
+
+	/**
+	 * A disabled profile is withheld from the payload, not hidden in the markup.
+	 *
+	 * The registry is the single source of truth for which profiles exist, so
+	 * disabling one should remove it from the data rather than leave the script
+	 * holding a preset it must remember not to apply.
+	 */
+	public function test_disabled_profile_is_withheld_from_the_payload() {
+		$this->activate_plugin();
+
+		update_option( self::OPTION, array( 'enable_profile_blind' => 0 ) );
+		wp_cache_flush();
+
+		$data = $this->frontend_payload();
+
+		$this->assertArrayNotHasKey( 'blind', $data['options']['profiles'] );
+		$this->assertCount( 4, $data['options']['profiles'] );
 	}
 }
