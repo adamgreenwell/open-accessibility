@@ -29,6 +29,8 @@ phpunit.xml.dist
 Makefile
 composer.json
 composer.lock
+docker-compose.yml
+docker-compose.example.yml
 package.json
 package-lock.json
 pnpm-lock.yaml
@@ -36,8 +38,10 @@ yarn.lock
 phpcs.xml
 phpcs.xml.dist
 
-# Project-only documentation.
+# Project-only documentation. These ship in the repository but not in the
+# release package. The test suite is already excluded above.
 TRANSLATION_MAINTENANCE.md
+CONTRIBUTING.md
 /docs
 
 # Local environment, editor, and OS files.

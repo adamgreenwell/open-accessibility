@@ -552,18 +552,15 @@ class Open_Accessibility_Admin {
 	 * Checkbox field callback
 	 */
 	public function checkbox_field_callback($args) {
-		// Always merge saved options with defaults to avoid all checked/unchecked bugs
+		// get_options() already merges the stored option over the defaults, so a
+		// key that has never been saved still renders with its declared default
+		// rather than appearing unchecked.
 		if ( ! class_exists( 'Open_Accessibility_Utils' ) ) {
 			require_once dirname( __DIR__ ) . '/includes/class-open-accessibility-utils.php';
 		}
-		$defaults = Open_Accessibility_Utils::get_default_options();
-		$options = get_option('open_accessibility_options');
-		if (!is_array($options)) {
-			$options = array();
-		}
-		$merged = array_merge($defaults, $options);
+		$options = Open_Accessibility_Utils::get_options();
 		$id = $args['id'];
-		$checked = isset($merged[$id]) ? $merged[$id] : false;
+		$checked = ! empty( $options[$id] );
 
 		echo '<label>';
 		echo '<input type="checkbox" id="' . esc_attr($id) . '" name="open_accessibility_options[' . esc_attr($id) . ']" value="1" ' . checked(1, $checked, false) . '>';
@@ -579,7 +576,7 @@ class Open_Accessibility_Admin {
 	 * Text field callback
 	 */
 	public function text_field_callback($args) {
-		$options = get_option('open_accessibility_options');
+		$options = Open_Accessibility_Utils::get_options();
 		$id = $args['id'];
 		$value = isset($options[$id]) ? $options[$id] : (isset($args['default']) ? $args['default'] : '');
 
@@ -594,7 +591,7 @@ class Open_Accessibility_Admin {
 	 * URL field callback
 	 */
 	public function url_field_callback($args) {
-		$options = get_option('open_accessibility_options');
+		$options = Open_Accessibility_Utils::get_options();
 		$id = $args['id'];
 		$value = isset($options[$id]) ? $options[$id] : (isset($args['default']) ? $args['default'] : '');
 
@@ -609,7 +606,7 @@ class Open_Accessibility_Admin {
 	 * Color field callback
 	 */
 	public function color_field_callback($args) {
-		$options = get_option('open_accessibility_options');
+		$options = Open_Accessibility_Utils::get_options();
 		$id = $args['id'];
 		$value = isset($options[$id]) ? $options[$id] : (isset($args['default']) ? $args['default'] : '#000000');
 
@@ -620,7 +617,7 @@ class Open_Accessibility_Admin {
 	 * Select field callback
 	 */
 	public function select_field_callback($args) {
-		$options = get_option('open_accessibility_options');
+		$options = Open_Accessibility_Utils::get_options();
 		$id = $args['id'];
 		$selected = isset($options[$id]) ? $options[$id] : (isset($args['default']) ? $args['default'] : '');
 
@@ -639,7 +636,7 @@ class Open_Accessibility_Admin {
 	 * Icon field callback
 	 */
 	public function icon_field_callback() {
-		$options = get_option('open_accessibility_options');
+		$options = Open_Accessibility_Utils::get_options();
 		$selected = isset($options['icon']) ? $options['icon'] : 'accessibility';
 
 		$icons = array(
@@ -747,7 +744,7 @@ class Open_Accessibility_Admin {
 	 * Position field callback
 	 */
 	public function position_field_callback() {
-		$options = get_option('open_accessibility_options');
+		$options = Open_Accessibility_Utils::get_options();
 		$selected = isset($options['position']) ? $options['position'] : 'left';
 
 		$positions = array(

@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<phpunit
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+	bootstrap="tests/bootstrap.php"
+	colors="true"
+	beStrictAboutTestsThatDoNotTestAnything="true"
+	beStrictAboutOutputDuringTests="true"
+	convertDeprecationsToExceptions="false"
+	cacheResultFile=".phpunit.result.cache"
+>
+	<testsuites>
+		<!--
+			Directories are added here as they gain real tests: PHPUnit errors on a
+			configured directory that does not exist, and an empty directory cannot
+			be tracked in git. Add tests/admin and tests/public alongside their
+			first test file.
+		-->
+		<testsuite name="unit">
+			<directory suffix=".php">tests/includes</directory>
+		</testsuite>
+	</testsuites>
+
+	<coverage>
+		<include>
+			<directory suffix=".php">includes</directory>
+			<directory suffix=".php">admin</directory>
+			<directory suffix=".php">public</directory>
+		</include>
+	</coverage>
+</phpunit>

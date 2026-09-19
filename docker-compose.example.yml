@@ -1,0 +1,57 @@
+# Development environment for Open Accessibility.
+#
+# Copy to docker-compose.yml and start it:
+#
+#   cp docker-compose.example.yml docker-compose.yml
+#   docker compose up -d
+#
+# Then open http://localhost:9080 and complete the WordPress installer. The
+# plugin in this directory is already mounted, so activate "Open Accessibility"
+# under Plugins once WordPress is installed.
+#
+# MariaDB is published on 3309 and the WordPress DB on 9080; both are chosen to
+# avoid clashing with a default local MySQL (3306) and web server (80). The test
+# suite's defaults in tests/install-wp-tests.sh match these ports, so
+# `composer test:setup` works against this stack out of the box.
+#
+# The credentials below are development-only defaults, not secrets.
+
+services:
+  wordpress:
+    image: wordpress:latest
+    container_name: open-accessibility-app
+    ports:
+      - "9080:80"
+    environment:
+      WORDPRESS_DB_HOST: mariadb
+      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+      WORDPRESS_DEBUG: 1
+      WORDPRESS_CONFIG_EXTRA: |
+        define( 'WP_DEBUG_LOG', true );
+        define( 'WP_DEBUG_DISPLAY', false );
+    volumes:
+      # Mount this repository as the plugin under test.
+      - ./:/var/www/html/wp-content/plugins/open-accessibility
+    depends_on:
+      - mariadb
+    restart: unless-stopped
+
+  mariadb:
+    image: mariadb:11.4
+    container_name: open-accessibility-mariadb
+    ports:
+      # Published so the PHPUnit suite can reach it from the host.
+      - "3309:3306"
+    environment:
+      MARIADB_ROOT_PASSWORD: root
+      MARIADB_DATABASE: wordpress
+      MARIADB_USER: wordpress
+      MARIADB_PASSWORD: wordpress
+    volumes:
+      - mariadb-data:/var/lib/mysql
+    restart: unless-stopped
+
+volumes:
+  mariadb-data:

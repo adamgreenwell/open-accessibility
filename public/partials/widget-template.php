@@ -10,7 +10,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$options = get_option('open_accessibility_options', array());
+// Merged over defaults: every key the template reads below is guaranteed to
+// exist, so the isset() guards are defensive rather than load-bearing.
+$options = Open_Accessibility_Utils::get_options();
 
 // Get icon class
 $icon = isset($options['icon']) ? $options['icon'] : 'accessibility';

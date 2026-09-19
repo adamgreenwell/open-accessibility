@@ -184,31 +184,45 @@ class Open_Accessibility_Utils {
 	/**
 	 * Get default plugin options.
 	 *
+	 * This is the single source of truth for plugin option defaults. The
+	 * activation seeder and every read site derive from it, so a key can never
+	 * again be read by the frontend without being seeded, or seeded without
+	 * being declared here.
+	 *
+	 * Historically this list and the seeder in open-accessibility.php were
+	 * maintained separately and disagreed in both directions; see
+	 * tests/includes/test-option-defaults.php, which parses the plugin source to
+	 * keep them honest.
+	 *
 	 * @since    1.0.0
-	 * @return   array    Default plugin options.
+	 * @return   array    Default plugin options, keyed by option name.
 	 */
 	public static function get_default_options() {
 		return array(
-			// General
+			// General.
 			'disable_widget' => 0,
 			'hide_on_mobile' => 0,
 			'hide_on_desktop' => 0,
 
-			// Design
+			// Design. 'accessibility' is not a selectable icon; it is the value
+			// get_icon_svg() resolves through its default branch, which renders
+			// the Open Accessibility logo. Left as-is so upgrades do not rewrite
+			// the stored icon of existing installs.
 			'icon' => 'accessibility',
 			'icon_size' => 'medium',
 			'icon_color' => '#ffffff',
 			'bg_color' => '#4054b2',
 
-			// Position
+			// Position.
 			'position' => 'left',
 
-			// Features - all enabled by default
+			// Features. Most default to on; the opt-in ones are noted below.
 			'enable_skip_to_content' => 1,
 			'enable_contrast' => 1,
 			'enable_grayscale' => 1,
 			'enable_text_size' => 1,
-			'enable_readable_font' => 1,
+			'enable_font_atkinson' => 0,
+			'enable_font_opendyslexic' => 0,
 			'enable_links_underline' => 1,
 			'enable_hide_images' => 1,
 			'enable_reading_guide' => 1,
@@ -216,10 +230,11 @@ class Open_Accessibility_Utils {
 			'enable_focus_outline' => 1,
 			'enable_line_height' => 1,
 			'enable_text_align' => 1,
-			'enable_sitemap' => 1,
 			'enable_animations_pause' => 1,
+			'enable_letter_spacing' => 0,
+			'enable_word_spacing' => 0,
 
-			// Other settings
+			// Links and statement.
 			'skip_to_element_id' => 'content',
 			'sitemap_url' => '',
 			'statement_url' => '',
@@ -234,9 +249,29 @@ class Open_Accessibility_Utils {
 			// Usage logging. Off by default; see the Advanced settings tab.
 			'enable_analytics' => 0,
 
-			// Debug settings
+			// Debug logging. Requires WP_DEBUG and WP_DEBUG_LOG as well.
 			'enable_debug' => 0,
 		);
+	}
+
+	/**
+	 * Get the plugin options, merged over their defaults.
+	 *
+	 * Every read site should use this rather than calling get_option() directly
+	 * and inventing its own fallback. A missing or malformed option yields the
+	 * defaults; a partially stored option is completed by them.
+	 *
+	 * @since    1.4.2
+	 * @return   array    Options merged over defaults.
+	 */
+	public static function get_options() {
+		$stored = get_option( 'open_accessibility_options', array() );
+
+		if ( ! is_array( $stored ) ) {
+			$stored = array();
+		}
+
+		return array_merge( self::get_default_options(), $stored );
 	}
 
 	/**
@@ -346,8 +381,8 @@ class Open_Accessibility_Utils {
 	 * @return   void
 	 */
 	public static function log($message, $level = 'debug') {
-		$options = get_option('open_accessibility_options', array());
-		$plugin_debug_enabled = isset($options['enable_debug']) && $options['enable_debug'];
+		$options = self::get_options();
+		$plugin_debug_enabled = ! empty( $options['enable_debug'] );
 
 		// Only log if plugin debug mode is enabled AND WordPress debug log is active
 		if ($plugin_debug_enabled && defined('WP_DEBUG') && WP_DEBUG === true && defined('WP_DEBUG_LOG') && WP_DEBUG_LOG === true) {

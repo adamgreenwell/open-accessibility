@@ -170,7 +170,7 @@ class Open_Accessibility_Ajax {
 		}
 
 		// Usage logging is opt-in and off by default.
-		$options = get_option( 'open_accessibility_options', array() );
+		$options = Open_Accessibility_Utils::get_options();
 		if ( empty( $options['enable_analytics'] ) ) {
 			wp_send_json_error( array( 'message' => __( 'Usage logging is disabled.', 'open-accessibility' ) ) );
 		}

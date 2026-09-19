@@ -53,7 +53,7 @@ class Open_Accessibility_Shortcode {
 			return '';
 		}
 
-		$options = get_option( 'open_accessibility_options', array() );
+		$options = Open_Accessibility_Utils::get_options();
 
 		if ( ! empty( $options['disable_widget'] ) ) {
 			return '';
