@@ -31,11 +31,25 @@
         activeProfile: '',
         // Cursor size is a choice rather than a flag, and it is not part of any
         // preset: it changes the pointer, not the page content.
-        cursorSize: ''
+        cursorSize: '',
+        // Saturation is a level rather than a flag, and separate from grayscale:
+        // it reduces colour intensity without removing colour.
+        saturationLevel: 0
     };
     let accessibilityState = Object.assign({}, DEFAULT_ACCESSIBILITY_STATE);
 
     const MAX_SPACING_LEVEL = 3;
+    // Saturation steps. Read from the payload where available so the frontend
+    // clamps against the same bound the sanitiser enforces.
+    const MAX_SATURATION_LEVEL = (typeof open_accessibility_data !== 'undefined' &&
+        open_accessibility_data &&
+        open_accessibility_data.options &&
+        Number.isInteger(open_accessibility_data.options.max_saturation_level))
+        ? open_accessibility_data.options.max_saturation_level
+        : 3;
+
+    // Filter value per saturation level. Index 0 is no filter at all.
+    const SATURATION_STEPS = [1, 0.85, 0.65, 0.45];
     const MAX_TEXT_SIZE = 5;
     const VALID_CONTRAST_MODES = ['', 'high', 'negative', 'light', 'dark'];
     const VALID_FONT_VALUES = ['default', 'atkinson', 'opendyslexic'];
@@ -174,7 +188,8 @@
             letterSpacingLevel: clampLevel(source.letterSpacingLevel, MAX_SPACING_LEVEL),
             wordSpacingLevel: clampLevel(source.wordSpacingLevel, MAX_SPACING_LEVEL),
             activeProfile: normalizeChoice(source.activeProfile, getProfileNames(), ''),
-            cursorSize: normalizeChoice(source.cursorSize, getCursorSizes(), '')
+            cursorSize: normalizeChoice(source.cursorSize, getCursorSizes(), ''),
+            saturationLevel: clampLevel(source.saturationLevel, MAX_SATURATION_LEVEL)
         };
     }
 
@@ -1079,6 +1094,61 @@
         );
     }
 
+    // Reduce colour intensity without removing it.
+    //
+    // Applied to the resolved target elements rather than to a shared ancestor,
+    // following grayscale. A filter on an ancestor would create a containing
+    // block for position:fixed descendants, which is what made the widget
+    // unreachable in 1.1.0 and again in 1.4.01; filtering leaf elements keeps
+    // that class of bug out of reach.
+    function applySaturationTargets() {
+        clearManagedStyles('[data-oa-saturation-managed="1"]', restoreSaturationTarget);
+
+        const level = accessibilityState.saturationLevel;
+        const value = SATURATION_STEPS[level];
+
+        if (!level || !value) {
+            return;
+        }
+
+        getSaturationTargets().forEach((element) => {
+            captureOriginalStyle(element, 'oaSaturationOriginal', 'filter');
+            element.dataset.oaSaturationManaged = '1';
+            element.style.filter = `saturate(${value})`;
+        });
+    }
+
+    function restoreSaturationTarget(element) {
+        restoreOriginalStyle(element, 'oaSaturationOriginal', 'filter');
+        delete element.dataset.oaSaturationManaged;
+    }
+
+    function getSaturationTargets() {
+        if (!targetResolver) {
+            return [];
+        }
+
+        return mergeUniqueElements(
+            targetResolver.getTargets('readable_text'),
+            targetResolver.getTargets('headings'),
+            targetResolver.getTargets('links'),
+            targetResolver.getTargets('media')
+        );
+    }
+
+    // Adjust the saturation level.
+    function adjustSaturation(direction) {
+        if (direction === 'increase') {
+            accessibilityState.saturationLevel = Math.min(accessibilityState.saturationLevel + 1, MAX_SATURATION_LEVEL);
+        } else if (direction === 'decrease') {
+            accessibilityState.saturationLevel = Math.max(accessibilityState.saturationLevel - 1, 0);
+        }
+
+        applySaturationTargets();
+        updateSpacingButtonStates('saturation', accessibilityState.saturationLevel);
+        updateIndicator('saturation', accessibilityState.saturationLevel);
+    }
+
     function applyGrayscaleTargets() {
         const $button = $('.open-accessibility-toggle-button');
         const $panel = $('.open-accessibility-widget-panel');
@@ -1411,6 +1481,10 @@
 
             case 'cursor-size':
                 applyCursorSize(value);
+                break;
+
+            case 'saturation':
+                adjustSaturation(value);
                 break;
         }
 
@@ -1876,7 +1950,8 @@
             'text-size': 'text_size_level',
             'letter-spacing': 'letter_spacing_level',
             'word-spacing': 'word_spacing_level',
-            'line-height': 'line_height_level'
+            'line-height': 'line_height_level',
+            'saturation': 'saturation_level'
         };
 
         const fallback = `Level ${currentLevel} of ${maxLevel}`;
@@ -1925,6 +2000,7 @@
         applyDynamicTypographyAdjustments();
         applyReadableFontTargets('default');
         applyGrayscaleTargets();
+        applySaturationTargets();
         applyLinksUnderlineTargets();
         applyHideImagesTargets();
         syncActionButtonStates();
@@ -2009,6 +2085,9 @@
         // Apply grayscale
         applyGrayscaleTargets();
 
+        // Apply saturation
+        applySaturationTargets();
+
         // Apply selected font (directly without toggle logic)
         applyFont(accessibilityState.selectedFont || 'default');
 
@@ -2048,6 +2127,8 @@
         updateIndicator('letter-spacing', accessibilityState.letterSpacingLevel);
         updateSpacingButtonStates('word-spacing', accessibilityState.wordSpacingLevel);
         updateIndicator('word-spacing', accessibilityState.wordSpacingLevel);
+        updateSpacingButtonStates('saturation', accessibilityState.saturationLevel);
+        updateIndicator('saturation', accessibilityState.saturationLevel);
 
         $('.open-accessibility-action-button[data-action="text-align"]').removeClass('active');
         if (accessibilityState.textAlign) {

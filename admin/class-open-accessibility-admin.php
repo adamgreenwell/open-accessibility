@@ -351,6 +351,28 @@ class Open_Accessibility_Admin {
 			)
 		);
 
+		// Saturation level. A select rather than a slider so it is keyboard
+		// operable and announces its value without extra scripting.
+		$saturation_choices = array( '0' => __('Normal colour', 'open-accessibility') );
+		for ( $oa_level = 1; $oa_level <= Open_Accessibility_Utils::get_max_saturation_level(); $oa_level++ ) {
+			/* translators: %d: saturation level */
+			$saturation_choices[ (string) $oa_level ] = sprintf( __( 'Reduced colour, level %d', 'open-accessibility' ), $oa_level );
+		}
+
+		add_settings_field(
+			'saturation_level',
+			__('Saturation Level', 'open-accessibility'),
+			array($this, 'select_field_callback'),
+			'open-accessibility-settings',
+			'open_accessibility_design',
+			array(
+				'id'          => 'saturation_level',
+				'default'     => '0',
+				'options'     => $saturation_choices,
+				'description' => __('Reduces colour intensity without removing it. Grayscale removes colour entirely.', 'open-accessibility'),
+			)
+		);
+
 		// Widget position fields
 		add_settings_field(
 			'position',
@@ -378,7 +400,8 @@ class Open_Accessibility_Admin {
 			'enable_line_height' => __('Line Height Adjustment', 'open-accessibility'),
 			'enable_text_align' => __('Text Alignment Options', 'open-accessibility'),
 			'enable_animations_pause' => __('Pause Animations', 'open-accessibility'),
-			'enable_cursor_size' => __('Cursor Size', 'open-accessibility')
+			'enable_cursor_size' => __('Cursor Size', 'open-accessibility'),
+			'enable_saturation' => __('Saturation', 'open-accessibility')
 		);
 
 		foreach ($features as $id => $label) {
@@ -918,6 +941,7 @@ class Open_Accessibility_Admin {
 			'enable_text_align',
 			'enable_animations_pause',
 			'enable_cursor_size',
+			'enable_saturation',
 			'enable_debug',
 			'strip_link_targets',
 			'enable_analytics',
@@ -977,6 +1001,13 @@ class Open_Accessibility_Admin {
 		if (isset($input['icon_size'])) {
 			$valid_sizes = array('small', 'medium', 'large');
 			$sanitized['icon_size'] = in_array($input['icon_size'], $valid_sizes) ? $input['icon_size'] : 'medium';
+		}
+
+		// Saturation level: bounded integer. Clamped rather than discarded so a
+		// value from an older or newer form is kept as close as possible.
+		if (isset($input['saturation_level'])) {
+			$level = intval($input['saturation_level']);
+			$sanitized['saturation_level'] = max(0, min($level, Open_Accessibility_Utils::get_max_saturation_level()));
 		}
 
 		// Cursor size: whitelist, because an unknown value would be handed to CSS

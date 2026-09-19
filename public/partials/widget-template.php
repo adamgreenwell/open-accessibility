@@ -139,6 +139,23 @@ $panel_title = apply_filters( 'open_accessibility_panel_title', $panel_title );
 				</div>
 			<?php endif; ?>
 
+			<!-- Saturation. The same decrease / indicator / increase shape as the
+			     other incremental controls. -->
+			<?php if ( ! empty( $options['enable_saturation'] ) ) : ?>
+				<div class="open-accessibility-widget-section">
+					<h3><?php echo esc_html( $oa_strings['saturation_title'] ); ?></h3>
+					<div class="open-accessibility-actions">
+						<button class="open-accessibility-action-button" data-action="saturation" data-value="decrease" aria-label="<?php echo esc_attr( $oa_strings['saturation_decrease'] ); ?>">
+							<?php echo esc_html( $oa_strings['decrease_text'] ); ?>
+						</button>
+						<span class="open-accessibility-indicator" data-action="saturation" data-max="<?php echo esc_attr( Open_Accessibility_Utils::get_max_saturation_level() ); ?>" role="status" aria-live="polite" aria-atomic="true" aria-label="<?php echo esc_attr( $oa_strings['saturation_level'] ); ?>"></span>
+						<button class="open-accessibility-action-button" data-action="saturation" data-value="increase" aria-label="<?php echo esc_attr( $oa_strings['saturation_increase'] ); ?>">
+							<?php echo esc_html( $oa_strings['increase_text'] ); ?>
+						</button>
+					</div>
+				</div>
+			<?php endif; ?>
+
 			<!-- Cursor Size. A radio group rather than a toggle: the blank value is
 			     the default cursor, so choosing it is how the setting is turned off. -->
 			<?php if ( ! empty( $options['enable_cursor_size'] ) ) : ?>
