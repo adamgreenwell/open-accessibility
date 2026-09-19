@@ -460,10 +460,15 @@ class Open_Accessibility_Public {
 	/**
 	 * Get translatable strings for frontend
 	 *
+	 * Public because public/partials/widget-template.php renders the same widget
+	 * from more than one include path (footer render, shortcode embed) and must
+	 * read the same filtered array in each. The template also falls back to this
+	 * method when no strings were passed in.
+	 *
 	 * @since 1.0.0
 	 * @return array
 	 */
-	private function get_strings() {
+	public function get_strings() {
 		$title_override = $this->get_option('widget_title', '');
 
 		$strings = array(
@@ -519,6 +524,28 @@ class Open_Accessibility_Public {
 			'help_text' => __('Help', 'open-accessibility'),
 			'feedback_text' => __('Accessibility Feedback', 'open-accessibility'),
 			'sitemap_text' => __('Sitemap', 'open-accessibility'),
+
+			// Controls shared by the incremental sections. The decrease/increase
+			// labels are the same words in every section, so they reuse the
+			// text-size keys rather than duplicating four identical pairs.
+			'decrease_text' => __('Decrease', 'open-accessibility'),
+			'increase_text' => __('Increase', 'open-accessibility'),
+
+			// Screen-reader-only labels. These name the control rather than the
+			// value, because "Decrease" on its own is meaningless out of context.
+			'toggle_open' => __('Open accessibility tools', 'open-accessibility'),
+			'toggle_close' => __('Close accessibility tools', 'open-accessibility'),
+			'hide_widget_text' => __('Hide Accessibility Panel', 'open-accessibility'),
+			'text_size_level' => __('Text size level', 'open-accessibility'),
+			'letter_spacing_level' => __('Letter spacing level', 'open-accessibility'),
+			'word_spacing_level' => __('Word spacing level', 'open-accessibility'),
+			'line_height_level' => __('Line height level', 'open-accessibility'),
+			'letter_spacing_decrease' => __('Decrease letter spacing', 'open-accessibility'),
+			'letter_spacing_increase' => __('Increase letter spacing', 'open-accessibility'),
+			'word_spacing_decrease' => __('Decrease word spacing', 'open-accessibility'),
+			'word_spacing_increase' => __('Increase word spacing', 'open-accessibility'),
+			'line_height_decrease' => __('Decrease line height', 'open-accessibility'),
+			'line_height_increase' => __('Increase line height', 'open-accessibility'),
 		);
 
 		/**
@@ -582,6 +609,10 @@ class Open_Accessibility_Public {
 				return;
 			}
 		}
+
+		// Pass the filtered strings in so the template does not have to rebuild
+		// them or, worse, hardcode labels past the filter.
+		$oa_strings = $this->get_strings();
 
 		include OPEN_ACCESSIBILITY_PLUGIN_DIR . 'public/partials/widget-template.php';
 	}

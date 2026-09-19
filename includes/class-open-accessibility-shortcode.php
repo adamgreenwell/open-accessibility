@@ -81,6 +81,10 @@ class Open_Accessibility_Shortcode {
 
 		self::$shortcode_rendered = true;
 
+		// The shortcode renders the same widget as the footer, so it must read the
+		// same filtered strings rather than letting the template rebuild them.
+		$oa_strings = ( new Open_Accessibility_Public() )->get_strings();
+
 		ob_start();
 		include OPEN_ACCESSIBILITY_PLUGIN_DIR . 'public/partials/widget-template.php';
 		$html = ob_get_clean();

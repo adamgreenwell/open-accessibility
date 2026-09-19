@@ -13,11 +13,11 @@
 		<!--
 			Directories are added here as they gain real tests: PHPUnit errors on a
 			configured directory that does not exist, and an empty directory cannot
-			be tracked in git. Add tests/admin and tests/public alongside their
-			first test file.
+			be tracked in git.
 		-->
 		<testsuite name="unit">
 			<directory suffix=".php">tests/includes</directory>
+			<directory suffix=".php">tests/public</directory>
 		</testsuite>
 	</testsuites>
 
