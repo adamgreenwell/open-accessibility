@@ -139,6 +139,50 @@ $panel_title = apply_filters( 'open_accessibility_panel_title', $panel_title );
 				</div>
 			<?php endif; ?>
 
+			<!-- Saturation. The same decrease / indicator / increase shape as the
+			     other incremental controls. -->
+			<?php if ( ! empty( $options['enable_saturation'] ) ) : ?>
+				<div class="open-accessibility-widget-section">
+					<h3><?php echo esc_html( $oa_strings['saturation_title'] ); ?></h3>
+					<div class="open-accessibility-actions">
+						<button class="open-accessibility-action-button" data-action="saturation" data-value="decrease" aria-label="<?php echo esc_attr( $oa_strings['saturation_decrease'] ); ?>">
+							<?php echo esc_html( $oa_strings['decrease_text'] ); ?>
+						</button>
+						<span class="open-accessibility-indicator" data-action="saturation" data-max="<?php echo esc_attr( Open_Accessibility_Utils::get_max_saturation_level() ); ?>" role="status" aria-live="polite" aria-atomic="true" aria-label="<?php echo esc_attr( $oa_strings['saturation_level'] ); ?>"></span>
+						<button class="open-accessibility-action-button" data-action="saturation" data-value="increase" aria-label="<?php echo esc_attr( $oa_strings['saturation_increase'] ); ?>">
+							<?php echo esc_html( $oa_strings['increase_text'] ); ?>
+						</button>
+					</div>
+				</div>
+			<?php endif; ?>
+
+			<!-- Cursor Size. A radio group rather than a toggle: the blank value is
+			     the default cursor, so choosing it is how the setting is turned off. -->
+			<?php if ( ! empty( $options['enable_cursor_size'] ) ) : ?>
+				<div class="open-accessibility-widget-section">
+					<h3><?php echo esc_html( $oa_strings['cursor_size_title'] ); ?></h3>
+					<div class="open-accessibility-actions">
+						<?php
+						$oa_cursor_choices = array(
+							''       => $oa_strings['cursor_size_default'],
+							'large'  => $oa_strings['cursor_size_large'],
+							'xlarge' => $oa_strings['cursor_size_xlarge'],
+						);
+						?>
+						<?php foreach ( $oa_cursor_choices as $oa_cursor_value => $oa_cursor_label ) : ?>
+							<button
+								class="open-accessibility-action-button"
+								data-action="cursor-size"
+								data-value="<?php echo esc_attr( $oa_cursor_value ); ?>"
+								aria-pressed="false"
+							>
+								<?php echo esc_html( $oa_cursor_label ); ?>
+							</button>
+						<?php endforeach; ?>
+					</div>
+				</div>
+			<?php endif; ?>
+
 			<!-- Contrast Section -->
 			<?php if (isset($options['enable_contrast']) && $options['enable_contrast']): ?>
 				<div class="open-accessibility-widget-section">
@@ -253,6 +297,18 @@ $panel_title = apply_filters( 'open_accessibility_panel_title', $panel_title );
 					<div class="open-accessibility-actions">
 						<button class="open-accessibility-action-button" data-action="links-underline" data-value="toggle" aria-pressed="false">
 							<?php echo esc_html( $oa_strings['links_underline_text'] ); ?>
+						</button>
+					</div>
+				</div>
+			<?php endif; ?>
+
+			<!-- Highlight Links Section -->
+			<?php if ( ! empty( $options['enable_highlight_links'] ) ) : ?>
+				<div class="open-accessibility-widget-section">
+					<h3><?php echo esc_html( $oa_strings['highlight_links_title'] ); ?></h3>
+					<div class="open-accessibility-actions">
+						<button class="open-accessibility-action-button" data-action="highlight-links" data-value="toggle" aria-pressed="false">
+							<?php echo esc_html( $oa_strings['highlight_links_title'] ); ?>
 						</button>
 					</div>
 				</div>

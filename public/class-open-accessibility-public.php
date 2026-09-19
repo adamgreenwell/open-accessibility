@@ -174,6 +174,17 @@ class Open_Accessibility_Public {
 			// Presets are defined in PHP so they are testable and filterable; the
 			// frontend script only applies what it is handed.
 			'profiles' => Open_Accessibility_Utils::get_enabled_profiles(),
+			// The preset fields the script needs to know about. Derived from the
+			// PHP state so the script does not declare its own copy; a field added
+			// there cannot leave the frontend behind.
+			'profile_fields' => Open_Accessibility_Utils::get_preset_field_names(),
+			'cursor_size' => $this->get_option('cursor_size', ''),
+			'cursor_sizes' => Open_Accessibility_Utils::get_cursor_sizes(),
+			'saturation_level' => (int) $this->get_option('saturation_level', 0),
+			'max_saturation_level' => Open_Accessibility_Utils::get_max_saturation_level(),
+			'enable_saturation' => $this->get_option('enable_saturation', false),
+			'enable_highlight_links' => $this->get_option('enable_highlight_links', false),
+			'enable_cursor_size' => $this->get_option('enable_cursor_size', false),
 			'default_profile' => $this->get_option('default_profile', ''),
 			'debug' => (bool) $this->is_debug_enabled,
 		);
@@ -528,6 +539,22 @@ class Open_Accessibility_Public {
 			'help_text' => __('Help', 'open-accessibility'),
 			'feedback_text' => __('Accessibility Feedback', 'open-accessibility'),
 			'sitemap_text' => __('Sitemap', 'open-accessibility'),
+
+			// Generic verb labels, used only where a control's own label carries the
+			// noun: the saturation buttons read "Saturation" as their heading, so
+			// "Decrease" alone is unambiguous there. Controls whose headings do not
+			// name the action keep a per-control pair instead.
+			'decrease_text' => __('Decrease', 'open-accessibility'),
+			'increase_text' => __('Increase', 'open-accessibility'),
+			'highlight_links_title' => __('Highlight Links', 'open-accessibility'),
+			'saturation_title' => __('Saturation', 'open-accessibility'),
+			'saturation_level' => __('Saturation level', 'open-accessibility'),
+			'saturation_decrease' => __('Decrease saturation', 'open-accessibility'),
+			'saturation_increase' => __('Increase saturation', 'open-accessibility'),
+			'cursor_size_title' => __('Cursor Size', 'open-accessibility'),
+			'cursor_size_default' => __('Default', 'open-accessibility'),
+			'cursor_size_large' => __('Large', 'open-accessibility'),
+			'cursor_size_xlarge' => __('Extra Large', 'open-accessibility'),
 
 			// Section heading for the profile buttons. Individual profile labels
 			// come from the registry, which is filterable in its own right.

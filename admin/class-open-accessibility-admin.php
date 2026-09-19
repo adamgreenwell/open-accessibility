@@ -331,6 +331,48 @@ class Open_Accessibility_Admin {
 			)
 		);
 
+		// Cursor size. A select rather than a checkbox because it is a choice;
+		// the matching enable_cursor_size toggle lives in the feature loop.
+		add_settings_field(
+			'cursor_size',
+			__('Cursor Size', 'open-accessibility'),
+			array($this, 'select_field_callback'),
+			'open-accessibility-settings',
+			'open_accessibility_design',
+			array(
+				'id'          => 'cursor_size',
+				'default'     => '',
+				'options'     => array(
+					''       => __('Default cursor', 'open-accessibility'),
+					'large'  => __('Large cursor', 'open-accessibility'),
+					'xlarge' => __('Extra large cursor', 'open-accessibility'),
+				),
+				'description' => __('Enlarges the mouse pointer. The setting applies to the whole page, not only the widget.', 'open-accessibility'),
+			)
+		);
+
+		// Saturation level. A select rather than a slider so it is keyboard
+		// operable and announces its value without extra scripting.
+		$saturation_choices = array( '0' => __('Normal colour', 'open-accessibility') );
+		for ( $oa_level = 1; $oa_level <= Open_Accessibility_Utils::get_max_saturation_level(); $oa_level++ ) {
+			/* translators: %d: saturation level */
+			$saturation_choices[ (string) $oa_level ] = sprintf( __( 'Reduced colour, level %d', 'open-accessibility' ), $oa_level );
+		}
+
+		add_settings_field(
+			'saturation_level',
+			__('Saturation Level', 'open-accessibility'),
+			array($this, 'select_field_callback'),
+			'open-accessibility-settings',
+			'open_accessibility_design',
+			array(
+				'id'          => 'saturation_level',
+				'default'     => '0',
+				'options'     => $saturation_choices,
+				'description' => __('Reduces colour intensity without removing it. Grayscale removes colour entirely.', 'open-accessibility'),
+			)
+		);
+
 		// Widget position fields
 		add_settings_field(
 			'position',
@@ -357,7 +399,10 @@ class Open_Accessibility_Admin {
 			'enable_focus_outline' => __('Focus Outline', 'open-accessibility'),
 			'enable_line_height' => __('Line Height Adjustment', 'open-accessibility'),
 			'enable_text_align' => __('Text Alignment Options', 'open-accessibility'),
-			'enable_animations_pause' => __('Pause Animations', 'open-accessibility')
+			'enable_animations_pause' => __('Pause Animations', 'open-accessibility'),
+			'enable_cursor_size' => __('Cursor Size', 'open-accessibility'),
+			'enable_saturation' => __('Saturation', 'open-accessibility'),
+			'enable_highlight_links' => __('Highlight Links', 'open-accessibility')
 		);
 
 		foreach ($features as $id => $label) {
@@ -896,6 +941,9 @@ class Open_Accessibility_Admin {
 			'enable_line_height',
 			'enable_text_align',
 			'enable_animations_pause',
+			'enable_cursor_size',
+			'enable_saturation',
+			'enable_highlight_links',
 			'enable_debug',
 			'strip_link_targets',
 			'enable_analytics',
@@ -955,6 +1003,21 @@ class Open_Accessibility_Admin {
 		if (isset($input['icon_size'])) {
 			$valid_sizes = array('small', 'medium', 'large');
 			$sanitized['icon_size'] = in_array($input['icon_size'], $valid_sizes) ? $input['icon_size'] : 'medium';
+		}
+
+		// Saturation level: bounded integer. Clamped rather than discarded so a
+		// value from an older or newer form is kept as close as possible.
+		if (isset($input['saturation_level'])) {
+			$level = intval($input['saturation_level']);
+			$sanitized['saturation_level'] = max(0, min($level, Open_Accessibility_Utils::get_max_saturation_level()));
+		}
+
+		// Cursor size: whitelist, because an unknown value would be handed to CSS
+		// as a class name.
+		if (isset($input['cursor_size'])) {
+			$valid_cursor_sizes = Open_Accessibility_Utils::get_cursor_sizes();
+			$requested_cursor = sanitize_text_field($input['cursor_size']);
+			$sanitized['cursor_size'] = in_array($requested_cursor, $valid_cursor_sizes, true) ? $requested_cursor : '';
 		}
 
 		if (isset($input['position'])) {
