@@ -35,6 +35,7 @@ if (!defined('ABSPATH')) {
 			<a href="#tab-design" class="nav-tab"><?php esc_html_e('Design', 'open-accessibility'); ?></a>
 			<a href="#tab-position" class="nav-tab"><?php esc_html_e('Position', 'open-accessibility'); ?></a>
 			<a href="#tab-features" class="nav-tab"><?php esc_html_e('Features', 'open-accessibility'); ?></a>
+			<a href="#tab-profiles" class="nav-tab"><?php esc_html_e('Profiles', 'open-accessibility'); ?></a>
 			<a href="#tab-statement" class="nav-tab"><?php esc_html_e('Statement', 'open-accessibility'); ?></a>
 			<a href="#tab-links" class="nav-tab"><?php esc_html_e('Links', 'open-accessibility'); ?></a>
             <a href="#tab-advanced" class="nav-tab"><?php esc_html_e('Advanced', 'open-accessibility'); ?></a>
@@ -94,6 +95,14 @@ if (!defined('ABSPATH')) {
 				<h2><?php esc_html_e('Widget Features', 'open-accessibility'); ?></h2>
 				<table class="form-table">
 					<?php do_settings_fields('open-accessibility-settings', 'open_accessibility_features'); ?>
+				</table>
+			</div>
+
+			<!-- Profiles Tab -->
+			<div id="tab-profiles" class="open-accessibility-tab">
+				<h2><?php esc_html_e('Accessibility Profiles', 'open-accessibility'); ?></h2>
+				<table class="form-table">
+					<?php do_settings_fields('open-accessibility-settings', 'open_accessibility_profiles'); ?>
 				</table>
 			</div>
 
