@@ -196,6 +196,22 @@
         };
     }
 
+    // The cursor size the site configured, if any.
+    //
+    // Distinct from the visitor's own choice: this is the starting point for
+    // someone who has not chosen one.
+    function getConfiguredCursorSize() {
+        if (typeof open_accessibility_data === 'undefined' ||
+            !open_accessibility_data ||
+            !open_accessibility_data.options) {
+            return '';
+        }
+
+        const configured = open_accessibility_data.options.cursor_size;
+
+        return getCursorSizes().includes(configured) ? configured : '';
+    }
+
     // Valid cursor sizes, delivered by PHP so the whitelist has one definition.
     function getCursorSizes() {
         if (typeof open_accessibility_data === 'undefined' ||
@@ -258,6 +274,16 @@
         }
 
         return open_accessibility_data.options.profile_fields;
+    }
+
+    // State a profile deliberately does not own, and must not reset.
+    //
+    // Returned as a snapshot so a caller can restore it across a wholesale state
+    // replacement. Anything listed here is outside every preset by design.
+    function getCarriedState() {
+        return {
+            cursorSize: accessibilityState.cursorSize
+        };
     }
 
     // Whether a partial state changes anything a profile controls.
@@ -439,16 +465,27 @@
             $('body').append('<div class="open-accessibility-reading-mask"></div>');
         }
 
-        // A first-time visitor gets the site's default profile. Anyone with a
-        // stored preference is left alone, including someone who deliberately
-        // turned everything off.
+        // A first-time visitor gets the site's default profile and cursor size.
+        // Anyone with a stored preference is left alone, including someone who
+        // deliberately turned everything off.
         if (!hasStoredPreference()) {
             const brandNewProfile = buildProfileState(getDefaultProfile());
+            const carried = getCarriedState();
 
             if (brandNewProfile) {
                 accessibilityState = brandNewProfile;
                 accessibilityState.activeProfile = getDefaultProfile();
+
+                Object.keys(carried).forEach((field) => {
+                    accessibilityState[field] = carried[field];
+                });
             }
+
+            // The site's configured cursor size, which is a setting rather than a
+            // preset. Without this the admin control would appear to do nothing:
+            // the value reached the payload but nothing read it for a new
+            // visitor.
+            accessibilityState.cursorSize = getConfiguredCursorSize();
         }
 
         // Apply saved state
@@ -1568,8 +1605,19 @@
             return false;
         }
 
+        // Carry forward state a preset does not own. Cursor size changes the
+        // pointer rather than page content, is not a preset field, and is not
+        // something a profile should silently reset — reading it back from
+        // accessibilityState after the replacement would already be too late,
+        // because the replacement has cleared it.
+        const carried = getCarriedState();
+
         accessibilityState = nextState;
         accessibilityState.activeProfile = name;
+
+        Object.keys(carried).forEach((field) => {
+            accessibilityState[field] = carried[field];
+        });
 
         saveState();
         applyState();
