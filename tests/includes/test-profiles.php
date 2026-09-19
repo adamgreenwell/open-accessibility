@@ -512,4 +512,62 @@ class Test_Profiles extends OA_TestCase {
 			'A profile switched off by the site is not available.'
 		);
 	}
+
+	/**
+	 * The preset field list the frontend needs is derived, not restated.
+	 *
+	 * The script previously declared its own copy of these fields, which nothing
+	 * kept in step with this registry. A field added to a preset here and missed
+	 * there would silently fail to clear the active-profile marker, leaving the
+	 * UI claiming a profile the settings no longer matched.
+	 */
+	public function test_preset_field_names_are_derived_from_the_state() {
+		$names = Open_Accessibility_Utils::get_preset_field_names();
+		$state = Open_Accessibility_Utils::get_default_accessibility_state();
+
+		$this->assertNotEmpty( $names, 'No preset field names returned.' );
+
+		// Every preset field is a real state field.
+		$unknown = array_values( array_diff( $names, array_keys( $state ) ) );
+		$this->assertSame(
+			array(),
+			$unknown,
+			'These preset fields are not state fields: ' . implode( ', ', $unknown )
+		);
+
+		// And the purely client-side flags are not among them, because a preset
+		// never sets them.
+		foreach ( array( 'active', 'activeProfile' ) as $client_only ) {
+			$this->assertNotContains(
+				$client_only,
+				$names,
+				"{$client_only} is client state and should not be a preset field."
+			);
+		}
+
+		// Finally: exactly the state minus those client-only flags.
+		$expected = array_values( array_diff( array_keys( $state ), array( 'active', 'activeProfile' ) ) );
+
+		$this->assertSame( $expected, $names );
+	}
+
+	/**
+	 * Every profile sets every preset field, checked against the derived list.
+	 *
+	 * The list and the presets are both derived from the same state, so this is
+	 * the assertion that keeps the derivation honest.
+	 */
+	public function test_presets_cover_every_derived_field() {
+		$names = Open_Accessibility_Utils::get_preset_field_names();
+
+		foreach ( Open_Accessibility_Utils::get_profiles() as $name => $profile ) {
+			$missing = array_values( array_diff( $names, array_keys( $profile['state'] ) ) );
+
+			$this->assertSame(
+				array(),
+				$missing,
+				"Profile {$name} does not set: " . implode( ', ', $missing )
+			);
+		}
+	}
 }

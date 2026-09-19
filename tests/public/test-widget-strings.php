@@ -687,4 +687,51 @@ class Test_Widget_Strings extends OA_TestCase {
 		$this->assertLessThan( $contrast_position, $profile_position, 'Profiles should come before the individual controls.' );
 		$this->assertGreaterThan( $reset_position, $profile_position, 'Reset should stay first.' );
 	}
+
+	/**
+	 * The payload carries the preset field list the script needs.
+	 */
+	public function test_payload_carries_the_profile_field_list() {
+		$data = $this->frontend_payload();
+
+		$this->assertArrayHasKey(
+			'profile_fields',
+			$data['options'],
+			'The script cannot detect profile-field changes without this list.'
+		);
+
+		$this->assertSame(
+			Open_Accessibility_Utils::get_preset_field_names(),
+			$data['options']['profile_fields'],
+			'The payload should carry exactly the derived preset fields.'
+		);
+	}
+
+	/**
+	 * The script does not declare its own copy of the preset field list.
+	 *
+	 * It did, and nothing kept it in step with the registry. Guarding the absence
+	 * is the point: a second declaration is the failure mode being removed, so a
+	 * test that only checked the payload would let it creep back.
+	 */
+	public function test_script_does_not_declare_its_own_profile_field_list() {
+		$js = file_get_contents( OPEN_ACCESSIBILITY_PLUGIN_DIR . 'assets/js/open-accessibility-public.js' );
+
+		$this->assertStringNotContainsString(
+			'PROFILE_CONTROLLED_FIELDS',
+			$js,
+			'The script should read the preset field list from the payload rather than declaring one.'
+		);
+
+		// No hardcoded block of the preset fields either. A couple of these names
+		// legitimately appear in the script for other reasons, so assert on the
+		// full list rather than on individual names.
+		$serialised = "'" . implode( "',", Open_Accessibility_Utils::get_preset_field_names() ) . "'";
+
+		$this->assertStringNotContainsString(
+			$serialised,
+			$js,
+			'The script appears to contain a hardcoded copy of the preset field list.'
+		);
+	}
 }

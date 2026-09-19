@@ -174,6 +174,10 @@ class Open_Accessibility_Public {
 			// Presets are defined in PHP so they are testable and filterable; the
 			// frontend script only applies what it is handed.
 			'profiles' => Open_Accessibility_Utils::get_enabled_profiles(),
+			// The preset fields the script needs to know about. Derived from the
+			// PHP state so the script does not declare its own copy; a field added
+			// there cannot leave the frontend behind.
+			'profile_fields' => Open_Accessibility_Utils::get_preset_field_names(),
 			'default_profile' => $this->get_option('default_profile', ''),
 			'debug' => (bool) $this->is_debug_enabled,
 		);

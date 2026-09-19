@@ -60,6 +60,26 @@ class Open_Accessibility_Utils {
 	}
 
 	/**
+	 * Names of the state fields a profile preset can set.
+	 *
+	 * Derived from get_default_accessibility_state() rather than restated, so
+	 * adding a field to the state cannot leave this list behind. Two flags a
+	 * preset never sets are excluded: `active` marks that the plugin is in use,
+	 * and `activeProfile` records which preset was applied. Both are client
+	 * state rather than something a preset decides.
+	 *
+	 * Delivered to the frontend so the script does not declare its own copy.
+	 *
+	 * @since    1.4.2
+	 * @return   string[]
+	 */
+	public static function get_preset_field_names() {
+		$client_only = array( 'active', 'activeProfile' );
+
+		return array_values( array_diff( array_keys( self::get_default_accessibility_state() ), $client_only ) );
+	}
+
+	/**
 	 * Get the registered accessibility profiles.
 	 *
 	 * A profile is a one-click preset over the accessibility state. The labels

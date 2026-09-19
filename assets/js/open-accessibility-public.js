@@ -209,26 +209,22 @@
         return open_accessibility_data.options.default_profile || '';
     }
 
-    // State fields a profile controls.
+    // State fields a profile controls, delivered by PHP.
     //
-    // Used to decide whether a partial update has invalidated the active
-    // profile. Mirrors the preset fields defined in PHP.
-    const PROFILE_CONTROLLED_FIELDS = [
-        'contrast',
-        'grayscale',
-        'textSize',
-        'selectedFont',
-        'linksUnderline',
-        'hideImages',
-        'readingGuide',
-        'readingMask',
-        'focusOutline',
-        'lineHeightLevel',
-        'textAlign',
-        'pauseAnimations',
-        'letterSpacingLevel',
-        'wordSpacingLevel'
-    ];
+    // Read from the payload rather than declared here: the registry is the
+    // source of truth for what a preset sets, and a second copy would silently
+    // fall behind it — a field added to a preset but missed here would fail to
+    // clear the active-profile marker.
+    function getProfileFields() {
+        if (typeof open_accessibility_data === 'undefined' ||
+            !open_accessibility_data ||
+            !open_accessibility_data.options ||
+            !Array.isArray(open_accessibility_data.options.profile_fields)) {
+            return [];
+        }
+
+        return open_accessibility_data.options.profile_fields;
+    }
 
     // Whether a partial state changes anything a profile controls.
     function changesProfileFields(partialState) {
@@ -236,7 +232,7 @@
             return false;
         }
 
-        return PROFILE_CONTROLLED_FIELDS.some((field) =>
+        return getProfileFields().some((field) =>
             Object.prototype.hasOwnProperty.call(partialState, field)
         );
     }
