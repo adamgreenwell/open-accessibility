@@ -228,6 +228,61 @@ class Test_Scanner extends OA_TestCase {
 	}
 
 	/**
+	 * A batch fills completely once the cursor is deep into the site.
+	 *
+	 * The cursor has to reach the query, and this is why: reading a window of
+	 * the first N posts and filtering it in PHP stops finding anything as soon as
+	 * the cursor passes N. WP_Query will not return more than 500 rows in one
+	 * query whatever it is asked for, so past 500 posts every batch came back
+	 * empty, which reads as the end of the scan — the rest of the site was left
+	 * unexamined and the scan still reported success.
+	 */
+	public function test_batch_fills_completely_past_the_query_row_cap() {
+		// Comfortably past the 500-row cap, and past the batch size.
+		$total = 700;
+		$limit = 10;
+
+		for ( $i = 0; $i < $total; $i++ ) {
+			$this->make_post( self::CONTENT_CLEAN );
+		}
+
+		// Walk the whole site by cursor. Every post must be reachable, which is
+		// the property that was broken.
+		$all    = array();
+		$cursor = 0;
+
+		do {
+			$window = Open_Accessibility_Scanner::get_batch( $cursor, 100 );
+
+			if ( empty( $window ) ) {
+				break;
+			}
+
+			$all    = array_merge( $all, $window );
+			$cursor = (int) max( $window );
+		} while ( count( $window ) === 100 && count( $all ) <= $total );
+
+		$this->assertCount( $total, $all, 'Every post should be reachable by walking the cursor.' );
+		$this->assertSame(
+			$all,
+			array_values( array_unique( $all ) ),
+			'No post should be returned twice.'
+		);
+
+		// And a batch taken from deep in the site still fills.
+		$deep = $all[ $total - 2 ];
+
+		$batch = Open_Accessibility_Scanner::scan_batch( $deep, $limit );
+
+		$this->assertSame(
+			1,
+			$batch['scanned'],
+			'Only the posts after the cursor should be examined.'
+		);
+		$this->assertTrue( $batch['complete'], 'One post is less than a full batch, so the scan is done.' );
+	}
+
+	/**
 	 * The last batch reports completion.
 	 */
 	public function test_final_batch_reports_completion() {

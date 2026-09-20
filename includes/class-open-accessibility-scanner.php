@@ -66,17 +66,6 @@ class Open_Accessibility_Scanner {
 	const RULES_VERSION = 1;
 
 	/**
-	 * Upper bound on rows a single batch query may read.
-	 *
-	 * The cursor is applied in PHP, so the query cannot use it to narrow the
-	 * result set. Reading every ID on a large site to find the next 25 would
-	 * defeat the point of batching, so each query reads at most this many rows
-	 * and walks forward with the cursor until it finds enough. In practice the
-	 * first window contains them, because the cursor advances by whole batches.
-	 */
-	const POSTS_QUERY_CEILING = 500;
-
-	/**
 	 * How many posts to scan per batch.
 	 *
 	 * Small enough that a batch finishes well inside a shared host's time limit,
@@ -240,43 +229,46 @@ class Open_Accessibility_Scanner {
 	 * @return   int[]
 	 */
 	public static function get_batch( $cursor, $limit = self::BATCH_SIZE ) {
-		$limit = max( 1, (int) $limit );
+		global $wpdb;
+
+		$limit  = max( 1, (int) $limit );
 		$cursor = (int) $cursor;
 
-		// get_posts() has no cursor argument, so the cursor is applied in PHP
-		// after the query. That means the query has to fetch a page of raw rows
-		// and the filter runs over it — but the page is a page of *all* in-scope
-		// posts, not of posts after the cursor, so asking for exactly $limit
-		// would return short whenever any of them sit at or below the cursor.
-		// A short batch is read as "no posts remain", so the scan would declare
-		// itself finished early and silently leave the rest unscanned.
-		$rows = get_posts(
-			array(
-				'post_type'              => self::get_post_types(),
-				'post_status'            => array( 'publish', 'draft', 'pending', 'private' ),
-				'posts_per_page'         => self::POSTS_QUERY_CEILING,
-				'fields'                 => 'ids',
-				'orderby'                => 'ID',
-				'order'                  => 'ASC',
-				'no_found_rows'          => true,
-				'update_post_term_cache' => false,
-				'update_post_meta_cache' => false,
-			)
-		);
+		$types = self::get_post_types();
 
-		$ids = array();
-
-		foreach ( array_map( 'intval', $rows ) as $id ) {
-			if ( $id > $cursor ) {
-				$ids[] = $id;
-
-				if ( count( $ids ) === $limit ) {
-					break;
-				}
-			}
+		if ( empty( $types ) ) {
+			return array();
 		}
 
-		return $ids;
+		$statuses = array( 'publish', 'draft', 'pending', 'private' );
+
+		$type_placeholders   = implode( ', ', array_fill( 0, count( $types ), '%s' ) );
+		$status_placeholders = implode( ', ', array_fill( 0, count( $statuses ), '%s' ) );
+
+		// Deliberately not get_posts()/WP_Query. A cursor is `ID > $cursor`,
+		// which WP_Query has no argument for, and the two things it does offer
+		// are both wrong here: 'offset' is unreliable on this WordPress version,
+		// and reading a window of all in-scope posts in order to filter it in PHP
+		// stops working the moment the cursor passes WP_Query's hard cap of 500
+		// rows per query — every later batch would come back empty and the scan
+		// would end early with the rest of the site unexamined.
+		//
+		// The cursor belongs in the query, and the primary key makes it cheap.
+		$sql = $wpdb->prepare(
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Placeholders are built above.
+			"SELECT ID FROM {$wpdb->posts}
+			WHERE post_type IN ( {$type_placeholders} )
+				AND post_status IN ( {$status_placeholders} )
+				AND ID > %d
+			ORDER BY ID ASC
+			LIMIT %d",
+			array_merge( $types, $statuses, array( $cursor, $limit ) )
+		);
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Prepared above.
+		$ids = $wpdb->get_col( $sql );
+
+		return array_map( 'intval', (array) $ids );
 	}
 
 	/**
