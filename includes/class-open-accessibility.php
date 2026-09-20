@@ -33,6 +33,7 @@ class Open_Accessibility {
 	public function __construct() {
 		$this->load_dependencies();
 		Open_Accessibility_DB::init();
+		Open_Accessibility_Scanner::init();
 		$this->set_locale();
 		$this->define_admin_hooks();
 		$this->define_public_hooks();
@@ -82,6 +83,11 @@ class Open_Accessibility {
 		 * site report, so it is loaded with the rest of the plugin.
 		 */
 		require_once OPEN_ACCESSIBILITY_PLUGIN_DIR . 'includes/class-open-accessibility-audit.php';
+
+		/**
+		 * Site report scanning and storage
+		 */
+		require_once OPEN_ACCESSIBILITY_PLUGIN_DIR . 'includes/class-open-accessibility-scanner.php';
 
 		/**
 		 * Database functionality
