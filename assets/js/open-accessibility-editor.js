@@ -82,17 +82,50 @@
 	}
 
 	/**
+	 * Coerce a block attribute to a string.
+	 *
+	 * From WordPress 7.1 a rich-text attribute such as core/paragraph's content
+	 * is a RichTextData instance rather than a plain string. It stringifies
+	 * correctly and has no enumerable value property, so a `typeof === 'string'`
+	 * check silently failed and every rule that reads markup — links, and the
+	 * image alt fallback — never ran. Accepting anything stringifiable is what
+	 * keeps this working across both shapes.
+	 *
+	 * @param {*} value Attribute value.
+	 * @return {string} String form, or '' when there is nothing usable.
+	 */
+	function attributeToString( value ) {
+		if ( typeof value === 'string' ) {
+			return value;
+		}
+
+		if ( value === null || typeof value === 'undefined' ) {
+			return '';
+		}
+
+		if ( typeof value === 'object' && typeof value.toString === 'function' ) {
+			var text = value.toString();
+
+			return typeof text === 'string' ? text : '';
+		}
+
+		return '';
+	}
+
+	/**
 	 * Strip tags from a string without touching the document.
 	 *
 	 * @param {string} html Markup.
 	 * @return {string} Text.
 	 */
 	function stripTags( html ) {
-		if ( ! html ) {
+		var source = attributeToString( html );
+
+		if ( ! source ) {
 			return '';
 		}
 
-		var doc = new DOMParser().parseFromString( '<div>' + html + '</div>', 'text/html' );
+		var doc = new DOMParser().parseFromString( '<div>' + source + '</div>', 'text/html' );
 
 		return ( doc.body.textContent || '' ).replace( /\s+/g, ' ' ).trim();
 	}
@@ -104,7 +137,7 @@
 	 * @return {Document} Detached document.
 	 */
 	function parseFragment( html ) {
-		return new DOMParser().parseFromString( '<div>' + ( html || '' ) + '</div>', 'text/html' );
+		return new DOMParser().parseFromString( '<div>' + attributeToString( html ) + '</div>', 'text/html' );
 	}
 
 	/**
@@ -171,8 +204,8 @@
 					return;
 				}
 
-				var html = block.attributes && typeof block.attributes.content === 'string'
-					? block.attributes.content
+				var html = block.attributes
+					? attributeToString( block.attributes.content )
 					: '';
 
 				if ( block.name === 'core/image' ) {
@@ -226,13 +259,17 @@
 		// it saves to the rendered <img>. An empty value is the correct markup for
 		// a decorative image and is deliberately not reported; only an absent one
 		// is.
-		if ( typeof alt !== 'string' || '' === alt.trim() ) {
-			if ( typeof alt !== 'string' ) {
-				findings.push( finding( 'image_missing_alt', block.clientId ) );
-			}
-
+		if ( 'undefined' === typeof alt || null === alt ) {
+			findings.push( finding( 'image_missing_alt', block.clientId ) );
 			return;
 		}
+
+		if ( '' === attributeToString( alt ).trim() ) {
+			// Deliberately empty: correct markup for a decorative image.
+			return;
+		}
+
+		alt = attributeToString( alt );
 
 		if ( isUnhelpfulAlt( alt ) ) {
 			findings.push( finding( 'image_alt_unhelpful', block.clientId ) );
@@ -451,11 +488,17 @@
 			function refresh() {
 				var next = wp.data.select( 'core/block-editor' ).getBlocks();
 
-				// The selector returns a new array each call, so compare the block
-				// identities rather than the array, or this would re-render on
-				// every store change anywhere in the editor.
+				// Compare each block's name and attributes, not just its id. The
+				// ids exist as soon as the editor has a block list, while the
+				// attributes arrive when the post finishes loading — so a
+				// client-id-only signature treated the empty first snapshot as
+				// final and every content-based rule silently missed everything.
+				//
+				// JSON.stringify over attributes rather than a deep compare: the
+				// values are plain scalars and strings here, and it keeps this to
+				// one pass.
 				var signature = next.map( function ( block ) {
-					return block.clientId;
+					return block.clientId + ':' + block.name + ':' + JSON.stringify( block.attributes || {} );
 				} ).join( '|' );
 
 				if ( signature === last ) {
