@@ -431,3 +431,71 @@
     background-color: #f8d7da;
     color: #721c24;
 }
+
+/* ---------------------------------------------------------------------------
+   Editor content audit panel.
+
+   Inside the block editor sidebar, so it borrows the editor's own type and
+   spacing rather than introducing its own scale. Severity is carried by a
+   coloured left border plus a text label in the message, never by colour alone.
+   --------------------------------------------------------------------------- */
+.open-accessibility-audit-summary {
+    margin: 0 0 12px;
+    font-weight: 600;
+}
+
+.open-accessibility-audit-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.open-accessibility-audit-item {
+    margin: 0 0 10px;
+    padding: 8px 10px;
+    border-left: 4px solid #757575;
+    background: #f6f7f7;
+    border-radius: 2px;
+}
+
+.open-accessibility-audit-item.is-error {
+    border-left-color: #d63638;
+}
+
+.open-accessibility-audit-item.is-warning {
+    border-left-color: #dba617;
+}
+
+.open-accessibility-audit-item.is-review {
+    border-left-color: #2271b1;
+}
+
+.open-accessibility-audit-message {
+    display: block;
+}
+
+.open-accessibility-audit-wcag {
+    display: block;
+    margin-top: 4px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: #646970;
+}
+
+.open-accessibility-audit-unchecked {
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px solid #e0e0e0;
+    color: #646970;
+}
+
+.open-accessibility-audit-unchecked summary {
+    cursor: pointer;
+}
+
+.open-accessibility-audit-unchecked ul {
+    margin: 8px 0 0;
+    padding-left: 18px;
+    list-style: disc;
+}

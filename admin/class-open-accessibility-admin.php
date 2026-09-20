@@ -180,6 +180,7 @@ class Open_Accessibility_Admin {
 			'open_accessibility_audit',
 			array(
 				'unchecked' => Open_Accessibility_Audit::unchecked_categories(),
+				'rules'     => Open_Accessibility_Audit::rule_definitions(),
 			)
 		);
 	}

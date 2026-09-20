@@ -681,6 +681,35 @@ class Open_Accessibility_Audit {
 	}
 
 	/**
+	 * The rules, as data, for the editor panel.
+	 *
+	 * The panel applies these to the live block tree, so they have to be in
+	 * JavaScript. Delivering them from here rather than declaring them again in
+	 * the script keeps one definition of what a rule is, which is the difference
+	 * between the panel and the Phase 4 report agreeing and drifting.
+	 *
+	 * The detection logic is not data and is not delivered: the panel has its own
+	 * implementation over editor blocks, and the tests in this repository cover
+	 * the PHP one that the report uses.
+	 *
+	 * @since    1.4.2
+	 * @return   array    Rule id => message, wcag, severity.
+	 */
+	public static function rule_definitions() {
+		$definitions = array();
+
+		foreach ( self::$messages as $rule => $message ) {
+			$definitions[ $rule ] = array(
+				'message'  => $message,
+				'wcag'     => self::$criteria[ $rule ],
+				'severity' => self::$severity[ $rule ],
+			);
+		}
+
+		return $definitions;
+	}
+
+	/**
 	 * The categories this audit cannot check.
 	 *
 	 * Exposed separately so the editor panel can name what it does not examine
