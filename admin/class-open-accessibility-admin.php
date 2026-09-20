@@ -165,6 +165,14 @@ class Open_Accessibility_Admin {
 			true
 		);
 
+		wp_enqueue_style(
+			$this->plugin_name . '-editor',
+			OPEN_ACCESSIBILITY_ASSETS_URL . 'css/open-accessibility-editor.css',
+			array(),
+			$this->version,
+			'all'
+		);
+
 		wp_set_script_translations(
 			$this->plugin_name . '-editor',
 			'open-accessibility',

@@ -334,33 +334,183 @@
 	}
 
 	/**
+	 * The results view: a summary, the findings, and what was not checked.
+	 *
+	 * Kept separate from the container that supplies blocks so the rendering can
+	 * be read on its own, and so the unchecked list sits beside the findings
+	 * rather than somewhere else in the panel.
+	 */
+	var AuditResults = function ( props ) {
+		var result = auditBlocks( props.blocks || [] );
+		var findings = result.findings;
+		var summary = result.summary;
+		var children = [];
+
+		children.push(
+			el(
+				'p',
+				{ key: 'summary', className: 'open-accessibility-audit-summary' },
+				findings.length
+					? sprintf(
+							/* translators: 1: total issues, 2: number of errors */
+							_n( '%1$d issue found (%2$d of them errors).', '%1$d issues found (%2$d of them errors).', findings.length, 'open-accessibility' ),
+							findings.length,
+							summary.error
+					  )
+					: __( 'No issues found in the checks this audit can run.', 'open-accessibility' )
+			)
+		);
+
+		if ( findings.length ) {
+			children.push(
+				el(
+					'ul',
+					{ key: 'findings', className: 'open-accessibility-audit-list' },
+					findings.map( function ( item, index ) {
+						return el(
+							'li',
+							{
+								key: item.rule + '-' + index,
+								className: 'open-accessibility-audit-item is-' + item.severity
+							},
+							el( 'span', { className: 'open-accessibility-audit-message' }, item.message ),
+							item.wcag
+								? el(
+										'span',
+										{ className: 'open-accessibility-audit-wcag' },
+										sprintf(
+											/* translators: %s: WCAG success criterion number */
+											__( 'WCAG %s', 'open-accessibility' ),
+											item.wcag
+										)
+								  )
+								: null
+						);
+					} )
+				)
+			);
+		}
+
+		// Say what was not checked. An audit that lists problems without naming
+		// its blind spots overstates itself, which is the failure this feature is
+		// positioned against.
+		if ( config.unchecked && config.unchecked.length ) {
+			children.push(
+				el(
+					'details',
+					{ key: 'unchecked', className: 'open-accessibility-audit-unchecked' },
+					el(
+						'summary',
+						null,
+						sprintf(
+							/* translators: %d: number of categories not checked */
+							_n( '%d category is not checked', '%d categories are not checked', config.unchecked.length, 'open-accessibility' ),
+							config.unchecked.length
+						)
+					),
+					el(
+						'ul',
+						null,
+						config.unchecked.map( function ( category, index ) {
+							return el( 'li', { key: index }, category );
+						} )
+					)
+				)
+			);
+		}
+
+		return el( 'div', { className: 'open-accessibility-audit' }, children );
+	};
+
+	/**
 	 * Container that supplies the current block list.
 	 *
-	 * Built once at load time rather than decided during render: useSelect is a
-	 * hook and may not be called conditionally, and it does not exist before
-	 * WordPress 5.3, which this plugin still supports. Choosing the implementation
-	 * up front keeps both facts true.
+	 * Subscribes to the store rather than reading blocks during render. A
+	 * reactive read looked correct and was not: once the editor finished loading
+	 * the post, the panel kept showing the block list captured before the content
+	 * existed, so it reported a single heading issue and silently missed the rest.
+	 * Holding the blocks in component state and refreshing them on change is what
+	 * the store subscription is actually for, and it does not depend on a hook
+	 * that only exists from WordPress 5.3.
 	 */
+	function useBlocks() {
+		var useState = wp.element.useState;
+		var useEffect = wp.element.useEffect;
+
+		var pair = useState( function () {
+			return wp.data.select( 'core/block-editor' ).getBlocks();
+		} );
+
+		var blocks = pair[0];
+		var setBlocks = pair[1];
+
+		useEffect( function () {
+			var last = null;
+			var timer = null;
+
+			function refresh() {
+				var next = wp.data.select( 'core/block-editor' ).getBlocks();
+
+				// The selector returns a new array each call, so compare the block
+				// identities rather than the array, or this would re-render on
+				// every store change anywhere in the editor.
+				var signature = next.map( function ( block ) {
+					return block.clientId;
+				} ).join( '|' );
+
+				if ( signature === last ) {
+					return;
+				}
+
+				last = signature;
+				setBlocks( next );
+			}
+
+			// Debounced: findings should follow typing without running on every
+			// keystroke.
+			var unsubscribe = wp.data.subscribe( function () {
+				if ( timer ) {
+					clearTimeout( timer );
+				}
+
+				timer = setTimeout( refresh, 600 );
+			} );
+
+			refresh();
+
+			return function () {
+				if ( timer ) {
+					clearTimeout( timer );
+				}
+
+				unsubscribe();
+			};
+		}, [] );
+
+		return blocks;
+	}
+
+	var canUseHooks = typeof wp.element.useState === 'function'
+		&& typeof wp.element.useEffect === 'function'
+		&& typeof wp.data.subscribe === 'function';
+
 	var AuditContainer;
 
-	if ( wp.data.useSelect ) {
+	if ( canUseHooks ) {
 		AuditContainer = function () {
-			// eslint-disable-next-line react-hooks/rules-of-hooks
-			var blocks = wp.data.useSelect( function ( select ) {
-				return select( 'core/block-editor' ).getBlocks();
-			}, [] );
-
-			return el( AuditResults, { blocks: blocks } );
+			return el( AuditResults, { blocks: useBlocks() } );
 		};
-	} else if ( wp.data.withSelect ) {
-		AuditContainer = wp.data.withSelect( function ( select ) {
-			return { blocks: select( 'core/block-editor' ).getBlocks() };
-		} )( function ( props ) {
-			return el( AuditResults, { blocks: props.blocks } );
-		} );
 	} else {
+		// No hooks, so no subscription: render whatever is there and refresh on
+		// an interval. WordPress 5.2 ships hooks, so this is a floor for a
+		// back-ported or filtered build rather than the normal path — but it is
+		// still better than a panel that never updates or throws on render.
 		AuditContainer = function () {
-			return el( AuditResults, { blocks: [] } );
+			var pair = wp.element.useState
+				? wp.element.useState( function () { return wp.data.select( 'core/block-editor' ).getBlocks(); } )
+				: [ wp.data.select( 'core/block-editor' ).getBlocks() ];
+
+			return el( AuditResults, { blocks: pair[0] } );
 		};
 	}
 

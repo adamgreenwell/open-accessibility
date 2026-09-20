@@ -163,6 +163,97 @@ class Test_Audit_Enqueue extends OA_TestCase {
 	}
 
 	/**
+	 * The panel's stylesheet is enqueued in the editor.
+	 *
+	 * It has to be its own file: enqueue_styles() is scoped to the plugin's
+	 * settings page, so styles kept there would never reach the block editor and
+	 * the panel would render unstyled.
+	 */
+	public function test_panel_stylesheet_is_enqueued() {
+		delete_option( self::OPTION );
+
+		$admin = new Open_Accessibility_Admin();
+		$admin->enqueue_block_editor_assets();
+
+		$this->assertTrue(
+			wp_style_is( 'open-accessibility-editor', 'enqueued' ),
+			'The audit panel stylesheet must load wherever the script does.'
+		);
+	}
+
+	/**
+	 * The panel styles live in the editor stylesheet, not the settings one.
+	 */
+	public function test_panel_styles_are_not_in_the_settings_stylesheet() {
+		$settings_css = file_get_contents( OPEN_ACCESSIBILITY_PLUGIN_DIR . 'assets/css/open-accessibility-admin.css' );
+		$editor_css   = file_get_contents( OPEN_ACCESSIBILITY_PLUGIN_DIR . 'assets/css/open-accessibility-editor.css' );
+
+		$this->assertStringNotContainsString( 'open-accessibility-audit-item', $settings_css );
+		$this->assertStringContainsString( 'open-accessibility-audit-item', $editor_css );
+	}
+
+	/**
+	 * Every component the panel references is defined.
+	 *
+	 * The panel rendered nothing at all because AuditResults was referenced in
+	 * three places and declared nowhere — a ReferenceError that produced no visible
+	 * error and no output. This asserts the general shape rather than that one
+	 * name, so the next such mistake fails here instead of silently in a browser.
+	 */
+	public function test_every_referenced_component_is_defined() {
+		$source = file_get_contents( OPEN_ACCESSIBILITY_PLUGIN_DIR . 'assets/js/open-accessibility-editor.js' );
+
+		preg_match_all( '/el\(\s*([A-Z][A-Za-z]*)\s*,/', $source, $matches );
+
+		$referenced = array_values( array_unique( $matches[1] ) );
+
+		$this->assertNotEmpty( $referenced, 'No component references found; the parser has drifted.' );
+
+		foreach ( $referenced as $component ) {
+			$escaped = preg_quote( $component, '/' );
+
+			$as_variable = (bool) preg_match( '/\bvar\s+' . $escaped . '\s*=/', $source );
+			$as_function = (bool) preg_match( '/\bfunction\s+' . $escaped . '\s*\(/', $source );
+
+			$this->assertTrue(
+				$as_variable || $as_function,
+				"The panel references {$component} but never defines it, so rendering throws a ReferenceError."
+			);
+		}
+	}
+
+	/**
+	 * Every function the panel calls is defined.
+	 *
+	 * The same failure mode as above, for helper functions rather than components.
+	 */
+	public function test_every_helper_used_by_the_panel_is_defined() {
+		$source = file_get_contents( OPEN_ACCESSIBILITY_PLUGIN_DIR . 'assets/js/open-accessibility-editor.js' );
+
+		$expected = array(
+			'stripTags',
+			'parseFragment',
+			'isUnhelpfulAlt',
+			'isVagueLinkText',
+			'auditBlocks',
+			'checkImage',
+			'checkHeading',
+			'checkButton',
+			'checkTable',
+			'checkLinks',
+			'finding',
+		);
+
+		foreach ( $expected as $helper ) {
+			$this->assertSame(
+				1,
+				preg_match( '/\bfunction\s+' . preg_quote( $helper, '/' ) . '\s*\(/', $source ),
+				"The editor script should define {$helper}()."
+			);
+		}
+	}
+
+	/**
 	 * The editor script file exists and is syntactically loadable.
 	 */
 	public function test_editor_script_file_exists() {
