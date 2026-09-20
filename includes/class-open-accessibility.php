@@ -66,6 +66,7 @@ class Open_Accessibility {
 		 * The class responsible for defining all actions that occur in the admin area.
 		 */
 		require_once OPEN_ACCESSIBILITY_PLUGIN_DIR . 'admin/class-open-accessibility-admin.php';
+		require_once OPEN_ACCESSIBILITY_PLUGIN_DIR . 'admin/class-open-accessibility-report.php';
 
 		/**
 		 * The class responsible for defining all actions that occur in the public-facing
@@ -137,6 +138,8 @@ class Open_Accessibility {
 		$this->loader->add_action( 'admin_menu', $plugin_admin, 'add_options_page' );
 		$this->loader->add_action( 'admin_init', $plugin_admin, 'register_settings' );
 		$this->loader->add_action( 'enqueue_block_editor_assets', $plugin_admin, 'enqueue_block_editor_assets' );
+
+		Open_Accessibility_Report::init();
 	}
 
 	/**
