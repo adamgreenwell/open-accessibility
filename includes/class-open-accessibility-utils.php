@@ -504,6 +504,10 @@ class Open_Accessibility_Utils {
 			// link on the site opens.
 			'strip_link_targets' => 0,
 
+			// Editor-time content audit. On by default: it only helps where an
+			// author can see it, and it costs nothing on the frontend.
+			'enable_editor_audit' => 1,
+
 			// Usage logging. Off by default; see the Advanced settings tab.
 			'enable_analytics' => 0,
 

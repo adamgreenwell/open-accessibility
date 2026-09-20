@@ -131,6 +131,60 @@ class Open_Accessibility_Admin {
 	}
 
 	/**
+	 * Enqueue the content audit script in the block editor.
+	 *
+	 * Hooked on enqueue_block_editor_assets, which runs before the editor mounts.
+	 * The script registers its panel through the plugin API rather than
+	 * manipulating the DOM, so it does not need the editor to exist yet.
+	 *
+	 * When the audit is switched off the script is never enqueued, rather than
+	 * loaded and hidden: there is no reason to ship code an author cannot use.
+	 *
+	 * @since    1.4.2
+	 */
+	public function enqueue_block_editor_assets() {
+		if ( ! Open_Accessibility_Utils::get_options()['enable_editor_audit'] ) {
+			return;
+		}
+
+		wp_enqueue_script(
+			$this->plugin_name . '-editor',
+			OPEN_ACCESSIBILITY_ASSETS_URL . 'js/open-accessibility-editor.js',
+			array(
+				'wp-plugins',
+				'wp-edit-post',
+				'wp-editor',
+				'wp-element',
+				'wp-data',
+				'wp-i18n',
+				'wp-components',
+				'wp-blocks',
+				'wp-a11y',
+			),
+			$this->version,
+			true
+		);
+
+		wp_set_script_translations(
+			$this->plugin_name . '-editor',
+			'open-accessibility',
+			OPEN_ACCESSIBILITY_PLUGIN_DIR . 'languages'
+		);
+
+		// The audit rules are not needed by the editor script: it reads block data
+		// and applies rules itself so findings update without a round trip. What it
+		// does need is the list of unchecked categories, so the panel can name what
+		// it cannot see without duplicating that list in JavaScript.
+		wp_localize_script(
+			$this->plugin_name . '-editor',
+			'open_accessibility_audit',
+			array(
+				'unchecked' => Open_Accessibility_Audit::unchecked_categories(),
+			)
+		);
+	}
+
+	/**
 	 * Add options page to admin menu
 	 *
 	 * @since    1.0.0
@@ -402,7 +456,8 @@ class Open_Accessibility_Admin {
 			'enable_animations_pause' => __('Pause Animations', 'open-accessibility'),
 			'enable_cursor_size' => __('Cursor Size', 'open-accessibility'),
 			'enable_saturation' => __('Saturation', 'open-accessibility'),
-			'enable_highlight_links' => __('Highlight Links', 'open-accessibility')
+			'enable_highlight_links' => __('Highlight Links', 'open-accessibility'),
+			'enable_editor_audit' => __('Editor Content Audit', 'open-accessibility')
 		);
 
 		foreach ($features as $id => $label) {
@@ -944,6 +999,7 @@ class Open_Accessibility_Admin {
 			'enable_cursor_size',
 			'enable_saturation',
 			'enable_highlight_links',
+			'enable_editor_audit',
 			'enable_debug',
 			'strip_link_targets',
 			'enable_analytics',

@@ -78,6 +78,12 @@ class Open_Accessibility {
 		require_once OPEN_ACCESSIBILITY_PLUGIN_DIR . 'includes/class-open-accessibility-utils.php';
 
 		/**
+		 * Content audit rules. Used by the block editor panel and, later, the
+		 * site report, so it is loaded with the rest of the plugin.
+		 */
+		require_once OPEN_ACCESSIBILITY_PLUGIN_DIR . 'includes/class-open-accessibility-audit.php';
+
+		/**
 		 * Database functionality
 		 */
 		require_once OPEN_ACCESSIBILITY_PLUGIN_DIR . 'includes/database/class-open-accessibility-db.php';
@@ -124,6 +130,7 @@ class Open_Accessibility {
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
 		$this->loader->add_action( 'admin_menu', $plugin_admin, 'add_options_page' );
 		$this->loader->add_action( 'admin_init', $plugin_admin, 'register_settings' );
+		$this->loader->add_action( 'enqueue_block_editor_assets', $plugin_admin, 'enqueue_block_editor_assets' );
 	}
 
 	/**
