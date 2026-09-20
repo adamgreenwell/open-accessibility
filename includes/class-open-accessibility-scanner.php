@@ -54,6 +54,29 @@ class Open_Accessibility_Scanner {
 	const OPTION_PROGRESS = 'open_accessibility_scan_state';
 
 	/**
+	 * Version of the rule set a cached result was produced by.
+	 *
+	 * Bump this whenever a rule is added, removed or changed. A content hash
+	 * alone cannot notice that the rules moved: unchanged content keeps its hash,
+	 * so results from the old rules would be reused indefinitely and the report
+	 * would quietly stop looking for whatever was added. This is deliberately
+	 * separate from the plugin version, so a release that does not touch the
+	 * rules does not invalidate every stored result on every site.
+	 */
+	const RULES_VERSION = 1;
+
+	/**
+	 * Upper bound on rows a single batch query may read.
+	 *
+	 * The cursor is applied in PHP, so the query cannot use it to narrow the
+	 * result set. Reading every ID on a large site to find the next 25 would
+	 * defeat the point of batching, so each query reads at most this many rows
+	 * and walks forward with the cursor until it finds enough. In practice the
+	 * first window contains them, because the cursor advances by whole batches.
+	 */
+	const POSTS_QUERY_CEILING = 500;
+
+	/**
 	 * How many posts to scan per batch.
 	 *
 	 * Small enough that a batch finishes well inside a shared host's time limit,
@@ -124,17 +147,19 @@ class Open_Accessibility_Scanner {
 	}
 
 	/**
-	 * A stable hash of the content a result describes.
+	 * A stable fingerprint of everything a result depends on.
 	 *
-	 * Hashed rather than compared directly: post content can be long, and the
-	 * point is only to notice change.
+	 * Covers the content and the rule set. Hashed rather than compared directly:
+	 * post content can be long, and the point is only to notice change. Including
+	 * the rules means an upgrade that adds a rule invalidates cached results by
+	 * itself, without needing a forced rescan on every site.
 	 *
 	 * @since    1.4.2
 	 * @param    string    $content Post content.
 	 * @return   string
 	 */
 	public static function hash_content( $content ) {
-		return md5( (string) $content );
+		return md5( self::RULES_VERSION . ':' . (string) $content );
 	}
 
 	/**
@@ -200,24 +225,36 @@ class Open_Accessibility_Scanner {
 	}
 
 	/**
-	 * A page of posts to scan, as ids.
+	 * A page of posts to scan, as ids, in ID order.
 	 *
-	 * Ordered by ID with an offset rather than by meta value: a meta_value sort
-	 * over an unindexed longtext column forces a filesort and cannot use the
-	 * limit, which is the documented reason to avoid it.
+	 * Selected with `ID > cursor` rather than `offset`. A numeric offset assumes
+	 * the set of posts does not change during a scan, and it does: trashing or
+	 * deleting a post that has already been processed shifts every later row
+	 * left, so the next batch would step over a post that was never scanned and
+	 * the scan would still report itself complete. A cursor on the primary key is
+	 * unaffected by anything happening behind it.
 	 *
 	 * @since    1.4.2
-	 * @param    int       $offset Offset.
+	 * @param    int       $cursor Return posts with an ID greater than this.
 	 * @param    int       $limit  Batch size.
 	 * @return   int[]
 	 */
-	public static function get_batch( $offset, $limit = self::BATCH_SIZE ) {
-		$ids = get_posts(
+	public static function get_batch( $cursor, $limit = self::BATCH_SIZE ) {
+		$limit = max( 1, (int) $limit );
+		$cursor = (int) $cursor;
+
+		// get_posts() has no cursor argument, so the cursor is applied in PHP
+		// after the query. That means the query has to fetch a page of raw rows
+		// and the filter runs over it — but the page is a page of *all* in-scope
+		// posts, not of posts after the cursor, so asking for exactly $limit
+		// would return short whenever any of them sit at or below the cursor.
+		// A short batch is read as "no posts remain", so the scan would declare
+		// itself finished early and silently leave the rest unscanned.
+		$rows = get_posts(
 			array(
 				'post_type'              => self::get_post_types(),
 				'post_status'            => array( 'publish', 'draft', 'pending', 'private' ),
-				'posts_per_page'         => max( 1, (int) $limit ),
-				'offset'                 => max( 0, (int) $offset ),
+				'posts_per_page'         => self::POSTS_QUERY_CEILING,
 				'fields'                 => 'ids',
 				'orderby'                => 'ID',
 				'order'                  => 'ASC',
@@ -227,25 +264,41 @@ class Open_Accessibility_Scanner {
 			)
 		);
 
-		return array_map( 'intval', $ids );
+		$ids = array();
+
+		foreach ( array_map( 'intval', $rows ) as $id ) {
+			if ( $id > $cursor ) {
+				$ids[] = $id;
+
+				if ( count( $ids ) === $limit ) {
+					break;
+				}
+			}
+		}
+
+		return $ids;
 	}
 
 	/**
 	 * Scan one batch, returning how far it got.
 	 *
+	 * `next` is the cursor for the following batch: the highest ID examined, not
+	 * a count. Callers resume from it, so a post removed mid-scan cannot cause
+	 * the rest of the site to shift out from under the scan.
+	 *
 	 * @since    1.4.2
-	 * @param    int       $offset Offset to start from.
+	 * @param    int       $cursor Post ID to continue after.
 	 * @param    int       $limit  Batch size.
 	 * @param    bool      $force  Rescan even when content is unchanged.
 	 * @return   array    {
-	 *     @type int  $offset    Offset this batch started from.
+	 *     @type int  $cursor    Cursor this batch started from.
 	 *     @type int  $scanned   Posts examined.
-	 *     @type int  $next      Offset for the next batch.
+	 *     @type int  $next      Cursor for the next batch.
 	 *     @type bool $complete  Whether the scan has reached the end.
 	 * }
 	 */
-	public static function scan_batch( $offset, $limit = self::BATCH_SIZE, $force = false ) {
-		$ids = self::get_batch( $offset, $limit );
+	public static function scan_batch( $cursor, $limit = self::BATCH_SIZE, $force = false ) {
+		$ids = self::get_batch( $cursor, $limit );
 
 		// Bulk work does not benefit from filling the object cache, and on a large
 		// site it evicts everything else. Read the previous value first:
@@ -263,13 +316,15 @@ class Open_Accessibility_Scanner {
 			wp_suspend_cache_addition( $was_suspended );
 		}
 
-		$next = $offset + $limit;
+		// A short batch means there is nothing left after this one.
+		$complete = count( $ids ) < $limit;
+		$next     = $complete ? (int) $cursor : (int) max( $ids );
 
 		return array(
-			'offset'   => (int) $offset,
+			'cursor'   => (int) $cursor,
 			'scanned'  => count( $ids ),
 			'next'     => $next,
-			'complete' => count( $ids ) < $limit,
+			'complete' => $complete,
 		);
 	}
 
@@ -285,74 +340,129 @@ class Open_Accessibility_Scanner {
 	 * @return   int    Posts scanned.
 	 */
 	public static function scan_all( $force = false ) {
-		$offset  = 0;
+		$cursor  = 0;
 		$scanned = 0;
 
 		do {
-			$batch    = self::scan_batch( $offset, self::BATCH_SIZE, $force );
+			$batch    = self::scan_batch( $cursor, self::BATCH_SIZE, $force );
 			$scanned += $batch['scanned'];
-			$offset   = $batch['next'];
+			$cursor   = $batch['next'];
 		} while ( ! $batch['complete'] );
 
 		return $scanned;
 	}
 
 	/**
-	 * Posts with findings, worst first.
+	 * Scanned post IDs ranked by finding count, worst first.
 	 *
-	 * Ordered in PHP rather than by a meta_value sort. The set is bounded, and a
-	 * SQL sort on post meta cannot use an index, which on a large site is the
-	 * difference between a report and a timeout.
+	 * Sorting uses only the stored count, which is a single small meta value, so
+	 * ordering the whole set costs one query for the IDs and one for the counts.
+	 * The findings themselves are bulky and are read only for the rows a caller
+	 * actually returns — reading them here is what would make a report on a
+	 * large site a timeout rather than a page.
+	 *
+	 * @since    1.4.2
+	 * @return   array    post_id => finding count, worst first.
+	 */
+	private static function ranked_counts() {
+		$ids = self::all_scanned_ids();
+
+		if ( empty( $ids ) ) {
+			return array();
+		}
+
+		// One query for every count, rather than one query per post. get_batch()
+		// runs with the meta cache off, so without this each count is its own
+		// round trip.
+		update_meta_cache( 'post', $ids );
+
+		$counts = array();
+
+		foreach ( $ids as $id ) {
+			$count = get_post_meta( $id, self::META_COUNT, true );
+
+			$counts[ $id ] = '' === $count ? self::count_findings( self::get_result( $id ) ) : (int) $count;
+		}
+
+		// Worst first, then by ID so the order is stable across requests.
+		uksort(
+			$counts,
+			function ( $a, $b ) use ( $counts ) {
+				if ( $counts[ $a ] === $counts[ $b ] ) {
+					return $a <=> $b;
+				}
+
+				return $counts[ $b ] <=> $counts[ $a ];
+			}
+		);
+
+		return $counts;
+	}
+
+	/**
+	 * Posts with findings, worst first.
 	 *
 	 * @since    1.4.2
 	 * @param    int       $limit  How many rows to return.
 	 * @param    int       $offset Offset into the ordered list.
-	 * @return   array    List of array( post, result ).
+	 * @return   array    List of array( post_id, count, summary, findings ).
 	 */
 	public static function get_report( $limit = 50, $offset = 0 ) {
-		$ids = self::all_scanned_ids();
-
-		$rows = array();
-
-		foreach ( $ids as $id ) {
-			$result = self::get_result( $id );
-
-			if ( null === $result ) {
-				continue;
-			}
-
-			$count = self::count_findings( $result );
-
-			if ( $count < 1 ) {
-				continue;
-			}
-
-			$rows[] = array(
-				'post_id' => $id,
-				'count'   => $count,
-				'summary' => isset( $result['summary'] ) ? $result['summary'] : array(),
-				'findings' => $result['findings'],
-			);
-		}
-
-		usort(
-			$rows,
-			function ( $a, $b ) {
-				if ( $a['count'] === $b['count'] ) {
-					return $a['post_id'] <=> $b['post_id'];
-				}
-
-				return $b['count'] <=> $a['count'];
+		$ranked = array_filter(
+			self::ranked_counts(),
+			function ( $count ) {
+				return $count > 0;
 			}
 		);
 
 		$offset = max( 0, (int) $offset );
 
 		if ( $limit < 1 ) {
-			return array_slice( $rows, $offset );
+			$page = array_slice( $ranked, $offset, null, true );
+		} else {
+			$page = array_slice( $ranked, $offset, (int) $limit, true );
 		}
 
-		return array_slice( $rows, $offset, (int) $limit );
+		$rows = array();
+
+		foreach ( $page as $id => $count ) {
+			$result = self::get_result( $id );
+
+			if ( null === $result ) {
+				continue;
+			}
+
+			$rows[] = array(
+				'post_id'  => $id,
+				'count'    => $count,
+				'summary'  => isset( $result['summary'] ) ? $result['summary'] : array(),
+				'findings' => $result['findings'],
+			);
+		}
+
+		return $rows;
+	}
+
+	/**
+	 * How many posts have findings.
+	 *
+	 * Cheaper than get_report() when only the number is needed, and needed for
+	 * pagination: the report's page count is the number of rows it can actually
+	 * show, not the number of posts that exist.
+	 *
+	 * @since    1.4.2
+	 * @return   int
+	 */
+	public static function count_posts_with_findings() {
+		$count = 0;
+
+		foreach ( self::ranked_counts() as $findings ) {
+			if ( $findings > 0 ) {
+				$count++;
+			}
+		}
+
+		return $count;
 	}
 
 	/**
@@ -366,12 +476,15 @@ class Open_Accessibility_Scanner {
 	 */
 	public static function all_scanned_ids() {
 		$ids    = array();
-		$offset = 0;
+		$cursor = 0;
 
 		do {
-			$batch = self::get_batch( $offset, 200 );
+			$batch = self::get_batch( $cursor, 200 );
 			$ids   = array_merge( $ids, $batch );
-			$offset += 200;
+
+			if ( ! empty( $batch ) ) {
+				$cursor = (int) max( $batch );
+			}
 		} while ( count( $batch ) === 200 );
 
 		return $ids;
@@ -392,6 +505,10 @@ class Open_Accessibility_Scanner {
 			'review'         => 0,
 			'findings'       => 0,
 		);
+
+		// Primes the meta cache for every scanned post as a side effect, so the
+		// walk below is one query for the metadata rather than one per post.
+		self::ranked_counts();
 
 		foreach ( self::all_scanned_ids() as $id ) {
 			$result = self::get_result( $id );
@@ -416,6 +533,10 @@ class Open_Accessibility_Scanner {
 				}
 			}
 		}
+
+		// The severity split needs each stored summary, which is part of the
+		// result, so this walk reads it. ranked_counts() has already primed the
+		// meta cache for these IDs, so it is one query rather than one per post.
 
 		return $totals;
 	}
@@ -448,7 +569,7 @@ class Open_Accessibility_Scanner {
 
 		return array_merge(
 			array(
-				'offset'   => 0,
+				'cursor'   => 0,
 				'total'    => 0,
 				'scanned'  => 0,
 				'running'  => false,
@@ -471,7 +592,8 @@ class Open_Accessibility_Scanner {
 	/**
 	 * Schedule the next batch.
 	 *
-	 * The arguments include the offset, which is what keeps each event distinct.
+	 * The arguments include the cursor, which is what keeps each event distinct.
+	 * Identical arguments a second time are treated as a duplicate and dropped.
 	 * wp_schedule_single_event() deduplicates on the hook and a hash of its
 	 * arguments within a ten-minute window — and it resets that window when the
 	 * requested time is inside it, which is the normal case for a batch scheduled
@@ -479,11 +601,11 @@ class Open_Accessibility_Scanner {
 	 * and silently dropped, stalling the chain after one hop.
 	 *
 	 * @since    1.4.2
-	 * @param    int       $offset Offset to continue from.
+	 * @param    int       $cursor Post ID to continue after.
 	 * @return   bool    Whether the event was scheduled.
 	 */
-	public static function schedule_next_batch( $offset ) {
-		$args = array( (int) $offset );
+	public static function schedule_next_batch( $cursor ) {
+		$args = array( (int) $cursor );
 
 		if ( wp_next_scheduled( 'open_accessibility_scan_batch', $args ) ) {
 			return false;
@@ -496,13 +618,22 @@ class Open_Accessibility_Scanner {
 	 * Run a scheduled batch and queue the next one.
 	 *
 	 * @since    1.4.2
-	 * @param    int       $offset Offset to continue from.
+	 * @param    int       $cursor Post ID to continue after.
 	 */
-	public static function run_scheduled_batch( $offset = 0 ) {
+	public static function run_scheduled_batch( $cursor = 0 ) {
 		$progress = self::get_progress();
-		$batch    = self::scan_batch( (int) $offset, self::BATCH_SIZE, ! empty( $progress['force'] ) );
 
-		$progress['offset']  = $batch['next'];
+		// The admin report drives batches inline and writes progress after each
+		// one. A batch event queued before that would otherwise rewind the
+		// cursor and rescan posts that are already done, so anything at or
+		// behind the current position is dropped.
+		if ( ! empty( $progress['running'] ) && (int) $cursor < (int) $progress['cursor'] ) {
+			return;
+		}
+
+		$batch    = self::scan_batch( (int) $cursor, self::BATCH_SIZE, ! empty( $progress['force'] ) );
+
+		$progress['cursor']  = $batch['next'];
 		$progress['scanned'] = (int) $progress['scanned'] + $batch['scanned'];
 		$progress['running'] = ! $batch['complete'];
 		$progress['finished'] = $batch['complete'];
@@ -567,9 +698,51 @@ class Open_Accessibility_Scanner {
 			)
 		);
 
-		// Any scheduled batches go too.
-		wp_clear_scheduled_hook( 'open_accessibility_scan_batch' );
+		self::clear_scheduled_batches();
 
 		return $removed === false ? 0 : (int) $removed;
+	}
+
+	/**
+	 * Remove every queued scan batch, whatever cursor it carries.
+	 *
+	 * wp_clear_scheduled_hook() only clears the events whose arguments it is
+	 * given, or those with none. Calling it with no arguments would therefore
+	 * leave behind exactly the events this plugin creates, since every batch is
+	 * scheduled with a cursor argument. The cron array is walked directly
+	 * instead, which removes the hook regardless of what it was queued with.
+	 *
+	 * @since    1.4.2
+	 * @return   int    Events removed.
+	 */
+	public static function clear_scheduled_batches() {
+		$crons   = _get_cron_array();
+		$removed = 0;
+
+		if ( ! is_array( $crons ) ) {
+			return 0;
+		}
+
+		foreach ( $crons as $timestamp => $hooks ) {
+			if ( ! isset( $hooks['open_accessibility_scan_batch'] ) ) {
+				continue;
+			}
+
+			$removed += count( $hooks['open_accessibility_scan_batch'] );
+
+			unset( $crons[ $timestamp ]['open_accessibility_scan_batch'] );
+
+			// Drop a timestamp with nothing left on it, so the array does not
+			// keep empty slots that WordPress would have to walk.
+			if ( empty( $crons[ $timestamp ] ) ) {
+				unset( $crons[ $timestamp ] );
+			}
+		}
+
+		if ( $removed > 0 ) {
+			_set_cron_array( $crons );
+		}
+
+		return $removed;
 	}
 }
