@@ -78,6 +78,12 @@ class Open_Accessibility {
 		require_once OPEN_ACCESSIBILITY_PLUGIN_DIR . 'includes/class-open-accessibility-utils.php';
 
 		/**
+		 * Content audit rules. Used by the block editor panel and, later, the
+		 * site report, so it is loaded with the rest of the plugin.
+		 */
+		require_once OPEN_ACCESSIBILITY_PLUGIN_DIR . 'includes/class-open-accessibility-audit.php';
+
+		/**
 		 * Database functionality
 		 */
 		require_once OPEN_ACCESSIBILITY_PLUGIN_DIR . 'includes/database/class-open-accessibility-db.php';
