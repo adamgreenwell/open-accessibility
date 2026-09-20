@@ -131,6 +131,20 @@ class Test_Audit_Enqueue extends OA_TestCase {
 	}
 
 	/**
+	 * The enqueue is actually hooked.
+	 *
+	 * The tests above call the method directly, so they pass whether or not
+	 * anything registers it — which is how the hook went missing when the enqueue
+	 * moved between branches.
+	 */
+	public function test_enqueue_is_hooked_to_the_editor() {
+		$this->assertNotFalse(
+			has_action( 'enqueue_block_editor_assets', array( new Open_Accessibility_Admin(), 'enqueue_block_editor_assets' ) ),
+			'enqueue_block_editor_assets() must be registered, or the panel never loads.'
+		);
+	}
+
+	/**
 	 * The editor script file exists and is syntactically loadable.
 	 */
 	public function test_editor_script_file_exists() {
