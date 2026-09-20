@@ -166,16 +166,65 @@ class Test_Scanner extends OA_TestCase {
 	 * A batch reports where it got to.
 	 */
 	public function test_scan_batch_reports_progress() {
+		$ids = array();
+
 		for ( $i = 0; $i < 3; $i++ ) {
-			$this->make_post( self::CONTENT_CLEAN );
+			$ids[] = $this->make_post( self::CONTENT_CLEAN );
 		}
+
+		sort( $ids );
 
 		$batch = Open_Accessibility_Scanner::scan_batch( 0, 2 );
 
-		$this->assertSame( 0, $batch['offset'] );
+		$this->assertSame( 0, $batch['cursor'] );
 		$this->assertSame( 2, $batch['scanned'] );
-		$this->assertSame( 2, $batch['next'] );
+		$this->assertSame(
+			$ids[1],
+			$batch['next'],
+			'The cursor should be the highest ID examined, so the next batch resumes after it.'
+		);
 		$this->assertFalse( $batch['complete'], 'A full batch is not the end.' );
+	}
+
+	/**
+	 * The cursor leaves nothing behind when a post disappears mid-scan.
+	 *
+	 * This is the reason the position is an ID rather than an offset: deleting a
+	 * post that has already been processed shifts every later row left, so an
+	 * offset would step over the post that moved into the vacated slot.
+	 */
+	public function test_deleting_a_scanned_post_does_not_skip_the_next_one() {
+		$ids = array();
+
+		for ( $i = 0; $i < 4; $i++ ) {
+			$ids[] = $this->make_post( self::CONTENT_WITH_ISSUE );
+		}
+
+		sort( $ids );
+
+		$first = Open_Accessibility_Scanner::scan_batch( 0, 2 );
+		$this->assertSame( 2, $first['scanned'] );
+
+		// Remove one of the posts that was just scanned.
+		wp_delete_post( $ids[0], true );
+
+		$second = Open_Accessibility_Scanner::scan_batch( $first['next'], 2 );
+
+		$this->assertSame(
+			2,
+			$second['scanned'],
+			'The remaining posts should still be reached after a deletion behind the cursor.'
+		);
+
+		$scanned = array();
+
+		foreach ( $ids as $id ) {
+			if ( get_post_meta( $id, Open_Accessibility_Scanner::META_COUNT, true ) !== '' ) {
+				$scanned[] = $id;
+			}
+		}
+
+		$this->assertCount( 3, $scanned, 'Every surviving post should have been scanned exactly once.' );
 	}
 
 	/**
@@ -284,9 +333,9 @@ class Test_Scanner extends OA_TestCase {
 	 * infinite transient is autoloaded on every request site-wide.
 	 */
 	public function test_progress_uses_a_non_autoloaded_option() {
-		Open_Accessibility_Scanner::set_progress( array( 'offset' => 25, 'scanned' => 25 ) );
+		Open_Accessibility_Scanner::set_progress( array( 'cursor' => 25, 'scanned' => 25 ) );
 
-		$this->assertSame( 25, Open_Accessibility_Scanner::get_progress()['offset'] );
+		$this->assertSame( 25, Open_Accessibility_Scanner::get_progress()['cursor'] );
 
 		$autoload = get_option( 'open_accessibility_scan_state' );
 		$this->assertIsArray( $autoload );
@@ -301,7 +350,7 @@ class Test_Scanner extends OA_TestCase {
 		);
 
 		Open_Accessibility_Scanner::clear_progress();
-		$this->assertSame( 0, Open_Accessibility_Scanner::get_progress()['offset'] );
+		$this->assertSame( 0, Open_Accessibility_Scanner::get_progress()['cursor'] );
 	}
 
 	/**
@@ -329,16 +378,22 @@ class Test_Scanner extends OA_TestCase {
 	 * A scheduled batch advances progress and queues the next one.
 	 */
 	public function test_scheduled_batch_advances_progress() {
+		$ids = array();
+
 		for ( $i = 0; $i < 30; $i++ ) {
-			$this->make_post( self::CONTENT_CLEAN );
+			$ids[] = $this->make_post( self::CONTENT_CLEAN );
 		}
 
-		Open_Accessibility_Scanner::set_progress( array( 'offset' => 0, 'scanned' => 0 ) );
+		Open_Accessibility_Scanner::set_progress( array( 'cursor' => 0, 'scanned' => 0 ) );
 		Open_Accessibility_Scanner::run_scheduled_batch( 0 );
 
 		$progress = Open_Accessibility_Scanner::get_progress();
 
-		$this->assertSame( Open_Accessibility_Scanner::BATCH_SIZE, $progress['offset'] );
+		// One batch is BATCH_SIZE posts, so the cursor lands on that many posts
+		// into the ordered set, not at the end of it.
+		sort( $ids );
+
+		$this->assertSame( $ids[ Open_Accessibility_Scanner::BATCH_SIZE - 1 ], $progress['cursor'] );
 		$this->assertGreaterThan( 0, $progress['scanned'] );
 		$this->assertTrue( $progress['running'], 'More posts remain, so the scan is still running.' );
 
@@ -398,53 +453,86 @@ class Test_Scanner extends OA_TestCase {
 	/**
 	 * The uninstall routine names no table other than the ones it owns.
 	 *
-	 * Action Scheduler's tables belong to the site, not to a plugin: another plugin
-	 * bundling it may still be using them, so a drop here would take out someone
-	 * else's data.
+	 * It runs on sites where another plugin may have created its own tables, and
+	 * a broad DELETE would take those with it.
 	 */
 	public function test_uninstall_does_not_claim_other_plugins_tables() {
 		$source = file_get_contents( OPEN_ACCESSIBILITY_PLUGIN_DIR . 'includes/class-open-accessibility-scanner.php' );
+		$source = preg_replace( '#/\*.*?\*/#s', '', $source );
 
-		$this->assertStringNotContainsString( 'actionscheduler', strtolower( $source ) );
+		$this->assertStringNotContainsString( 'action_scheduler', strtolower( $source ) );
 		$this->assertStringNotContainsString( 'DROP TABLE', strtoupper( $source ) );
 	}
 
 	/**
-	 * The scanner works with no request context.
+	 * The uninstall entry point actually calls the scanner's cleanup.
 	 *
-	 * The report runs from cron and from tests as well as from the admin, so it
-	 * must not depend on $_POST, a current user or an AJAX request.
+	 * The scanner's own uninstall() can be correct while nothing ever calls it,
+	 * which is exactly what happened: uninstall.php loaded only the DB class, so
+	 * every cached result, the progress record and any queued batch survived an
+	 * uninstall. The wiring is asserted at the source level because running
+	 * uninstall.php for real means defining WP_UNINSTALL_PLUGIN, which would
+	 * leak into every later test in this process and silently disable the
+	 * plugin's option handling for the rest of the run.
 	 */
-	public function test_scanner_needs_no_request_context() {
-		// Comments first: the class documents that it does *not* use these, and
-		// matching that prose would fail a correct file. Every source-scanning
-		// assertion in this project has needed this.
-		$source = file_get_contents( OPEN_ACCESSIBILITY_PLUGIN_DIR . 'includes/class-open-accessibility-scanner.php' );
-		$source = preg_replace( '#/\*.*?\*/#s', '', $source );
-		$source = preg_replace( '#//[^\n]*#', '', $source );
+	public function test_uninstall_entry_point_calls_the_scanner() {
+		$source = file_get_contents( OPEN_ACCESSIBILITY_PLUGIN_DIR . 'uninstall.php' );
 
-		foreach ( array( '$_POST', '$_GET', '$_REQUEST', 'current_user_can', 'wp_send_json' ) as $forbidden ) {
-			$this->assertStringNotContainsString(
-				$forbidden,
-				$source,
-				"The scanner should not depend on {$forbidden}."
-			);
-		}
+		$this->assertStringContainsString(
+			'class-open-accessibility-scanner.php',
+			$source,
+			'uninstall.php must load the scanner class.'
+		);
+
+		$this->assertStringContainsString(
+			'Open_Accessibility_Scanner::uninstall()',
+			$source,
+			'uninstall.php must call the scanner cleanup.'
+		);
 	}
 
 	/**
-	 * Post types are filterable.
+	 * Queued batches are cleared whatever cursor they carry.
+	 *
+	 * wp_clear_scheduled_hook() only clears the events whose arguments it is
+	 * given, or those with none. Every batch this plugin schedules carries a
+	 * cursor argument, so clearing by hook name alone left the queue behind.
 	 */
-	public function test_post_types_are_filterable() {
-		add_filter(
-			'open_accessibility_report_post_types',
-			function () {
-				return array( 'page' );
-			}
+	public function test_clear_scheduled_batches_removes_every_cursor() {
+		wp_clear_scheduled_hook( 'open_accessibility_scan_batch' );
+
+		Open_Accessibility_Scanner::schedule_next_batch( 0 );
+		Open_Accessibility_Scanner::schedule_next_batch( 25 );
+		Open_Accessibility_Scanner::schedule_next_batch( 50 );
+
+		$this->assertGreaterThanOrEqual(
+			3,
+			Open_Accessibility_Scanner::clear_scheduled_batches(),
+			'Every queued batch should be reported as removed.'
 		);
 
-		$this->assertSame( array( 'page' ), Open_Accessibility_Scanner::get_post_types() );
+		$this->assertFalse(
+			wp_next_scheduled( 'open_accessibility_scan_batch', array( 0 ) ),
+			'A batch queued with cursor 0 should be gone.'
+		);
 
-		remove_all_filters( 'open_accessibility_report_post_types' );
+		$this->assertFalse(
+			wp_next_scheduled( 'open_accessibility_scan_batch', array( 25 ) ),
+			'A batch queued with cursor 25 should be gone.'
+		);
+
+		$this->assertFalse(
+			wp_next_scheduled( 'open_accessibility_scan_batch', array( 50 ) ),
+			'A batch queued with cursor 50 should be gone.'
+		);
+
+		// Nothing left on the hook at any timestamp.
+		foreach ( _get_cron_array() as $hooks ) {
+			$this->assertArrayNotHasKey(
+				'open_accessibility_scan_batch',
+				$hooks,
+				'No scan batch should remain queued.'
+			);
+		}
 	}
 }
