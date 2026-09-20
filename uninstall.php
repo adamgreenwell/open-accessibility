@@ -19,6 +19,13 @@ require_once plugin_dir_path( __FILE__ ) . 'includes/database/class-open-accessi
 // Uninstall database tables
 Open_Accessibility_DB::uninstall();
 
+// Remove everything the content report stored. The scanner class is loaded here
+// rather than only on the plugin's normal boot path, because uninstall does not
+// load the plugin: without this, every cached result, the progress record and
+// any queued batch would be left behind on the site.
+require_once plugin_dir_path( __FILE__ ) . 'includes/class-open-accessibility-scanner.php';
+Open_Accessibility_Scanner::uninstall();
+
 // Clear any scheduled hooks
 wp_clear_scheduled_hook( 'open_accessibility_cleanup_data' );
 
