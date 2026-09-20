@@ -138,10 +138,28 @@ class Test_Audit_Enqueue extends OA_TestCase {
 	 * moved between branches.
 	 */
 	public function test_enqueue_is_hooked_to_the_editor() {
+		// Checked by callback id rather than by passing a callback: has_action()
+		// compares against the array as it was registered, and a freshly
+		// constructed object is a different value, so passing one always reports
+		// false even when the hook is present.
+		$registered = has_action( 'enqueue_block_editor_assets' );
+
 		$this->assertNotFalse(
-			has_action( 'enqueue_block_editor_assets', array( new Open_Accessibility_Admin(), 'enqueue_block_editor_assets' ) ),
+			$registered,
 			'enqueue_block_editor_assets() must be registered, or the panel never loads.'
 		);
+
+		$found = false;
+
+		foreach ( $GLOBALS['wp_filter']['enqueue_block_editor_assets']->callbacks as $callbacks ) {
+			foreach ( array_keys( $callbacks ) as $id ) {
+				if ( false !== strpos( (string) $id, 'enqueue_block_editor_assets' ) ) {
+					$found = true;
+				}
+			}
+		}
+
+		$this->assertTrue( $found, 'The editor audit callback should be on that hook.' );
 	}
 
 	/**
