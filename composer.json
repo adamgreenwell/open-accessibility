@@ -25,7 +25,7 @@
     ],
     "build:zip": "@build",
     "build:svn": "bash bin/deploy-svn.sh",
-    "test": "phpunit",
+    "test": "phpunit --group default,ajax",
     "test:setup": "bash tests/install-wp-tests.sh"
   },
   "config": {
