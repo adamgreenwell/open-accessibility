@@ -210,6 +210,69 @@ class Test_Report_Ajax extends WP_Ajax_UnitTestCase {
 	}
 
 	/**
+	 * The handler responses carry what the script reads.
+	 *
+	 * The script polls, reads data.progress.running / .scanned / .total and
+	 * data.totals, and stops when running goes false. This drives the real
+	 * handlers through a whole scan and checks those fields are present and
+	 * move, so the two halves cannot drift apart without a failure here.
+	 */
+	public function test_scan_lifecycle_exposes_the_fields_the_script_reads() {
+		$this->become_admin();
+
+		self::factory()->post->create_many( 3, array( 'post_content' => $this->image_without_alt() ) );
+
+		$started = $this->dispatch(
+			'open_accessibility_start_scan',
+			array( 'nonce' => $this->nonce(), 'force' => 'true' )
+		);
+
+		$this->assertTrue( $started['success'] );
+
+		foreach ( array( 'progress', 'totals' ) as $key ) {
+			$this->assertArrayHasKey( $key, $started['data'], "The start response needs '{$key}'." );
+		}
+
+		foreach ( array( 'running', 'scanned', 'total', 'finished' ) as $key ) {
+			$this->assertArrayHasKey(
+				$key,
+				$started['data']['progress'],
+				"The progress payload needs '{$key}' for the script to read."
+			);
+		}
+
+		$this->assertGreaterThan(
+			0,
+			$started['data']['progress']['total'],
+			'The total drives the progress bar, so it cannot be zero here.'
+		);
+
+		// Poll to completion the way the script does.
+		$response = $started;
+		$guard    = 0;
+
+		while ( ! empty( $response['data']['progress']['running'] ) && ++$guard < 20 ) {
+			$response = $this->dispatch(
+				'open_accessibility_scan_progress',
+				array( 'nonce' => $this->nonce() )
+			);
+		}
+
+		$this->assertFalse(
+			$response['data']['progress']['running'],
+			'Polling should reach a state where the script stops asking.'
+		);
+
+		$this->assertSame(
+			3,
+			$response['data']['totals']['posts_with_issues'],
+			'The final totals should reflect the scanned posts.'
+		);
+
+		$this->assertArrayHasKey( 'rows', $response['data'], 'The script reads rows on completion.' );
+	}
+
+	/**
 	 * Rescanning one post replaces its stored result.
 	 */
 	public function test_rescan_post_reports_the_new_count() {

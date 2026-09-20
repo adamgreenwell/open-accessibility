@@ -247,6 +247,7 @@ class Open_Accessibility_Report {
 		return array(
 			'progress' => $progress,
 			'totals'   => Open_Accessibility_Scanner::get_totals(),
+			'rows'     => self::report_rows_for_response(),
 		);
 	}
 
