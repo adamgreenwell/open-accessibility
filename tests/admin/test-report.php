@@ -340,6 +340,148 @@ class Test_Report extends OA_TestCase {
 	}
 
 	/**
+	 * Render the report screen and return its markup.
+	 *
+	 * display_report_page() includes the partial rather than returning it, so the
+	 * output is captured. This exercises the whole screen: the lookups, the
+	 * pagination arithmetic and the escaping.
+	 *
+	 * @return string
+	 */
+	private function render_report() {
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+
+		$original_get = $_GET;
+
+		ob_start();
+
+		try {
+			Open_Accessibility_Report::display_report_page();
+		} finally {
+			$html     = ob_get_clean();
+			$_GET     = $original_get;
+			wp_set_current_user( 0 );
+		}
+
+		return $html;
+	}
+
+	/**
+	 * The screen renders, and renders something.
+	 *
+	 * A panel that returns nothing is the failure this test exists for: the
+	 * editor panel once shipped with a component that was referenced but never
+	 * defined, so it rendered an empty box and no test noticed.
+	 */
+	public function test_report_screen_renders() {
+		self::factory()->post->create( array( 'post_content' => self::image_without_alt() ) );
+
+		$html = $this->render_report();
+
+		$this->assertNotSame( '', trim( $html ), 'The report screen rendered nothing at all.' );
+		$this->assertStringContainsString( 'Accessibility Report', $html, 'The screen should have its heading.' );
+		$this->assertStringContainsString( '<table', $html, 'The screen should render its tables.' );
+		$this->assertStringContainsString(
+			'What this report does not check',
+			$html,
+			'The report must state what it cannot check.'
+		);
+
+		foreach ( Open_Accessibility_Audit::unchecked_categories() as $category ) {
+			$this->assertStringContainsString(
+				esc_html( $category ),
+				$html,
+				'Every unchecked category should be listed on the report.'
+			);
+		}
+	}
+
+	/**
+	 * Before any scan the report says so rather than showing a clean site.
+	 */
+	public function test_unscanned_report_says_nothing_has_been_checked() {
+		Open_Accessibility_Scanner::clear_progress();
+
+		$html = $this->render_report();
+
+		$this->assertStringContainsString(
+			'No scan has run yet',
+			$html,
+			'An empty report must not read as a clean bill of health.'
+		);
+	}
+
+	/**
+	 * Content is escaped on the way out.
+	 */
+	public function test_report_escapes_post_titles() {
+		$post_id = self::factory()->post->create(
+			array(
+				// get_the_title() strips tags before this ever reaches the
+				// report, so the escaping that can actually be observed here is
+				// the character escaping. Both are asserted: tag injection is the
+				// attack, and an unescaped ampersand is the same class of mistake
+				// in a quieter form.
+				'post_title'   => 'Bad <script>alert(1)</script> & risky "quoted" title',
+				'post_content' => self::image_without_alt(),
+			)
+		);
+
+		Open_Accessibility_Scanner::scan_post( $post_id, true );
+
+		$html = $this->render_report();
+
+		$this->assertStringNotContainsString(
+			'<script>alert(1)</script>',
+			$html,
+			'A post title must not be able to inject markup into the report.'
+		);
+
+		$this->assertStringNotContainsString(
+			' & risky ',
+			$html,
+			'A raw ampersand from a post title must be escaped on the way out.'
+		);
+
+		$this->assertMatchesRegularExpression(
+			'/&(amp|#038);/',
+			$html,
+			'The title should still be shown, with its ampersand escaped.'
+		);
+	}
+
+	/**
+	 * A scanned post with findings appears as a row.
+	 */
+	public function test_report_lists_posts_with_findings() {
+		$post_id = self::factory()->post->create(
+			array(
+				'post_title'   => 'Has a missing alt',
+				'post_content' => self::image_without_alt(),
+			)
+		);
+
+		Open_Accessibility_Scanner::scan_post( $post_id, true );
+
+		$html = $this->render_report();
+
+		$this->assertStringContainsString( 'Posts with issues', $html );
+		$this->assertStringContainsString( 'Has a missing alt', $html );
+		$this->assertStringContainsString(
+			'oa-report__rescan',
+			$html,
+			'Each row should offer a rescan control.'
+		);
+		$this->assertStringContainsString(
+			'data-post-id="' . $post_id . '"',
+			$html,
+			'The row should be tied to its post.'
+		);
+	}
+
+	/**
 	 * The rendered report announces progress rather than only drawing it.
 	 *
 	 * A progress bar that changes silently is invisible to a screen reader user,
