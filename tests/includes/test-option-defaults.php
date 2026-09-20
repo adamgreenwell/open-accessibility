@@ -190,7 +190,8 @@ class Test_Option_Defaults extends OA_TestCase {
 			'default_profile',       // Open_Accessibility_Utils::get_enabled_profiles().
 			'cursor_size',           // frontend payload; gates a CSS class.
 			'enable_cursor_size',    // widget control gate.
-			'enable_editor_audit',   // gates enqueue_block_editor_assets().
+			'enable_editor_audit',   // read by Open_Accessibility_Admin::enqueue_block_editor_assets(),
+			                         // which lives on the panel branch alongside the script it loads.
 			'saturation_level',      // frontend payload; drives the inline filter.
 			'enable_saturation',     // widget control gate.
 		);
