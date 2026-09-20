@@ -344,4 +344,95 @@ class Test_Audit_Rules extends OA_TestCase {
 
 		$this->assertIsArray( $this->scan( $content ) );
 	}
+
+	/**
+	 * Every link in a block is examined, not just the first.
+	 *
+	 * WP_HTML_Tag_Processor skips closing tags unless asked, and get_tag() returns
+	 * canonical names, so tracking link boundaries by looking for a "/A" tag name
+	 * never matches. That silently collected only the first anchor per block, so a
+	 * vague link after a good one went unreported.
+	 */
+	public function test_all_links_in_a_block_are_examined() {
+		$content = '<!-- wp:paragraph --><p><a href="/a">the accessibility report</a> and then <a href="/b">click here</a></p><!-- /wp:paragraph -->';
+
+		$this->assertContains( 'link_text_unhelpful', $this->rules_for( $content ) );
+	}
+
+	/**
+	 * Each link is judged on its own text.
+	 */
+	public function test_link_text_is_judged_per_link() {
+		$good_then_bad = '<!-- wp:list-item --><li><a href="/a">Annual report</a> / <a href="/b">read more</a></li><!-- /wp:list-item -->';
+		$bad_then_good = '<!-- wp:list-item --><li><a href="/a">read more</a> / <a href="/b">Annual report</a></li><!-- /wp:list-item -->';
+
+		$first  = $this->scan( $good_then_bad )['findings'];
+		$second = $this->scan( $bad_then_good )['findings'];
+
+		$this->assertCount( 1, $first, 'Exactly one of the two links is vague.' );
+		$this->assertCount( 1, $second, 'Exactly one of the two links is vague.' );
+	}
+
+	/**
+	 * A link wrapping an image is not reported for its (absent) text.
+	 */
+	public function test_image_link_is_not_reported_for_empty_text() {
+		$content = '<!-- wp:paragraph --><p><a href="/x"><img src="a.jpg" alt="A cat"/></a></p><!-- /wp:paragraph -->';
+
+		$this->assertNotContains( 'link_text_unhelpful', $this->rules_for( $content ) );
+	}
+
+	/**
+	 * Legacy galleries hold their images inline, not as inner blocks.
+	 *
+	 * 5.2-era installs have galleries saved that way, and their alt attributes
+	 * were never examined because only core/image reached the image rule.
+	 */
+	public function test_legacy_gallery_images_are_examined() {
+		$gallery = '<!-- wp:gallery {"ids":[1,2]} -->'
+			. '<ul class="wp-block-gallery columns-2">'
+			. '<li class="blocks-gallery-item"><figure><img src="a.jpg" alt="IMG_1234.jpg"/></figure></li>'
+			. '<li class="blocks-gallery-item"><figure><img src="b.jpg" alt="A cat asleep"/></figure></li>'
+			. '</ul><!-- /wp:gallery -->';
+
+		$this->assertContains(
+			'image_alt_unhelpful',
+			$this->rules_for( $gallery ),
+			'A filename alt inside a legacy gallery should be reported.'
+		);
+	}
+
+	/**
+	 * A legacy gallery image with no alt at all is reported.
+	 */
+	public function test_legacy_gallery_missing_alt_is_reported() {
+		$gallery = '<!-- wp:gallery {"ids":[1]} -->'
+			. '<ul class="wp-block-gallery"><li class="blocks-gallery-item"><figure><img src="a.jpg"/></figure></li></ul>'
+			. '<!-- /wp:gallery -->';
+
+		$this->assertContains( 'image_missing_alt', $this->rules_for( $gallery ) );
+	}
+
+	/**
+	 * A modern gallery with core/image children is still examined.
+	 */
+	public function test_modern_gallery_inner_blocks_are_examined() {
+		$gallery = '<!-- wp:gallery {"ids":[1]} -->'
+			. '<figure class="wp-block-gallery"><ul class="wp-block-gallery__items">'
+			. '<!-- wp:image {"id":1} --><figure class="wp-block-image"><img src="a.jpg" alt="DSC_9999.jpg"/></figure><!-- /wp:image -->'
+			. '</ul></figure><!-- /wp:gallery -->';
+
+		$this->assertContains( 'image_alt_unhelpful', $this->rules_for( $gallery ) );
+	}
+
+	/**
+	 * A decorative image inside a legacy gallery is still left alone.
+	 */
+	public function test_legacy_gallery_decorative_image_is_not_reported() {
+		$gallery = '<!-- wp:gallery {"ids":[1]} -->'
+			. '<ul class="wp-block-gallery"><li class="blocks-gallery-item"><figure><img src="a.jpg" alt=""/></figure></li></ul>'
+			. '<!-- /wp:gallery -->';
+
+		$this->assertSame( array(), $this->scan( $gallery )['findings'] );
+	}
 }

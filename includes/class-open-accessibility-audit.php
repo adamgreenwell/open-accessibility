@@ -252,6 +252,13 @@ class Open_Accessibility_Audit {
 			case 'core/table':
 				self::check_table( $html, $block_path, $findings );
 				break;
+
+			// A gallery saved before inner blocks, as 5.2-era installs have, holds
+			// its images directly in the markup rather than as core/image children,
+			// so those alt attributes were never examined.
+			case 'core/gallery':
+				self::check_image( $html, $block_path, $findings );
+				break;
 		}
 	}
 
@@ -507,16 +514,33 @@ class Open_Accessibility_Audit {
 
 		$void = in_array( $tag, array( 'IMG', 'INPUT', 'BR', 'HR' ), true );
 
-		while ( $processor->next_tag() ) {
-			$name = $processor->get_tag();
+		// Closing tags are skipped by default and get_tag() returns canonical
+		// names, so link boundaries have to be tracked with both the closer query
+		// and is_tag_closer(). Checking for a '/A' tag name never matches, which
+		// silently collected only the first link in each block.
+		while ( $processor->next_tag( array( 'tag_closers' => 'visit' ) ) ) {
+			$name    = $processor->get_tag();
+			$closing = $processor->is_tag_closer();
 
 			if ( $tag === $name ) {
 				if ( $void ) {
-					$collected[] = array(
-						'attributes' => self::processor_attributes( $processor ),
-						'text'       => '',
-						'has_image'  => false,
-					);
+					if ( ! $closing ) {
+						$collected[] = array(
+							'attributes' => self::processor_attributes( $processor ),
+							'text'       => '',
+							'has_image'  => false,
+						);
+					}
+
+					continue;
+				}
+
+				if ( $closing ) {
+					if ( null !== $open ) {
+						$collected[] = $open;
+						$open        = null;
+					}
+
 					continue;
 				}
 
@@ -531,18 +555,10 @@ class Open_Accessibility_Audit {
 				continue;
 			}
 
-			if ( null === $open ) {
-				continue;
-			}
-
-			if ( 'IMG' === $name ) {
+			// A nested image inside an open anchor means the link is described by
+			// that image rather than by its own text.
+			if ( null !== $open && 'IMG' === $name && ! $closing ) {
 				$open['has_image'] = true;
-				continue;
-			}
-
-			if ( '/' . $tag === $name ) {
-				$collected[] = $open;
-				$open        = null;
 			}
 		}
 
