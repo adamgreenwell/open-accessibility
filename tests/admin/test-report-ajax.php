@@ -467,6 +467,54 @@ class Test_Report_Ajax extends WP_Ajax_UnitTestCase {
 	}
 
 	/**
+	 * Starting a scan that is already running resumes it, it does not restart.
+	 *
+	 * The browser disables the button, but a second tab, a reload or a retried
+	 * request all reach this handler with a scan in flight. Restarting would
+	 * throw away the progress already made and rescan from the beginning, which
+	 * on a large site is the difference between finishing and never finishing.
+	 */
+	public function test_starting_a_running_scan_resumes_it() {
+		$this->become_admin();
+
+		$batch = Open_Accessibility_Scanner::BATCH_SIZE;
+
+		self::factory()->post->create_many( $batch * 2, array( 'post_content' => $this->image_without_alt() ) );
+
+		$nonce = $this->nonce();
+
+		$first = $this->dispatch(
+			'open_accessibility_start_scan',
+			array( 'nonce' => $nonce, 'force' => 'true' )
+		);
+
+		$this->assertTrue( $first['data']['progress']['running'], 'Work should remain.' );
+
+		$scanned_before = (int) $first['data']['progress']['scanned'];
+		$cursor_before  = (int) $first['data']['progress']['cursor'];
+
+		// A second start arrives while that scan is still in flight.
+		$second = $this->dispatch(
+			'open_accessibility_start_scan',
+			array( 'nonce' => $nonce, 'force' => 'true' )
+		);
+
+		$this->assertTrue( $second['success'] );
+
+		$this->assertSame(
+			$scanned_before,
+			(int) $second['data']['progress']['scanned'],
+			'A running scan should not be restarted from zero.'
+		);
+
+		$this->assertSame(
+			$cursor_before,
+			(int) $second['data']['progress']['cursor'],
+			'The cursor should be left where the running scan reached.'
+		);
+	}
+
+	/**
 	 * Rescanning one post replaces its stored result.
 	 */
 	public function test_rescan_post_reports_the_new_count() {
