@@ -948,14 +948,60 @@ class Open_Accessibility_Admin {
 		echo '<input type="email" id="statement-contact-email" name="statement_contact_email" class="regular-text">';
 		echo '</div>';
 
-		// Conformance status
+		// Standard version. 2.2 is the current recommendation and the default.
 		echo '<div class="form-field">';
-		echo '<label for="statement-conformance">' . esc_html(__('Conformance Status', 'open-accessibility')) . ':</label>';
-		echo '<select id="statement-conformance" name="statement_conformance">';
-		echo '<option value="A">' . esc_html(__('WCAG 2.1 Level A', 'open-accessibility')) . '</option>';
-		echo '<option value="AA" selected>' . esc_html(__('WCAG 2.1 Level AA', 'open-accessibility')) . '</option>';
-		echo '<option value="AAA">' . esc_html(__('WCAG 2.1 Level AAA', 'open-accessibility')) . '</option>';
+		echo '<label for="statement-standard">' . esc_html__('Standard Version', 'open-accessibility') . ':</label>';
+		echo '<select id="statement-standard" name="statement_standard">';
+		echo '<option value="2.2" selected>' . esc_html__('WCAG 2.2', 'open-accessibility') . '</option>';
+		echo '<option value="2.1">' . esc_html__('WCAG 2.1', 'open-accessibility') . '</option>';
+		echo '<option value="2.0">' . esc_html__('WCAG 2.0', 'open-accessibility') . '</option>';
 		echo '</select>';
+		echo '</div>';
+
+		// Conformance status. "Not assessed" is the default, because it is the
+		// only honest answer for a site that has not been assessed, and the
+		// easiest thing to pick should not be the claim.
+		echo '<div class="form-field">';
+		echo '<label for="statement-conformance">' . esc_html__('Conformance Status', 'open-accessibility') . ':</label>';
+		echo '<select id="statement-conformance" name="statement_conformance">';
+		echo '<option value="none" selected>' . esc_html__('Not assessed — no claim is made', 'open-accessibility') . '</option>';
+		echo '<option value="A">' . esc_html__('Partially conformant, Level A', 'open-accessibility') . '</option>';
+		echo '<option value="AA">' . esc_html__('Partially conformant, Level AA', 'open-accessibility') . '</option>';
+		echo '<option value="AAA">' . esc_html__('Partially conformant, Level AAA', 'open-accessibility') . '</option>';
+		echo '</select>';
+		echo '<p class="description">' . esc_html__('A conformance claim should be supported by an assessment. If the site has not been assessed, leave this as "Not assessed".', 'open-accessibility') . '</p>';
+		echo '</div>';
+
+		// Assessment method.
+		echo '<div class="form-field">';
+		echo '<label for="statement-assessment">' . esc_html__('Assessment Method', 'open-accessibility') . ':</label>';
+		echo '<select id="statement-assessment" name="statement_assessment">';
+		echo '<option value="self" selected>' . esc_html__('Self-evaluation', 'open-accessibility') . '</option>';
+		echo '<option value="third_party">' . esc_html__('Third-party evaluation', 'open-accessibility') . '</option>';
+		echo '<option value="both">' . esc_html__('Self-evaluation and third-party evaluation', 'open-accessibility') . '</option>';
+		echo '<option value="none">' . esc_html__('No assessment carried out', 'open-accessibility') . '</option>';
+		echo '</select>';
+		echo '</div>';
+
+		// Assessment date.
+		echo '<div class="form-field">';
+		echo '<label for="statement-assessment-date">' . esc_html__('Assessment Date', 'open-accessibility') . ':</label>';
+		echo '<input type="text" id="statement-assessment-date" name="statement_assessment_date" class="regular-text" placeholder="' . esc_attr__('e.g. 2026-09-21', 'open-accessibility') . '">';
+		echo '</div>';
+
+		// Scope.
+		echo '<div class="form-field">';
+		echo '<label for="statement-scope">' . esc_html__('Scope', 'open-accessibility') . ':</label>';
+		echo '<textarea id="statement-scope" name="statement_scope" rows="3" class="large-text" placeholder="' . esc_attr__('Which pages or areas this statement covers, and what it excludes.', 'open-accessibility') . '"></textarea>';
+		echo '</div>';
+
+		// Cite report data in the limitations section.
+		echo '<div class="form-field">';
+		echo '<label>';
+		echo '<input type="checkbox" id="statement-include-report" name="statement_include_report" checked>';
+		echo esc_html__('Cite site report findings in the limitations section', 'open-accessibility');
+		echo '</label>';
+		echo '<p class="description">' . esc_html__('Lists what the accessibility report actually found, and names the categories it cannot check.', 'open-accessibility') . '</p>';
 		echo '</div>';
 
 		// Create page

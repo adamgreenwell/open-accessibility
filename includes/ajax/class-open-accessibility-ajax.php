@@ -43,19 +43,21 @@ class Open_Accessibility_Ajax {
 			wp_send_json_error( array( 'message' => __( 'You do not have permission to do this.', 'open-accessibility' ) ) );
 		}
 
-		// Get form data
-		$org_name = isset( $_POST['org_name'] ) ? sanitize_text_field( wp_unslash( $_POST['org_name'] ) ) : get_bloginfo( 'name' );
-		$contact_email = isset( $_POST['contact_email'] ) ? sanitize_email( wp_unslash($_POST['contact_email'] ) ) : '';
-		$conformance_level = isset( $_POST['conformance_level'] ) ? sanitize_text_field( wp_unslash($_POST['conformance_level'] ) ) : 'AA';
-		$create_page = isset( $_POST['create_page'] ) && sanitize_text_field( wp_unslash( $_POST['create_page'] ) ) === 'true';
-
-		// Prepare statement data
+		// Get form data. The model constrains each of these to a known value, so
+		// this only has to get them out of the request intact.
 		$statement_data = array(
-			'org_name' => $org_name,
-			'website_url' => site_url(),
-			'contact_email' => $contact_email,
-			'conformance_level' => $conformance_level
+			'org_name'        => isset( $_POST['org_name'] ) ? sanitize_text_field( wp_unslash( $_POST['org_name'] ) ) : get_bloginfo( 'name' ),
+			'website_url'     => site_url(),
+			'contact_email'   => isset( $_POST['contact_email'] ) ? sanitize_email( wp_unslash( $_POST['contact_email'] ) ) : '',
+			'standard'        => isset( $_POST['standard'] ) ? sanitize_text_field( wp_unslash( $_POST['standard'] ) ) : '2.2',
+			'conformance'     => isset( $_POST['conformance'] ) ? sanitize_text_field( wp_unslash( $_POST['conformance'] ) ) : 'none',
+			'scope'           => isset( $_POST['scope'] ) ? sanitize_textarea_field( wp_unslash( $_POST['scope'] ) ) : '',
+			'assessment'      => isset( $_POST['assessment'] ) ? sanitize_text_field( wp_unslash( $_POST['assessment'] ) ) : 'self',
+			'assessment_date' => isset( $_POST['assessment_date'] ) ? sanitize_text_field( wp_unslash( $_POST['assessment_date'] ) ) : '',
+			'include_report'  => ! isset( $_POST['include_report'] ) || 'true' === sanitize_text_field( wp_unslash( $_POST['include_report'] ) ),
 		);
+
+		$create_page = isset( $_POST['create_page'] ) && sanitize_text_field( wp_unslash( $_POST['create_page'] ) ) === 'true';
 
 		// Include statement generator class if necessary
 		if ( ! class_exists( 'Open_Accessibility_Statement_Generator' ) ) {
