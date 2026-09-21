@@ -91,6 +91,15 @@ class Open_Accessibility {
 		require_once OPEN_ACCESSIBILITY_PLUGIN_DIR . 'includes/class-open-accessibility-scanner.php';
 
 		/**
+		 * Accessibility statement generation.
+		 *
+		 * Loaded here rather than lazily by its callers: the class also hooks
+		 * post deletion to clear the stored statement URL, and a hook needs the
+		 * class to exist whether or not anyone is generating a statement.
+		 */
+		require_once OPEN_ACCESSIBILITY_PLUGIN_DIR . 'includes/class-open-accessibility-statement-generator.php';
+
+		/**
 		 * Database functionality
 		 */
 		require_once OPEN_ACCESSIBILITY_PLUGIN_DIR . 'includes/database/class-open-accessibility-db.php';
@@ -140,6 +149,14 @@ class Open_Accessibility {
 		$this->loader->add_action( 'enqueue_block_editor_assets', $plugin_admin, 'enqueue_block_editor_assets' );
 
 		Open_Accessibility_Report::init();
+
+		// The statement page's URL is stored in the options, so it has to be
+		// cleared when that page goes.
+		$this->loader->add_action(
+			'before_delete_post',
+			'Open_Accessibility_Statement_Generator',
+			'clear_statement_url_on_delete'
+		);
 	}
 
 	/**
