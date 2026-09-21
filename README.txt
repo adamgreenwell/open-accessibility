@@ -3,7 +3,7 @@ Contributors: adamgreenwell
 Tags: accessibility, wcag, ada, disability, readable
 Requires at least: 5.2
 Tested up to: 7.1
-Stable tag: 1.4.01
+Stable tag: 1.5.0
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -12,22 +12,27 @@ An open-source accessibility widget that helps make your WordPress site more acc
 
 == Description ==
 
-Open Accessibility is a comprehensive accessibility solution that helps your website comply with WCAG 2.1 standards and improve usability for people with disabilities.
+Open Accessibility is a free, open-source accessibility plugin. It gives visitors control over how they experience your content, and it gives you a plain account of what your content's accessibility problems actually are.
 
-The plugin adds a customizable accessibility widget to your website that gives users control over how they experience your content, with features like:
+It does two things.
 
+**A widget** your visitors can use: contrast modes, text and spacing adjustments, readable fonts, a reading guide and mask, cursor sizing, link highlighting and saturation control, plus five one-click profiles for common needs.
+
+**An audit** for you: accessibility checks inside the block editor as you write, and a site-wide report that scans every post and page and lists what it found, worst first.
+
+The widget gives users control over how they experience your content, with:
+
+* Five accessibility profiles, and the individual controls behind them
 * High contrast mode
 * Text size adjustment
-* Adjustable letter spacing
-* Adjustable word spacing
-* Grayscale filter
-* Reading guide
+* Adjustable letter spacing, word spacing and line height
+* Grayscale and saturation control
+* Reading guide and reading mask
 * Readable fonts
-* Link underlining
+* Link underlining and link highlighting
+* Cursor size
 * Focus indicators
-* Line height adjustment
 * Animation control
-* And more!
 
 = Key Features =
 
@@ -36,11 +41,14 @@ The plugin adds a customizable accessibility widget to your website that gives u
 * **Text Adjustments**: Increase text size, line height, letter spacing, word spacing, and enable readable fonts
 * **Navigation Aids**: Reading guide, focus outlines, and link underlining
 * **Visual Accommodations**: Grayscale mode, hide images, and pause animations
-* **Accessibility Statement**: Built-in generator for creating accessibility statements
+* **Accessibility Profiles**: Five presets — Seizure Safe, Vision Impaired, ADHD Friendly, Blind, and Epilepsy Safe — each switching on a tested combination of controls
+* **Editor Audit**: Flags alt text, heading, link, button and table problems in the block editor while you write
+* **Site Report**: Scans every post and page in batches and lists the posts with findings, worst first, with a WCAG criterion for each
+* **Accessibility Statement**: Generates a statement that cites your chosen WCAG version and conformance level, including "not assessed"
 * **User Preferences**: Settings are saved between visits
 * **Fully Customizable**: Admins can control appearance, position, and enabled features
 * **Lightweight**: Minimal impact on page load times
-* **WCAG 2.1 Compliant**: Helps sites meet accessibility guidelines
+* **Honest About Scope**: The checks are a defined set of rules, and the plugin names the categories it cannot check rather than implying it checked everything
 
 = Benefits =
 
@@ -51,7 +59,82 @@ The plugin adds a customizable accessibility widget to your website that gives u
 
 = Important Note =
 
-While this plugin helps improve your website's accessibility, it does not guarantee full compliance with all accessibility standards and regulations. Regular accessibility audits and testing with real users are recommended.
+**This plugin does not make your site compliant, and does not claim to.**
+
+It checks a defined set of rules and reports what it finds. Automated checks cannot decide everything — colour contrast, focus order, keyboard traps and ARIA correctness all need a person — and the plugin names those categories explicitly rather than implying it covered them.
+
+No widget can make a site accessible on its own. Use this plugin as one input alongside manual testing and, where the stakes justify it, a human audit.
+
+= Accessibility Profiles =
+
+Five presets, each switching on a combination of controls that has been tested together. Visitors pick one from the widget; you choose which are offered on **Accessibility → Profiles**.
+
+* **Seizure Safe**: Pauses animation and softens contrast.
+* **Vision Impaired**: Larger text with more line height and underlined links.
+* **ADHD Friendly**: Cuts distraction with a reading mask, hidden images and paused motion.
+* **Blind**: Emphasises links and focus visibility for keyboard and screen reader use.
+* **Epilepsy Safe**: Pauses motion, removes colour, and applies high contrast.
+
+Each profile has an option (`enable_profile_seizure_safe`, `enable_profile_vision_impaired`, `enable_profile_adhd_friendly`, `enable_profile_blind`, `enable_profile_epilepsy_safe`). A profile that depends on a control you have switched off is not offered to visitors, so the widget never presents a choice that would do nothing.
+
+= Widget Controls =
+
+Beyond the profiles, visitors can use individual controls:
+
+* **Cursor size**: Normal, large or extra large. Useful for anyone who loses the pointer.
+* **Saturation**: Low, medium or high, drawn as an overlay so it composes with grayscale and contrast rather than replacing them.
+* **Highlight links**: Gives links a visible background in addition to underlining them.
+
+These sit alongside the existing text size, spacing, readable font, reading guide and mask, contrast, grayscale, hide images, focus outline and animation controls.
+
+= Content Audit =
+
+Two places, one set of rules.
+
+**In the editor.** While you write, a panel in the block editor flags problems in the post you are working on. It reads block data, so findings update as you type without a round trip.
+
+**Site-wide.** **Accessibility → Report** scans every post and page in batches and lists the posts with findings, worst first, with a WCAG criterion for each. You can rescan a single post, and a scan left running finishes in the background if you close the tab.
+
+= What the checks look for =
+
+Seven rules, each mapped to a WCAG success criterion:
+
+* **Error**: An image with no alt text (WCAG 1.1.1)
+* **Warning**: Alt text that does not describe the image (WCAG 1.1.1)
+* **Warning**: A heading that skips a level (WCAG 1.3.1)
+* **Error**: An empty heading (WCAG 1.3.1)
+* **Warning**: Link text that does not say where the link goes (WCAG 2.4.4)
+* **Error**: A button with no label (WCAG 4.1.2)
+* **Review**: A table with no header cells (WCAG 1.3.1)
+
+= What the checks cannot look at =
+
+These categories are **not** checked, and both the editor panel and the site report say so on screen:
+
+* Colour contrast
+* Focus order and focus visibility
+* Keyboard traps
+* ARIA roles and states
+* Anything inside third-party blocks whose output is not in the block data
+
+An empty `alt` attribute is never reported. `alt=""` is how you mark decorative images, so treating it as an error would train people to ignore the check. A heading starting at `h2` is likewise not a skipped level — the page already has an `h1` in most themes.
+
+= Filters =
+
+**Relabelling widget controls.** `open_accessibility_strings` receives the array of strings the widget renders, so any label or heading can be reworded:
+
+```
+add_filter( 'open_accessibility_strings', function ( $strings ) {
+	$strings['widget_title']   = 'Reading options';
+	$strings['grayscale_text'] = 'Remove colour';
+
+	return $strings;
+} );
+```
+
+Every control has a `_title` and, where it has one, a `_text`. This affects the widget only; it does not rename anything in the admin screens or in a generated statement.
+
+**Panel title and links.** `open_accessibility_panel_title` filters the widget's heading, and `open_accessibility_panel_links` filters the links shown in the panel.
 
 == Installation ==
 
@@ -63,7 +146,11 @@ While this plugin helps improve your website's accessibility, it does not guaran
 
 = Will this plugin make my site fully WCAG compliant? =
 
-This plugin helps improve accessibility and addresses many WCAG criteria, but complete compliance requires a comprehensive approach that includes proper content structure, image alt text, semantic HTML, and more. We recommend using this plugin as part of your accessibility strategy, not as a complete solution.
+No. Nothing can.
+
+The widget helps visitors adapt your content to their needs, and the built-in audit checks a defined set of rules, but automated checks cannot decide everything. This plugin does **not** check colour contrast, focus order or visibility, keyboard traps, ARIA roles and states, or anything inside third-party blocks whose output is not in the block data — and it says so on screen, in both the editor panel and the site report.
+
+Treat it as one input alongside manual testing with real users, and a human audit where the stakes justify one. Any tool that tells you it has made your site compliant is overstating what it can know.
 
 = Where will the accessibility widget appear? =
 
@@ -83,7 +170,7 @@ Yes, there's a "Hide Accessibility Panel" option in the widget that allows users
 
 = Can I generate an accessibility statement for my website? =
 
-Yes, the plugin includes a built-in accessibility statement generator that creates a statement based on your organization details.
+Yes. **Accessibility → Statement** generates one from your organisation details, your chosen WCAG version and conformance level — including "not assessed" — your assessment method and date. If you have run a content report, the statement can cite what it actually found, and it names the categories automated checks cannot decide. An unassessed site is described as unassessed rather than asserted to conform.
 
 = Does this plugin slow down my website? =
 
@@ -163,6 +250,20 @@ To see debug messages from this plugin, you need to do two things:
 Frontend selector diagnostics are browser-side diagnostics. Use `window.OpenAccessibility.debug()` or the browser console for those; they are not written to WordPress `debug.log`.
 
 == Changelog ==
+
+= 1.5.0 =
+* Add five accessibility profiles: Seizure Safe, Vision Impaired, ADHD Friendly, Blind, and Epilepsy Safe
+* Add a Cursor Size control (normal, large, extra large)
+* Add a Saturation control that composes with grayscale and contrast instead of replacing them
+* Add a Highlight Links control that gives links a visible background as well as an underline
+* Add accessibility checks inside the block editor, covering alt text, headings, links, buttons and tables
+* Add a site-wide content report that scans every post and page in batches and lists findings worst first
+* Add a content report screen with per-post rescanning and background scanning
+* Rebuild the accessibility statement generator: it now cites your chosen WCAG version and conformance level, including "not assessed", and lists real findings from the content report
+* Make the statement generator's conformance claim honest: an unassessed site is described as unassessed rather than asserted to be partially conformant
+* Clear the stored statement URL when its page is deleted, so the settings field and widget link cannot point at a 404
+* Improve the widget so a control switched off in settings also stops appearing in a profile
+* Fix the accessibility report screen, which returned a 404 for every user who opened it
 
 = 1.4.01 =
 * Fix the widget becoming unreachable when a contrast mode is switched on
@@ -280,6 +381,63 @@ Frontend selector diagnostics are browser-side diagnostics. Use `window.OpenAcce
 * Initial release
 
 == Upgrade Notice ==
+
+= 1.5.0 =
+Adds accessibility profiles, cursor and saturation controls, accessibility checks in the block editor, and a site-wide content report. The statement generator now cites your chosen WCAG version and conformance level, and can cite real findings from the report. Also fixes the report screen, which returned a 404 when opened.
+
+= 1.4.01 =
+Fixes the widget becoming unreachable when a contrast mode is switched on, and adds a Reading Mask control.
+
+= 1.4.0 =
+Adds a Links settings tab with optional Help and Feedback links, a Panel Title setting, a Sitemap field, and an open_accessibility_strings filter so any widget label can be overridden.
+
+= 1.3.02 =
+Fixes the shortcode-embedded widget panel opening offscreen, and improves compatibility with more themes and page builders.
+
+= 1.3.01 =
+Makes typography controls adapt to your theme rather than overriding it, and adds reading mask and cursor size controls.
+
+= 1.2.76 =
+Fixes analytics and cleanup queries when the stats table is missing or out of date.
+
+= 1.2.75 =
+The accessibility widget can now be placed with a shortcode.
+
+= 1.2.74 =
+Adds a visual indication of the current scale level for text size, letter spacing, word spacing and line height.
+
+= 1.2.73 =
+Fixes accessibility panel positioning on mobile when negative or high contrast colour modes are active.
+
+= 1.2.72 =
+Improved translation support and internationalization.
+
+= 1.2.71 =
+Improves colour mode application for Bootstrap 5 elements.
+
+= 1.2.7 =
+Adds CSS targeting for WordPress block elements in high and negative contrast modes.
+
+= 1.2.6 =
+Fixes duplicate local storage entries for accessibility settings.
+
+= 1.2.5 =
+Fixes widget panel display on mobile when the button is set to a middle position.
+
+= 1.2.4 =
+Multisite compatibility: frontend accessibility settings are now isolated per site.
+
+= 1.2.3 =
+Fixes grayscale and text size preferences not persisting between visits.
+
+= 1.2.2 =
+Fixes the plugin writing log files into its own directory, which WordPress Plugin Check disallows.
+
+= 1.2.1 =
+Adds a font selection option: Default, Atkinson Hyperlegible, or OpenDyslexic.
+
+= 1.2.0 =
+Adds an adjustable letter spacing control.
 
 = 1.1.0 =
 This update fixes widget positioning issues when contrast modes are enabled and improves code quality.
