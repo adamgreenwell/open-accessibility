@@ -59,7 +59,12 @@
             // Get form data
             const orgName = $form.find('#statement-org-name').val();
             const contactEmail = $form.find('#statement-contact-email').val();
+            const standard = $form.find('#statement-standard').val();
             const conformanceLevel = $form.find('#statement-conformance').val();
+            const assessment = $form.find('#statement-assessment').val();
+            const assessmentDate = $form.find('#statement-assessment-date').val();
+            const scope = $form.find('#statement-scope').val();
+            const includeReport = $form.find('#statement-include-report').is(':checked');
             const createPage = $form.find('#statement-create-page').is(':checked');
 
             // Validate email
@@ -80,7 +85,12 @@
                     nonce: open_accessibility_admin.nonce,
                     org_name: orgName,
                     contact_email: contactEmail,
-                    conformance_level: conformanceLevel,
+                    standard: standard,
+                    conformance: conformanceLevel,
+                    assessment: assessment,
+                    assessment_date: assessmentDate,
+                    scope: scope,
+                    include_report: includeReport.toString(),
                     create_page: createPage.toString()
                 },
                 success: function(response) {
