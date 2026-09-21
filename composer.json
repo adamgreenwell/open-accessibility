@@ -25,7 +25,12 @@
     ],
     "build:zip": "@build",
     "build:svn": "bash bin/deploy-svn.sh",
-    "test": "phpunit --group default,ajax",
+    "test": [
+      "@test:php",
+      "@test:js"
+    ],
+    "test:php": "phpunit --group default,ajax",
+    "test:js": "node tests/js/report-poll.test.mjs",
     "test:setup": "bash tests/install-wp-tests.sh"
   },
   "config": {

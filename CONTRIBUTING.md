@@ -55,6 +55,20 @@ Then:
 composer test
 ```
 
+`composer test` runs two suites:
+
+| Target | What it covers |
+| --- | --- |
+| `composer test:php` | PHPUnit against real WordPress. The server side. |
+| `composer test:js` | The admin report's script, executed against a synthetic DOM. |
+
+The script suite exists because the server can be entirely correct while the screen is dead. PHPUnit
+can only assert the markup PHP produces, so it cannot tell you whether the polling loop terminates,
+whether a rejected request re-enables the button, or whether the payload the script sends is shaped
+the way `admin-ajax.php` reads. `tests/js/report-poll.test.mjs` evaluates the real script source in a
+`vm` context against a small element model, so what runs is the file that ships. It needs Node 22+,
+which the CDP harness also depends on.
+
 `composer test:setup` needs the database to be reachable, and uses root credentials **once** to
 create the test database and grant the test user access to it. Everything after that runs as the
 unprivileged `wp_test` user, so the suite never holds more privilege than it needs.
