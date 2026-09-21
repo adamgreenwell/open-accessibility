@@ -107,7 +107,21 @@ $page_count = $total_rows > 0 ? (int) ceil( $total_rows / Open_Accessibility_Rep
 
 	<?php if ( empty( $rows ) ) : ?>
 		<p>
-			<?php if ( $has_run ) : ?>
+			<?php if ( $page > $page_count ) : ?>
+				<?php
+				/*
+				 * The reader asked for a page past the end. Saying "nothing
+				 * found" here would read as a clean site, which is the one
+				 * thing this report must never claim by accident: the site may
+				 * well have findings, just not on this page.
+				 */
+				printf(
+					/* translators: %s: the last page number. */
+					esc_html__( 'That page is past the end of the report. The last page is %s.', 'open-accessibility' ),
+					esc_html( number_format_i18n( $page_count ) )
+				);
+				?>
+			<?php elseif ( $has_run ) : ?>
 				<?php esc_html_e( 'Nothing found. Every scanned post passed the rules below.', 'open-accessibility' ); ?>
 			<?php else : ?>
 				<?php esc_html_e( 'Run a scan to populate this report.', 'open-accessibility' ); ?>

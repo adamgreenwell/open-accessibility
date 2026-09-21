@@ -746,6 +746,117 @@ class Test_Report extends OA_TestCase {
 	}
 
 	/**
+	 * A user without the capability is stopped, not shown the report.
+	 */
+	public function test_report_page_refuses_a_user_without_permission() {
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'subscriber' ) ) );
+
+		$died = null;
+
+		add_filter(
+			'wp_die_handler',
+			function () use ( &$died ) {
+				return function ( $message ) use ( &$died ) {
+					$died = is_scalar( $message ) ? (string) $message : '';
+					throw new Exception( 'oa-wp-die' );
+				};
+			}
+		);
+
+		try {
+			ob_start();
+			Open_Accessibility_Report::display_report_page();
+			ob_end_clean();
+
+			$this->fail( 'A subscriber should not be able to view the report.' );
+		} catch ( Exception $e ) {
+			ob_end_clean();
+
+			$this->assertSame( 'oa-wp-die', $e->getMessage(), 'The screen should stop the request.' );
+			$this->assertNotSame( '', (string) $died, 'It should stop with a message, not silently.' );
+		} finally {
+			wp_set_current_user( 0 );
+		}
+	}
+
+	/**
+	 * A page past the end of the report is empty rather than an error.
+	 *
+	 * Paging is a query argument, so it is reachable by hand and by any stale
+	 * link. It must not warn, and it must not fall back to showing page one as
+	 * though the reader had asked for it.
+	 */
+	public function test_a_page_past_the_end_is_empty() {
+		$post_id = self::factory()->post->create( array( 'post_content' => self::image_without_alt() ) );
+		Open_Accessibility_Scanner::scan_post( $post_id, true );
+
+		$original_get = $_GET;
+
+		try {
+			$_GET['paged'] = 99;
+
+			$html = $this->render_report();
+		} finally {
+			$_GET = $original_get;
+		}
+
+		$this->assertNotSame( '', trim( $html ), 'The screen should still render.' );
+		$this->assertStringNotContainsString(
+			'oa-report__count',
+			$html,
+			'No rows should be shown for a page past the end.'
+		);
+		$this->assertStringNotContainsString(
+			'Nothing found',
+			$html,
+			'A page past the end is not the same as a clean site.'
+		);
+
+		$this->assertStringContainsString(
+			'past the end of the report',
+			$html,
+			'The reader should be told the page does not exist, not that the site is clean.'
+		);
+	}
+
+	/**
+	 * Rows whose post has gone are dropped rather than shown as blanks.
+	 */
+	public function test_a_deleted_post_leaves_no_row_behind() {
+		$keep = self::factory()->post->create(
+			array(
+				'post_title'   => 'Still here',
+				'post_content' => self::image_without_alt(),
+			)
+		);
+
+		$gone = self::factory()->post->create(
+			array(
+				'post_title'   => 'About to go',
+				'post_content' => self::image_without_alt(),
+			)
+		);
+
+		Open_Accessibility_Scanner::scan_post( $keep, true );
+		Open_Accessibility_Scanner::scan_post( $gone, true );
+
+		// Delete the post itself, leaving whatever meta it had.
+		wp_delete_post( $gone, true );
+
+		$ids = wp_list_pluck( Open_Accessibility_Scanner::get_report( 50, 0 ), 'post_id' );
+
+		$this->assertContains( $keep, $ids, 'The surviving post should still be reported.' );
+		$this->assertNotContains( $gone, $ids, 'A deleted post should not be reported.' );
+
+		$html = $this->render_report();
+
+		$this->assertStringContainsString( 'Still here', $html );
+		$this->assertStringNotContainsString( 'About to go', $html );
+	}
+
+	/**
 	 * The rendered report announces progress rather than only drawing it.
 	 *
 	 * A progress bar that changes silently is invisible to a screen reader user,
