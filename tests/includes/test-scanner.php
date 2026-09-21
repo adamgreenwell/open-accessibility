@@ -457,16 +457,34 @@ class Test_Scanner extends OA_TestCase {
 	}
 
 	/**
-	 * Cache suspension is restored, not left on.
+	 * Scanning does not suspend object-cache additions.
 	 *
-	 * wp_suspend_cache_addition() returns the *new* state rather than the previous
-	 * one, unlike wp_suspend_cache_invalidation(). Restoring from its own return
-	 * value would leave cache addition suspended for the rest of the request.
+	 * Suspending them looks like it would protect a large site from cache churn
+	 * and does the opposite. WP_Object_Cache::add() returns early when additions
+	 * are suspended, so every later read of a post or its meta misses and goes
+	 * back to the database. Measured over ten posts: 221 queries with the
+	 * suspension, 102 without.
+	 *
+	 * A batch is a few dozen posts and one request only ever scans one batch, so
+	 * the churn the suspension was meant to avoid is small by construction.
+	 * Asserted against the source rather than by measuring, because the cost is
+	 * a query count and the guard is really "do not put this back".
 	 */
-	public function test_cache_suspension_is_restored() {
-		$this->make_post( self::CONTENT_CLEAN );
+	public function test_scanning_does_not_suspend_cache_additions() {
+		$source = file_get_contents( OPEN_ACCESSIBILITY_PLUGIN_DIR . 'includes/class-open-accessibility-scanner.php' );
+		$code   = preg_replace( '#/\*.*?\*/#s', '', $source );
+		$code   = preg_replace( '#//[^\n]*#', '', $code );
 
+		$this->assertStringNotContainsString(
+			'wp_suspend_cache_addition',
+			$code,
+			'Scanning must leave the object cache alone; suspending it doubles the queries.'
+		);
+
+		// And the cache is genuinely usable afterwards.
 		$this->assertFalse( wp_suspend_cache_addition(), 'Precondition: not suspended.' );
+
+		$this->make_post( self::CONTENT_CLEAN );
 
 		Open_Accessibility_Scanner::scan_batch( 0, 1 );
 
