@@ -122,6 +122,69 @@ class Test_Report extends OA_TestCase {
 	}
 
 	/**
+	 * The submenu's real hook name is the one admin.php looks for.
+	 *
+	 * This is the bug that made the screen 404 for every user who clicked it.
+	 * add_submenu_page() derives the hook name from the parent's entry in
+	 * $admin_page_hooks, and that entry only exists once the parent menu has
+	 * been registered. Hooked at the same default priority as the parent, this
+	 * submenu ran first, so WordPress could not tell it apart from a core page
+	 * and produced "admin_page_open-accessibility-report" — while admin.php
+	 * checks $_registered_pages for "accessibility_page_open-accessibility-report"
+	 * and sends anything else to wp_die().
+	 *
+	 * A test that only asserted the menu entry existed passed throughout, which
+	 * is why this is asserted by hook name rather than by presence.
+	 */
+	public function test_the_report_submenu_registers_under_its_real_hook_name() {
+		global $submenu, $menu, $_registered_pages, $admin_page_hooks;
+
+		$saved = array(
+			'submenu'            => $submenu,
+			'menu'               => $menu,
+			'_registered_pages'  => $_registered_pages,
+			'admin_page_hooks'   => $admin_page_hooks,
+		);
+
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+
+		$submenu           = array();
+		$menu              = array();
+		$_registered_pages = array();
+		$admin_page_hooks  = array();
+
+		try {
+			do_action( 'admin_menu' );
+		} finally {
+			$registered  = $_registered_pages;
+			$hooks       = $admin_page_hooks;
+
+			$submenu           = $saved['submenu'];
+			$menu              = $saved['menu'];
+			$_registered_pages = $saved['_registered_pages'];
+			$admin_page_hooks  = $saved['admin_page_hooks'];
+
+			wp_set_current_user( 0 );
+		}
+
+		$expected = 'accessibility_page_open-accessibility-report';
+
+		$this->assertArrayHasKey(
+			'open-accessibility-settings',
+			$hooks,
+			'The parent menu must be registered before the submenu asks for its hook name.'
+		);
+
+		$this->assertArrayHasKey(
+			$expected,
+			$registered,
+			'admin.php resolves the page through this exact key; without it the screen 404s.'
+		);
+	}
+
+	/**
 	 * The report hooks are registered on init.
 	 */
 	public function test_report_registers_its_hooks() {

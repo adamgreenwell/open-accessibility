@@ -50,7 +50,16 @@ class Open_Accessibility_Report {
 	 * @since    1.4.2
 	 */
 	public static function init() {
-		add_action( 'admin_menu', array( __CLASS__, 'add_report_page' ) );
+		// Registered after the default priority, not at it. add_submenu_page()
+		// derives the page's hook name from the parent's entry in
+		// $admin_page_hooks, which only exists once the parent menu has been
+		// registered — and the parent is hooked at the default priority too. At
+		// the same priority this ran first, so WordPress could not tell the page
+		// from a core one and registered it as "admin_page_<slug>", while
+		// admin.php looks for "accessibility_page_<slug>" in $_registered_pages
+		// and rejects anything else. The menu entry appeared and clicking it
+		// produced a 404.
+		add_action( 'admin_menu', array( __CLASS__, 'add_report_page' ), 20 );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
 
 		add_action( 'wp_ajax_open_accessibility_start_scan', array( __CLASS__, 'ajax_start_scan' ) );
