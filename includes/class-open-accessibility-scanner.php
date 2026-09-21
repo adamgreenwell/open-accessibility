@@ -564,6 +564,7 @@ class Open_Accessibility_Scanner {
 				'running'  => false,
 				'finished' => false,
 				'force'    => false,
+				'background' => false,
 			),
 			$state
 		);
@@ -612,10 +613,20 @@ class Open_Accessibility_Scanner {
 	public static function run_scheduled_batch( $cursor = 0 ) {
 		$progress = self::get_progress();
 
-		// The admin report drives batches inline and writes progress after each
-		// one. A batch event queued before that would otherwise rewind the
-		// cursor and rescan posts that are already done, so anything at or
-		// behind the current position is dropped.
+		// Only continue a scan that still belongs to the background.
+		//
+		// A scan started from the report is driven by the browser's polls, and
+		// the first batch is also queued here so the scan finishes even if the
+		// user navigates away. As soon as a poll moves the cursor the scan is
+		// the browser's, this flag goes false, and this returns — otherwise both
+		// drivers would scan the same posts and each would overwrite the other's
+		// progress.
+		if ( empty( $progress['background'] ) ) {
+			return;
+		}
+
+		// A batch queued before the browser got ahead would rewind the cursor
+		// and rescan posts that are already done.
 		if ( ! empty( $progress['running'] ) && (int) $cursor < (int) $progress['cursor'] ) {
 			return;
 		}

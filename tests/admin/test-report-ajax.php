@@ -407,6 +407,66 @@ class Test_Report_Ajax extends WP_Ajax_UnitTestCase {
 	}
 
 	/**
+	 * Starting a scan queues a background batch as well as running one.
+	 *
+	 * Without the queue, a scan stops wherever the last poll left it if the user
+	 * closes the tab. Without the handoff flag it would keep running alongside
+	 * the browser instead, and the two would overwrite each other.
+	 */
+	public function test_starting_a_scan_queues_a_background_batch() {
+		$this->become_admin();
+
+		// More posts than one batch, so the scan genuinely has work left after
+		// the batch this request runs. A site small enough to finish in one batch
+		// has nothing to queue.
+		$batch = Open_Accessibility_Scanner::BATCH_SIZE;
+
+		self::factory()->post->create_many( $batch + 5, array( 'post_content' => $this->image_without_alt() ) );
+
+		wp_clear_scheduled_hook( 'open_accessibility_scan_batch' );
+		Open_Accessibility_Scanner::clear_progress();
+
+		$response = $this->dispatch(
+			'open_accessibility_start_scan',
+			array( 'nonce' => $this->nonce(), 'force' => 'true' )
+		);
+
+		$this->assertTrue( $response['success'] );
+		$this->assertTrue( $response['data']['progress']['running'], 'Work should remain after one batch.' );
+
+		// A batch is queued to pick the scan up if nobody keeps polling. The
+		// cursor is part of the arguments, so it is also what keeps each queued
+		// batch distinct.
+		$queued = wp_next_scheduled( 'open_accessibility_scan_batch', array( (int) $response['data']['progress']['cursor'] ) );
+
+		$this->assertNotFalse(
+			$queued,
+			'Starting a scan with work left should queue a background batch.'
+		);
+
+		// And the browser has already taken it over, so the queued batch will
+		// stand down rather than scan the same posts again.
+		$this->assertFalse(
+			Open_Accessibility_Scanner::get_progress()['background'],
+			'A poll should take ownership of the scan from the background.'
+		);
+
+		// The queued batch is a no-op against a scan the browser now owns.
+		$scanned = Open_Accessibility_Scanner::get_progress()['scanned'];
+
+		Open_Accessibility_Scanner::run_scheduled_batch( (int) $response['data']['progress']['cursor'] );
+
+		$this->assertSame(
+			$scanned,
+			Open_Accessibility_Scanner::get_progress()['scanned'],
+			'The queued batch must not rescan what the browser already scanned.'
+		);
+
+		wp_clear_scheduled_hook( 'open_accessibility_scan_batch' );
+		Open_Accessibility_Scanner::clear_progress();
+	}
+
+	/**
 	 * Rescanning one post replaces its stored result.
 	 */
 	public function test_rescan_post_reports_the_new_count() {

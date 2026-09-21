@@ -197,15 +197,29 @@ class Open_Accessibility_Report {
 		$force = isset( $_POST['force'] ) && 'true' === sanitize_text_field( wp_unslash( $_POST['force'] ) );
 
 		$progress = array(
-			'cursor'   => 0,
-			'total'    => Open_Accessibility_Scanner::count_scannable_posts(),
-			'scanned'  => 0,
-			'running'  => true,
-			'finished' => false,
-			'force'    => $force,
+			'cursor'     => 0,
+			'total'      => Open_Accessibility_Scanner::count_scannable_posts(),
+			'scanned'    => 0,
+			'running'    => true,
+			'finished'   => false,
+			'force'      => $force,
+			'background' => true,
 		);
 
-		wp_send_json_success( self::scan_state( self::advance_scan( $progress ) ) );
+		$progress = self::advance_scan( $progress );
+
+		// Queue the first hop as well as running it. If the user closes the tab
+		// the scan would otherwise stop where the last poll left it and stay
+		// there; this way cron picks it up and finishes it.
+		//
+		// Only when work remains: a site small enough to finish in one batch is
+		// already done, and queueing an event for it would run a batch that
+		// finds nothing and then clear the progress it just reported.
+		if ( ! empty( $progress['running'] ) ) {
+			Open_Accessibility_Scanner::schedule_next_batch( (int) $progress['cursor'] );
+		}
+
+		wp_send_json_success( self::scan_state( $progress ) );
 	}
 
 	/**
@@ -221,6 +235,10 @@ class Open_Accessibility_Report {
 			Open_Accessibility_Scanner::BATCH_SIZE,
 			! empty( $progress['force'] )
 		);
+
+		// A poll has moved the scan on, so the browser is driving it now and any
+		// queued batch should stand down.
+		$progress['background'] = false;
 
 		$progress['cursor']   = $batch['next'];
 		$progress['scanned']  = (int) $progress['scanned'] + $batch['scanned'];
