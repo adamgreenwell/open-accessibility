@@ -229,12 +229,12 @@ class Test_Report extends OA_TestCase {
 	 */
 	public function test_has_scanned_distinguishes_empty_from_unchecked() {
 		$this->assertFalse(
-			Open_Accessibility_Report::has_scanned( array( 'finished' => false ) ),
+			Open_Accessibility_Report::has_scanned( array( 'finished' => false ), array( 'posts_scanned' => 0 ) ),
 			'No scan and no stored results should read as not scanned.'
 		);
 
 		$this->assertTrue(
-			Open_Accessibility_Report::has_scanned( array( 'finished' => true ) ),
+			Open_Accessibility_Report::has_scanned( array( 'finished' => true ), array( 'posts_scanned' => 0 ) ),
 			'A finished scan should read as scanned even with no findings.'
 		);
 
@@ -242,7 +242,7 @@ class Test_Report extends OA_TestCase {
 		Open_Accessibility_Scanner::scan_post( $post_id, true );
 
 		$this->assertTrue(
-			Open_Accessibility_Report::has_scanned( array( 'finished' => false ) ),
+			Open_Accessibility_Report::has_scanned( array( 'finished' => false ), array( 'posts_scanned' => 1 ) ),
 			'Stored results should read as scanned even without a progress record.'
 		);
 	}

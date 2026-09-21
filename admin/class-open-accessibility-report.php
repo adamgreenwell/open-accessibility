@@ -157,19 +157,15 @@ class Open_Accessibility_Report {
 	 * bill of health.
 	 *
 	 * @since    1.4.2
-	 * @param    array      $progress Scan progress.
-	 * @param    array|null $totals   Totals already fetched, if the caller has
-	 *                                them. Counting totals walks every scanned
-	 *                                post, so the report passes its own.
+	 * @param    array $progress Scan progress.
+	 * @param    array $totals   Counts the caller has already fetched. Counting
+	 *                           them walks every scanned post, so it is required
+	 *                           rather than looked up again here.
 	 * @return   bool
 	 */
-	public static function has_scanned( $progress, $totals = null ) {
+	public static function has_scanned( $progress, $totals ) {
 		if ( ! empty( $progress['finished'] ) ) {
 			return true;
-		}
-
-		if ( null === $totals ) {
-			$totals = Open_Accessibility_Scanner::get_totals();
 		}
 
 		return ! empty( $totals['posts_scanned'] );
@@ -237,18 +233,18 @@ class Open_Accessibility_Report {
 	}
 
 	/**
-	 * The scan's state plus the figures the report shows.
+	 * The scan's state, as the polling script reads it.
+	 *
+	 * Only progress, deliberately. The script reads data.progress, and reloads
+	 * the page when the scan finishes, so rows and totals would be rebuilt on
+	 * every poll — walking every scanned post each time — and then discarded.
 	 *
 	 * @since    1.4.2
 	 * @param    array     $progress Current progress.
 	 * @return   array
 	 */
 	private static function scan_state( $progress ) {
-		return array(
-			'progress' => $progress,
-			'totals'   => Open_Accessibility_Scanner::get_totals(),
-			'rows'     => self::report_rows_for_response(),
-		);
+		return array( 'progress' => $progress );
 	}
 
 	/**
@@ -291,43 +287,11 @@ class Open_Accessibility_Report {
 			wp_send_json_error( array( 'message' => __( 'That post could not be scanned.', 'open-accessibility' ) ) );
 		}
 
+		// Only the count. The script reloads the page to show the new state, so
+		// sending totals and rows here would be work done for nobody.
 		wp_send_json_success(
-			array(
-				'count'  => Open_Accessibility_Scanner::count_findings( $result ),
-				'totals' => Open_Accessibility_Scanner::get_totals(),
-				'rows'   => self::report_rows_for_response(),
-			)
+			array( 'count' => Open_Accessibility_Scanner::count_findings( $result ) )
 		);
-	}
-
-	/**
-	 * The first page of report rows, shaped for the script.
-	 *
-	 * @since    1.4.2
-	 * @return   array
-	 */
-	private static function report_rows_for_response() {
-		$rows = array();
-
-		foreach ( Open_Accessibility_Scanner::get_report( self::PER_PAGE, 0 ) as $row ) {
-			$post = get_post( $row['post_id'] );
-
-			if ( ! $post ) {
-				continue;
-			}
-
-			$rows[] = array(
-				'post_id'  => $row['post_id'],
-				'title'    => get_the_title( $post ),
-				'editUrl'  => get_edit_post_link( $row['post_id'], 'raw' ),
-				'viewUrl'  => get_permalink( $row['post_id'] ),
-				'count'    => $row['count'],
-				'summary'  => $row['summary'],
-				'findings' => self::describe_findings( $row['findings'] ),
-			);
-		}
-
-		return $rows;
 	}
 
 	/**

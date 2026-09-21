@@ -186,7 +186,11 @@ class Test_Report_Ajax extends WP_Ajax_UnitTestCase {
 		);
 
 		$this->assertTrue( $response['data']['progress']['finished'] );
-		$this->assertSame( 3, $response['data']['totals']['posts_with_issues'] );
+		$this->assertSame(
+			3,
+			Open_Accessibility_Scanner::get_totals()['posts_with_issues'],
+			'The scan should have recorded every post with findings.'
+		);
 	}
 
 	/**
@@ -229,9 +233,7 @@ class Test_Report_Ajax extends WP_Ajax_UnitTestCase {
 
 		$this->assertTrue( $started['success'] );
 
-		foreach ( array( 'progress', 'totals' ) as $key ) {
-			$this->assertArrayHasKey( $key, $started['data'], "The start response needs '{$key}'." );
-		}
+		$this->assertArrayHasKey( 'progress', $started['data'], 'The start response needs progress.' );
 
 		foreach ( array( 'running', 'scanned', 'total', 'finished' ) as $key ) {
 			$this->assertArrayHasKey(
@@ -265,11 +267,78 @@ class Test_Report_Ajax extends WP_Ajax_UnitTestCase {
 
 		$this->assertSame(
 			3,
-			$response['data']['totals']['posts_with_issues'],
-			'The final totals should reflect the scanned posts.'
+			Open_Accessibility_Scanner::get_totals()['posts_with_issues'],
+			'Every scanned post should have been recorded with findings.'
+		);
+	}
+
+	/**
+	 * The script and the handler agree on the response field names.
+	 *
+	 * The two halves are written in different languages and cannot be checked
+	 * against each other by a compiler. A rename on either side would leave the
+	 * progress bar frozen with no error anywhere.
+	 *
+	 * The check runs in both directions: every data.* reference in the script
+	 * must resolve in a real response, and the response must not carry fields
+	 * the script never reads. The second half is not decoration — the payload
+	 * once included rows and totals that nothing consumed, which meant walking
+	 * every scanned post on every poll for no reason.
+	 */
+	public function test_the_script_and_the_handler_agree_on_field_names() {
+		$this->become_admin();
+
+		self::factory()->post->create( array( 'post_content' => $this->image_without_alt() ) );
+
+		$response = $this->dispatch(
+			'open_accessibility_start_scan',
+			array( 'nonce' => $this->nonce(), 'force' => 'true' )
 		);
 
-		$this->assertArrayHasKey( 'rows', $response['data'], 'The script reads rows on completion.' );
+		$this->assertTrue( $response['success'] );
+
+		$script = file_get_contents( OPEN_ACCESSIBILITY_PLUGIN_DIR . 'assets/js/open-accessibility-report.js' );
+
+		// Top-level fields read off the response, as written in the script.
+		preg_match_all( '/data\.([a-zA-Z_][a-zA-Z0-9_]*)/', $script, $matches );
+
+		$referenced = array_values( array_unique( $matches[1] ) );
+
+		$this->assertNotEmpty( $referenced, 'The script should read fields off the response.' );
+
+		foreach ( $referenced as $field ) {
+			// 'message' is the error path, which a success response does not carry.
+			if ( 'message' === $field ) {
+				continue;
+			}
+
+			$this->assertArrayHasKey(
+				$field,
+				$response['data'],
+				"The script reads data.{$field}, which the response does not contain."
+			);
+		}
+
+		// And nothing beyond what the script reads, so unused work cannot creep
+		// back into every poll.
+		$allowed = array_merge( $referenced, array( 'message' ) );
+
+		foreach ( array_keys( $response['data'] ) as $key ) {
+			$this->assertContains(
+				$key,
+				$allowed,
+				"The response carries data.{$key}, which the script never reads."
+			);
+		}
+
+		// The nested names the script reads after `var progress = data.progress`.
+		foreach ( array( 'running', 'scanned', 'total' ) as $key ) {
+			$this->assertArrayHasKey(
+				$key,
+				$response['data']['progress'],
+				"The progress payload does not contain '{$key}'."
+			);
+		}
 	}
 
 	/**
