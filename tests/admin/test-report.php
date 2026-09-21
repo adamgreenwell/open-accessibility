@@ -637,6 +637,115 @@ class Test_Report extends OA_TestCase {
 	}
 
 	/**
+	 * The full report on a realistic mix of posts.
+	 *
+	 * Closest thing to the screen a user actually sees: several posts, some clean
+	 * and excluded, some with different numbers of findings, more rows than fit
+	 * on one page. It checks the parts that only interact in combination —
+	 * ordering, the totals header, the page count and the rows all agreeing with
+	 * each other and with the database.
+	 */
+	public function test_report_on_a_realistic_mix_of_posts() {
+		$per_page = Open_Accessibility_Report::PER_PAGE;
+
+		// 3 posts that break every rule, and so should rank first.
+		$worst = array();
+
+		for ( $i = 0; $i < 3; $i++ ) {
+			$worst[] = self::factory()->post->create(
+				array(
+					'post_title'   => 'Everything broken ' . $i,
+					'post_content' => self::content_breaking_every_rule(),
+				)
+			);
+		}
+
+		// 20 posts with a single finding each.
+		$single = self::factory()->post->create_many( $per_page, array( 'post_content' => self::image_without_alt() ) );
+
+		// Clean posts, which must not become rows.
+		self::factory()->post->create_many( 4, array( 'post_content' => '<!-- wp:paragraph --><p>Nothing wrong here.</p><!-- /wp:paragraph -->' ) );
+
+		// Scanned in one pass, as a site scan would.
+		Open_Accessibility_Scanner::scan_all( true );
+
+		$rows_total = 3 + $per_page;
+
+		$this->assertSame(
+			$rows_total,
+			Open_Accessibility_Scanner::count_posts_with_findings(),
+			'Only posts with findings should be rows.'
+		);
+
+		$first_page = Open_Accessibility_Scanner::get_report( $per_page, 0 );
+
+		$this->assertCount( $per_page, $first_page );
+
+		// Worst first: the three heavy posts lead, before any single-finding post.
+		$leading = array_slice( wp_list_pluck( $first_page, 'post_id' ), 0, 3 );
+
+		sort( $leading );
+		sort( $worst );
+
+		$this->assertSame(
+			$worst,
+			$leading,
+			'The posts with the most findings should be listed first.'
+		);
+
+		// Counts descend across the page.
+		$counts = wp_list_pluck( $first_page, 'count' );
+
+		for ( $i = 1; $i < count( $counts ); $i++ ) {
+			$this->assertGreaterThanOrEqual(
+				$counts[ $i ],
+				$counts[ $i - 1 ],
+				'Rows should be ordered worst first.'
+			);
+		}
+
+		// The second page holds the remainder, with nothing from the first.
+		$second_page = Open_Accessibility_Scanner::get_report( $per_page, $per_page );
+
+		$this->assertCount( $rows_total - $per_page, $second_page );
+
+		$this->assertSame(
+			array(),
+			array_intersect(
+				wp_list_pluck( $first_page, 'post_id' ),
+				wp_list_pluck( $second_page, 'post_id' )
+			),
+			'No post should appear on both pages.'
+		);
+
+		// Now the screen itself.
+		$html = $this->render_report();
+
+		$this->assertStringContainsString( 'Everything broken', $html );
+		$this->assertStringContainsString(
+			'tablenav-pages',
+			$html,
+			'More rows than fit on a page should paginate.'
+		);
+
+		// The totals header must agree with the scanner.
+		$totals = Open_Accessibility_Scanner::get_totals();
+
+		$this->assertGreaterThanOrEqual( $rows_total, $totals['posts_scanned'] );
+		$this->assertSame(
+			$rows_total,
+			$totals['posts_with_issues'],
+			'The header count should match the rows.'
+		);
+
+		$this->assertStringContainsString(
+			esc_html( number_format_i18n( $rows_total ) ),
+			$html,
+			'The header should show the number of posts with issues.'
+		);
+	}
+
+	/**
 	 * The rendered report announces progress rather than only drawing it.
 	 *
 	 * A progress bar that changes silently is invisible to a screen reader user,

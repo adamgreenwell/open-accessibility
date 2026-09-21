@@ -342,6 +342,71 @@ class Test_Report_Ajax extends WP_Ajax_UnitTestCase {
 	}
 
 	/**
+	 * A site larger than one batch is scanned across several polls.
+	 *
+	 * Every other scan test fits in a single batch, which means the cursor never
+	 * actually advances between requests — the one thing the batched design
+	 * exists to get right. This drives a scan that needs several round trips and
+	 * checks the whole site is covered exactly once.
+	 */
+	public function test_a_multi_batch_scan_covers_the_site_exactly_once() {
+		$this->become_admin();
+
+		$batch = Open_Accessibility_Scanner::BATCH_SIZE;
+		$total = ( $batch * 2 ) + 5;
+
+		$ids = self::factory()->post->create_many( $total, array( 'post_content' => $this->image_without_alt() ) );
+
+		$nonce = $this->nonce();
+
+		$response = $this->dispatch(
+			'open_accessibility_start_scan',
+			array( 'nonce' => $nonce, 'force' => 'true' )
+		);
+
+		$this->assertTrue( $response['success'] );
+
+		$polls = 0;
+
+		while ( ! empty( $response['data']['progress']['running'] ) && ++$polls < 20 ) {
+			$response = $this->dispatch( 'open_accessibility_scan_progress', array( 'nonce' => $nonce ) );
+		}
+
+		$this->assertGreaterThan(
+			1,
+			$polls,
+			'A site this size must take more than one poll, or the test proves nothing.'
+		);
+
+		$this->assertFalse( $response['data']['progress']['running'] );
+		$this->assertTrue( $response['data']['progress']['finished'] );
+
+		$this->assertSame(
+			$total,
+			$response['data']['progress']['scanned'],
+			'Every post should have been examined exactly once.'
+		);
+
+		$totals = Open_Accessibility_Scanner::get_totals();
+
+		$this->assertSame( $total, $totals['posts_scanned'] );
+		$this->assertSame( $total, $totals['posts_with_issues'] );
+		$this->assertSame(
+			$total,
+			Open_Accessibility_Scanner::count_posts_with_findings(),
+			'Every post should appear in the report as a row.'
+		);
+
+		// And every created post really was scanned, not just counted.
+		$scanned = Open_Accessibility_Scanner::all_scanned_ids();
+
+		sort( $ids );
+		sort( $scanned );
+
+		$this->assertSame( $ids, $scanned, 'The scanned set should be exactly the published set.' );
+	}
+
+	/**
 	 * Rescanning one post replaces its stored result.
 	 */
 	public function test_rescan_post_reports_the_new_count() {
