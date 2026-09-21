@@ -482,6 +482,161 @@ class Test_Report extends OA_TestCase {
 	}
 
 	/**
+	 * Content that breaks every rule, as serialised block markup.
+	 *
+	 * Written the way the editor saves it, because the audit reads block markup
+	 * rather than raw HTML: a bare <img> is not an image block and would not be
+	 * examined at all.
+	 *
+	 * @return string
+	 */
+	private static function content_breaking_every_rule() {
+		return '<!-- wp:heading {"level":1} --><h1>Top</h1><!-- /wp:heading -->'
+			// h1 then h3 skips a level.
+			. '<!-- wp:heading {"level":3} --><h3>Skips a level</h3><!-- /wp:heading -->'
+			// A heading with no text.
+			. '<!-- wp:heading {"level":2} --><h2> </h2><!-- /wp:heading -->'
+			// An image with no alt attribute.
+			. self::image_without_alt()
+			// An image whose alt is a filename.
+			. '<!-- wp:image {"id":8} --><figure class="wp-block-image"><img src="https://example.org/b.jpg" alt="DSC_9999.jpg"/></figure><!-- /wp:image -->'
+			// A link that says nothing about where it goes.
+			. '<!-- wp:paragraph --><p><a href="https://example.org/x">click here</a></p><!-- /wp:paragraph -->'
+			// A button with no label.
+			. '<!-- wp:buttons --><div class="wp-block-buttons"><!-- wp:button -->'
+			. '<div class="wp-block-button"><a class="wp-block-button__link" href="https://example.org/y"></a></div>'
+			. '<!-- /wp:button --></div><!-- /wp:buttons -->'
+			// A table with no header cells.
+			. '<!-- wp:table --><figure class="wp-block-table"><table><tbody>'
+			. '<tr><td>a</td><td>b</td></tr><tr><td>c</td><td>d</td></tr>'
+			. '</tbody></table></figure><!-- /wp:table -->';
+	}
+
+	/**
+	 * Findings reach the screen with their severity and their WCAG criterion.
+	 *
+	 * The rules are exercised in isolation elsewhere; what is checked here is
+	 * that a finding survives the trip from the scanner's stored result into the
+	 * rendered table. The bare image is deliberate — the panel and the report
+	 * have both previously run rules against markup the audit never examines.
+	 */
+	public function test_findings_render_with_severity_and_criterion() {
+		$post_id = self::factory()->post->create(
+			array(
+				'post_title'   => 'Breaks every rule',
+				'post_content' => self::content_breaking_every_rule(),
+			)
+		);
+
+		$result = Open_Accessibility_Scanner::scan_post( $post_id, true );
+
+		$this->assertNotNull( $result, 'The fixture should produce a stored result.' );
+
+		$stored_rules = wp_list_pluck( $result['findings'], 'rule' );
+
+		foreach ( Open_Accessibility_Audit::rule_definitions() as $rule => $definition ) {
+			$this->assertContains(
+				$rule,
+				$stored_rules,
+				"The fixture should trigger {$rule}; without it the report assertion below is hollow."
+			);
+		}
+
+		$html = $this->render_report();
+
+		foreach ( Open_Accessibility_Audit::rule_definitions() as $rule => $definition ) {
+			$this->assertStringContainsString(
+				esc_html( $definition['message'] ),
+				$html,
+				"The report should show the finding for {$rule}."
+			);
+
+			$this->assertStringContainsString(
+				'WCAG ' . esc_html( $definition['wcag'] ),
+				$html,
+				"The report should show the WCAG criterion for {$rule}."
+			);
+
+			$this->assertStringContainsString(
+				esc_html( Open_Accessibility_Report::severity_label( $definition['severity'] ) ),
+				$html,
+				"The report should name the severity of {$rule} in words."
+			);
+		}
+	}
+
+	/**
+	 * A row's count matches the findings it stores.
+	 */
+	public function test_row_count_matches_stored_findings() {
+		$post_id = self::factory()->post->create(
+			array(
+				'post_title'   => 'Broken',
+				'post_content' => self::content_breaking_every_rule(),
+			)
+		);
+
+		$result = Open_Accessibility_Scanner::scan_post( $post_id, true );
+
+		$this->assertGreaterThan( 0, count( $result['findings'] ) );
+
+		$rows = Open_Accessibility_Scanner::get_report( 20, 0 );
+
+		$this->assertCount( 1, $rows, 'One post has findings, so one row.' );
+		$this->assertSame( $post_id, $rows[0]['post_id'] );
+		$this->assertSame(
+			count( $result['findings'] ),
+			$rows[0]['count'],
+			'The displayed count should be the stored count.'
+		);
+
+		$html = $this->render_report();
+
+		$this->assertStringContainsString(
+			'oa-report__count',
+			$html,
+			'The row should render its count.'
+		);
+	}
+
+	/**
+	 * The report paginates the rows it has, not the posts on the site.
+	 *
+	 * Deriving the page count from the number of posts would show pages of rows
+	 * that cannot exist, because only posts with findings become rows.
+	 */
+	public function test_pagination_counts_rows_not_posts() {
+		// More posts with findings than fit on a page.
+		$per_page = Open_Accessibility_Report::PER_PAGE;
+
+		for ( $i = 0; $i < $per_page + 2; $i++ ) {
+			$id = self::factory()->post->create( array( 'post_content' => self::image_without_alt() ) );
+			Open_Accessibility_Scanner::scan_post( $id, true );
+		}
+
+		// Plus posts that are clean, which are not rows.
+		self::factory()->post->create_many( 5, array( 'post_content' => '<!-- wp:paragraph --><p>Fine.</p><!-- /wp:paragraph -->' ) );
+
+		$rows = Open_Accessibility_Scanner::get_report( $per_page, 0 );
+
+		$this->assertCount( $per_page, $rows, 'A full page should be returned.' );
+		$this->assertSame(
+			$per_page + 2,
+			Open_Accessibility_Scanner::count_posts_with_findings(),
+			'Only posts with findings should be counted as rows.'
+		);
+
+		$html = $this->render_report();
+
+		// 22 rows at 20 per page is two pages, so pagination must appear.
+		$this->assertStringContainsString(
+			'tablenav-pages',
+			$html,
+			'More rows than fit on a page should produce pagination.'
+		);
+	}
+
+	/**
 	 * The rendered report announces progress rather than only drawing it.
 	 *
 	 * A progress bar that changes silently is invisible to a screen reader user,
